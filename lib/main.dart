@@ -2,7 +2,8 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:my_first_flutter_project/user_dashboard.dart';
+import 'package:my_first_flutter_project/login/welcomePage.dart';
+import 'package:my_first_flutter_project/mqttClientWrapper.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
     final wordPair = WordPair.random();
     return MaterialApp(
       title: 'Welcome to Flutter',
-      home: UserDashboard(),
+      home: RandomWords(),
     );
   }
 }
@@ -26,6 +27,18 @@ class RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
   final _saved = Set<WordPair>();
   final _biggerFont = const TextStyle(fontSize: 18);
+  MQTTClientWrapper mqttClientWrapper;
+
+  @override
+  void initState() {
+    super.initState();
+    setup();
+  }
+
+  void setup() {
+    mqttClientWrapper = MQTTClientWrapper(() => print('Success'));
+    mqttClientWrapper.prepareMqttClient();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +120,8 @@ class RandomWordsState extends State<RandomWords> {
 }
 
 Future<MqttServerClient> connect() async {
-  final host = 'tcp://45.119.82.186';
+  final host = 'mqtt://45.119.82.186';
+  // final host = 'broker.emqx.io';
   MqttServerClient client =
       MqttServerClient.withPort(host, 'flutter_client', 1234);
   client.logging(on: true);
@@ -146,30 +160,30 @@ Future<MqttServerClient> connect() async {
 
 // connection succeeded
 void onConnected() {
-  print('Connected');
+  print('MQTT : Connected');
 }
 
 // unconnected
 void onDisconnected() {
-  print('Disconnected');
+  print('MQTT : Disconnected');
 }
 
 // subscribe to topic succeeded
 void onSubscribed(String topic) {
-  print('Subscribed topic: $topic');
+  print('MQTT : Subscribed topic: $topic');
 }
 
 // subscribe to topic failed
 void onSubscribeFail(String topic) {
-  print('Failed to subscribe $topic');
+  print('MQTT : Failed to subscribe $topic');
 }
 
 // unsubscribe succeeded
 void onUnsubscribed(String topic) {
-  print('Unsubscribed topic: $topic');
+  print('MQTT : Unsubscribed topic: $topic');
 }
 
 // PING response received
 void pong() {
-  print('Ping response client callback invoked');
+  print('MQTT : Ping response client callback invoked');
 }

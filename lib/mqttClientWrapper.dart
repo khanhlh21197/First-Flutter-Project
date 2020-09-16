@@ -52,8 +52,9 @@ class MQTTClientWrapper {
   }
 
   void _setupMqttClient() {
-    client = MqttClient.withPort(Constants.serverUri, 'lens_fQBhBC3XvvZGSW5WCfAVJutZSel', Constants.port);
-    client.logging(on: false);
+    client = MqttClient.withPort(
+        Constants.serverUri, 'flutter_client', Constants.port);
+    client.logging(on: true);
     client.keepAlivePeriod = 20;
     client.onDisconnected = _onDisconnected;
     client.onConnected = _onConnected;
