@@ -1,13 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:my_first_flutter_project/model/user.dart';
 
 import 'constants.dart' as Constants;
 import 'converter.dart';
 import 'models.dart';
 
 class MQTTClientWrapper {
-  MqttClient client;
+  MqttServerClient client;
   LocationToJsonConverter locationToJsonConverter = LocationToJsonConverter();
   JsonToLocationConverter jsonToLocationConverter = JsonToLocationConverter();
 
@@ -15,13 +19,14 @@ class MQTTClientWrapper {
   MqttSubscriptionState subscriptionState = MqttSubscriptionState.IDLE;
 
   final VoidCallback onConnectedCallback;
+  final Function(String) onMessageArrived;
 
-  MQTTClientWrapper(this.onConnectedCallback);
+  MQTTClientWrapper(this.onConnectedCallback, this.onMessageArrived);
 
   void prepareMqttClient() async {
     _setupMqttClient();
     await _connectClient();
-    _subscribeToTopic(Constants.topicName);
+    _subscribeToTopic(Constants.mac);
   }
 
   void publishLocation(LocationData locationData) {
@@ -29,9 +34,14 @@ class MQTTClientWrapper {
     _publishMessage(locationJson);
   }
 
+  void login(User user) {
+    String userJson = jsonEncode(user);
+    _publishMessage(userJson);
+  }
+
   Future<void> _connectClient() async {
     try {
-      print('MQTTClientWrapper::Mosquitto client connecting....');
+      print('MQTTClientWrapper::Client connecting....');
       connectionState = MqttCurrentConnectionState.CONNECTING;
       await client.connect();
     } on Exception catch (e) {
@@ -42,18 +52,18 @@ class MQTTClientWrapper {
 
     if (client.connectionStatus.state == MqttConnectionState.connected) {
       connectionState = MqttCurrentConnectionState.CONNECTED;
-      print('MQTTClientWrapper::Mosquitto client connected');
+      print('MQTTClientWrapper::client connected');
     } else {
       print(
-          'MQTTClientWrapper::ERROR Mosquitto client connection failed - disconnecting, status is ${client.connectionStatus}');
+          'MQTTClientWrapper::client connection failed - disconnecting, status is ${client.connectionStatus}');
       connectionState = MqttCurrentConnectionState.ERROR_WHEN_CONNECTING;
       client.disconnect();
     }
   }
 
   void _setupMqttClient() {
-    client = MqttClient.withPort(
-        Constants.serverUri, 'flutter_client', Constants.port);
+    client = MqttServerClient(Constants.serverUri, "client_id");
+    client.port = Constants.port;
     client.logging(on: true);
     client.keepAlivePeriod = 20;
     client.onDisconnected = _onDisconnected;
@@ -67,11 +77,14 @@ class MQTTClientWrapper {
 
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
       final MqttPublishMessage recMess = c[0].payload;
-      final String newLocationJson =
+      final String message =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
-      print("MQTTClientWrapper::GOT A NEW MESSAGE $newLocationJson");
-      // LocationData newLocationData = _convertJsonToLocation(newLocationJson);
+      print("MQTTClientWrapper::GOT A NEW MESSAGE $message");
+      if (message != null) {
+        onMessageArrived(message);
+      }
+      // LocationData newLocationData = _convertJsonToLocation(message);
       // if (newLocationData != null) onLocationReceivedCallback(newLocationData);
     });
   }
@@ -90,9 +103,9 @@ class MQTTClientWrapper {
     builder.addString(message);
 
     print(
-        'MQTTClientWrapper::Publishing message $message to topic ${Constants.topicName}');
+        'MQTTClientWrapper::Publishing message $message to topic ${Constants.login_topic}');
     client.publishMessage(
-        Constants.topicName, MqttQos.exactlyOnce, builder.payload);
+        Constants.login_topic, MqttQos.exactlyOnce, builder.payload);
   }
 
   void _onSubscribed(String topic) {
