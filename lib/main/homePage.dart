@@ -39,8 +39,12 @@ class _HomePageState extends State<HomePage> {
             gridDelegate: null,
             itemBuilder: (context, position) {
               return Card(
+                  child: InkWell(
+                onTap: () {
+                  ///onItemClicked
+                },
                 child: Text(devices[position].tenthietbi),
-              );
+              ));
             },
             itemCount: devices.length),
       ),

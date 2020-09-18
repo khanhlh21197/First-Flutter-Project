@@ -44,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
   void login(String message) {
     Map responseMap = jsonDecode(message);
     if (responseMap['result'] == 'true') {
+      print('Login success');
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomePage()));
     } else {
