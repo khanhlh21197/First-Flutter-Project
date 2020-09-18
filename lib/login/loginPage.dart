@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
+import 'package:my_first_flutter_project/constants.dart' as Constants;
+import 'package:my_first_flutter_project/main/homePage.dart';
+import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
@@ -26,11 +29,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => login(message));
-    mqttClientWrapper.prepareMqttClient();
+    mqttClientWrapper.prepareMqttClient(Constants.mac);
   }
 
   void _tryLogin() {
@@ -41,9 +43,25 @@ class _LoginPageState extends State<LoginPage> {
 
   void login(String message) {
     Map responseMap = jsonDecode(message);
+    if (responseMap['result'] == 'true') {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+    } else {
+      final snackBar = SnackBar(
+        content: Text('Yay! A SnackBar!'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      );
+      // Scaffold.of(context).showSnackBar(snackbar);
+    }
     var response = DeviceResponse.fromJson(responseMap);
+    List<Device> devices = response.id.map((e) => Device.fromJson(e)).toList();
 
-    print(response);
+    print(devices.length);
   }
 
   Widget _backButton() {

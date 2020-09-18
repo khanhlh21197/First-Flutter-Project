@@ -23,20 +23,24 @@ class MQTTClientWrapper {
 
   MQTTClientWrapper(this.onConnectedCallback, this.onMessageArrived);
 
-  void prepareMqttClient() async {
+  void prepareMqttClient(String topic) async {
     _setupMqttClient();
     await _connectClient();
-    _subscribeToTopic(Constants.mac);
+    _subscribeToTopic(topic);
   }
 
   void publishLocation(LocationData locationData) {
     String locationJson = locationToJsonConverter.convert(locationData);
-    _publishMessage(locationJson);
+    _publishMessage(Constants.login_topic, locationJson);
   }
 
   void login(User user) {
     String userJson = jsonEncode(user);
-    _publishMessage(userJson);
+    _publishMessage(Constants.login_topic, userJson);
+  }
+
+  void publishMessage(String message) {
+    _publishMessage(Constants.login_topic, message);
   }
 
   Future<void> _connectClient() async {
@@ -98,14 +102,12 @@ class MQTTClientWrapper {
     return null;
   }
 
-  void _publishMessage(String message) {
+  void _publishMessage(String topic, String message) {
     final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
     builder.addString(message);
 
-    print(
-        'MQTTClientWrapper::Publishing message $message to topic ${Constants.login_topic}');
-    client.publishMessage(
-        Constants.login_topic, MqttQos.exactlyOnce, builder.payload);
+    print('MQTTClientWrapper::Publishing message $message to topic $topic');
+    client.publishMessage(topic, MqttQos.exactlyOnce, builder.payload);
   }
 
   void _onSubscribed(String topic) {
