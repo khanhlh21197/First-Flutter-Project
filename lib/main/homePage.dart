@@ -29,6 +29,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final String title = 'Home Page';
     List<Device> devices = new List(10);
+    devices.add(
+        new Device('_id', 'iduser', 'tenthietbi', 'mathietbi', 'trangthai'));
     return MaterialApp(
       title: title,
       home: Scaffold(
@@ -40,11 +42,16 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, position) {
               return Card(
                   child: InkWell(
-                onTap: () {
-                  ///onItemClicked
-                },
-                child: Text(devices[position].tenthietbi),
-              ));
+                      onTap: () {
+                        SnackBarPage(devices[position].mathietbi, 'Review');
+                      },
+                      child: Container(
+                        child: Text(devices[position].tenthietbi),
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                          image: ExactAssetImage('images/lake.jpg'),
+                        )),
+                      )));
             },
             itemCount: devices.length),
       ),
@@ -52,4 +59,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   void handle(String message) {}
+
+  final snackBar = SnackBar(
+    content: Text('Yay! A SnackBar!'),
+    action: SnackBarAction(
+      label: 'Undo',
+      onPressed: () {
+        // Some code to undo the change.
+      },
+    ),
+  );
+}
+
+class SnackBarPage extends StatelessWidget {
+  final String data;
+  final String buttonLabel;
+
+  SnackBarPage(this.data, this.buttonLabel);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: RaisedButton(
+        onPressed: () {
+          final snackBar = SnackBar(
+            content: Text(data),
+            action: SnackBarAction(
+              label: buttonLabel,
+              onPressed: () {
+                // Some code to undo the change.
+              },
+            ),
+          );
+
+          // Find the Scaffold in the widget tree and use
+          // it to show a SnackBar.
+          Scaffold.of(context).showSnackBar(snackBar);
+        },
+        child: Text('Show SnackBar'),
+      ),
+    );
+  }
 }
