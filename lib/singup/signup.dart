@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
-import 'package:my_first_flutter_project/login/loginPage.dart';
+import 'package:my_first_flutter_project/login/login_page.dart';
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({Key key, this.title}) : super(key: key);
@@ -98,7 +98,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 end: Alignment.centerRight,
                 colors: [Color(0xfffbb448), Color(0xfff7892b)])),
         child: Text(
-          'Register Now',
+          'Đăng ký',
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
@@ -166,8 +166,8 @@ class _SignUpPageState extends State<SignUpPage> {
     return Column(
       children: <Widget>[
         _entryField("Username", _emailController),
-        _entryField("Email id", _emailController),
-        _entryField("Password", _passwordController, isPassword: true),
+        _entryField("Email", _emailController),
+        _entryField("Mật khẩu", _passwordController, isPassword: true),
       ],
     );
   }

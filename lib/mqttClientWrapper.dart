@@ -39,8 +39,8 @@ class MQTTClientWrapper {
     _publishMessage(Constants.login_topic, userJson);
   }
 
-  void publishMessage(String message) {
-    _publishMessage(Constants.login_topic, message);
+  void publishMessage(String topic, String message) {
+    _publishMessage(topic, message);
   }
 
   Future<void> _connectClient() async {

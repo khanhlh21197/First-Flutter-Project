@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
 import 'package:my_first_flutter_project/constants.dart' as Constants;
-import 'package:my_first_flutter_project/main/homePage.dart';
+import 'package:my_first_flutter_project/main/home_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
@@ -17,6 +17,7 @@ class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
 
   final String title;
+  String iduser;
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -43,10 +44,18 @@ class _LoginPageState extends State<LoginPage> {
 
   void login(String message) {
     Map responseMap = jsonDecode(message);
+
+    var response = DeviceResponse.fromJson(responseMap);
+    List<Device> devices = response.id.map((e) => Device.fromJson(e)).toList();
+
     if (responseMap['result'] == 'true') {
       print('Login success');
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePage(
+                    iduser: devices,
+                  )));
     } else {
       final snackBar = SnackBar(
         content: Text('Yay! A SnackBar!'),
@@ -59,10 +68,6 @@ class _LoginPageState extends State<LoginPage> {
       );
       // Scaffold.of(context).showSnackBar(snackbar);
     }
-    var response = DeviceResponse.fromJson(responseMap);
-    List<Device> devices = response.id.map((e) => Device.fromJson(e)).toList();
-
-    print(devices.length);
   }
 
   Widget _backButton() {
@@ -135,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                 end: Alignment.centerRight,
                 colors: [Color(0xfffbb448), Color(0xfff7892b)])),
         child: Text(
-          'Login',
+          'Đăng nhập',
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
@@ -158,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          Text('or'),
+          Text('Hoặc'),
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
@@ -211,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                     topRight: Radius.circular(5)),
               ),
               alignment: Alignment.center,
-              child: Text('Log in with Facebook',
+              child: Text('Đăng nhập với Facebook',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -237,14 +242,14 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Don\'t have an account ?',
+              'Chưa có tài khoản ?',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
             SizedBox(
               width: 10,
             ),
             Text(
-              'Register',
+              'Đăng ký',
               style: TextStyle(
                   color: Color(0xfff79c4f),
                   fontSize: 13,
@@ -283,8 +288,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email id", _emailController),
-        _entryField("Password", _passwordController, isPassword: true),
+        _entryField("Email", _emailController),
+        _entryField("Mật khẩu", _passwordController, isPassword: true),
       ],
     );
   }
@@ -317,7 +322,7 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     alignment: Alignment.centerRight,
-                    child: Text('Forgot Password ?',
+                    child: Text('Quên mật khẩu ?',
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500)),
                   ),
@@ -329,7 +334,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          Positioned(top: 40, left: 0, child: _backButton()),
+          // Positioned(top: 40, left: 0, child: _backButton()),
         ],
       ),
     ));
