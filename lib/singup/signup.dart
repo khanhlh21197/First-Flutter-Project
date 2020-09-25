@@ -1,8 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
+import 'package:my_first_flutter_project/constants.dart' as Constants;
 import 'package:my_first_flutter_project/login/login_page.dart';
+import 'package:my_first_flutter_project/model/user.dart';
+
+import '../mqttClientWrapper.dart';
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({Key key, this.title}) : super(key: key);
@@ -14,13 +19,25 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  MQTTClientWrapper mqttClientWrapper;
+  User registerUser;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
   bool _success;
   String _userEmail;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  @override
+  void initState() {
+    mqttClientWrapper = MQTTClientWrapper(
+        () => print('Success'), (message) => register(message));
+    mqttClientWrapper.prepareMqttClient(Constants.mac);
+    super.initState();
+  }
 
   Widget _backButton() {
     return InkWell(
@@ -165,9 +182,11 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Username", _emailController),
         _entryField("Email", _emailController),
         _entryField("Mật khẩu", _passwordController, isPassword: true),
+        _entryField("Tên", _nameController),
+        _entryField("SĐT", _phoneNumberController),
+        _entryField("Địa chỉ", _addressController),
       ],
     );
   }
@@ -215,21 +234,39 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  void _register() async {
-    final FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    ))
-        .user;
-    if (user != null) {
-      setState(() {
-        _success = true;
-        _userEmail = user.email;
-      });
+  void _tryRegister() async {
+    registerUser = User(
+        Constants.mac,
+        _emailController.text,
+        _passwordController.text,
+        _nameController.text,
+        _phoneNumberController.text,
+        _addressController.text);
+    mqttClientWrapper.register(registerUser);
+  }
+
+  register(String message) {
+    Map responseMap = jsonDecode(message);
+
+    if (responseMap['result'] == 'true') {
+      print('Login success');
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LoginPage(
+                    registerUser: registerUser,
+                  )));
     } else {
-      setState(() {
-        _success = true;
-      });
+      final snackBar = SnackBar(
+        content: Text('Yay! A SnackBar!'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      );
+      // Scaffold.of(context).showSnackBar(snackbar);
     }
   }
 }

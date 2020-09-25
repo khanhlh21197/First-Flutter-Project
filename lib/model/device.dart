@@ -14,20 +14,9 @@ class Device {
   String trangthai;
   @ColumnInfo(name: 'mac', nullable: false)
   String mac;
+  bool isEnable = false;
 
   String get id => _id;
-
-  bool get isEnable {
-    if (trangthai == 'BAT') {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  set isEnable(bool isEnable) {
-    this.isEnable = isEnable;
-  }
 
   Device(this._id, this.iduser, this.tenthietbi, this.mathietbi, this.trangthai,
       this.mac);

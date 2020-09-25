@@ -1,19 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 
 import 'constants.dart' as Constants;
-import 'converter.dart';
 import 'models.dart';
 
 class MQTTClientWrapper {
   MqttServerClient client;
-  LocationToJsonConverter locationToJsonConverter = LocationToJsonConverter();
-  JsonToLocationConverter jsonToLocationConverter = JsonToLocationConverter();
 
   MqttCurrentConnectionState connectionState = MqttCurrentConnectionState.IDLE;
   MqttSubscriptionState subscriptionState = MqttSubscriptionState.IDLE;
@@ -29,12 +25,12 @@ class MQTTClientWrapper {
     _subscribeToTopic(topic);
   }
 
-  void publishLocation(LocationData locationData) {
-    String locationJson = locationToJsonConverter.convert(locationData);
-    _publishMessage(Constants.login_topic, locationJson);
+  void login(User user) {
+    String userJson = jsonEncode(user);
+    _publishMessage(Constants.login_topic, userJson);
   }
 
-  void login(User user) {
+  void register(User user) {
     String userJson = jsonEncode(user);
     _publishMessage(Constants.login_topic, userJson);
   }
@@ -91,15 +87,6 @@ class MQTTClientWrapper {
       // LocationData newLocationData = _convertJsonToLocation(message);
       // if (newLocationData != null) onLocationReceivedCallback(newLocationData);
     });
-  }
-
-  LocationData _convertJsonToLocation(String newLocationJson) {
-    try {
-      return jsonToLocationConverter.convert(newLocationJson);
-    } catch (exception) {
-      print("Json can't be formatted ${exception.toString()}");
-    }
-    return null;
   }
 
   void _publishMessage(String topic, String message) {

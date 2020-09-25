@@ -14,9 +14,10 @@ import '../mqttClientWrapper.dart';
 
 // ignore: must_be_immutable
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title}) : super(key: key);
+  LoginPage({Key key, this.title, this.registerUser}) : super(key: key);
 
   final String title;
+  final User registerUser;
   String iduser;
 
   @override
@@ -45,16 +46,13 @@ class _LoginPageState extends State<LoginPage> {
   void login(String message) {
     Map responseMap = jsonDecode(message);
 
-    var response = DeviceResponse.fromJson(responseMap);
-    List<Device> devices = response.id.map((e) => Device.fromJson(e)).toList();
-
     if (responseMap['result'] == 'true') {
-      print('Login success');
+      print('Register success');
       Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => HomePage(
-                    iduser: devices,
+                    loginResponse: responseMap,
                   )));
     } else {
       final snackBar = SnackBar(
