@@ -5,15 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
 import 'package:my_first_flutter_project/constants.dart' as Constants;
 import 'package:my_first_flutter_project/main/home_page.dart';
-import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/user.dart';
-import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 
 import '../mqttClientWrapper.dart';
 
 // ignore: must_be_immutable
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatefulWidget with WidgetsBindingObserver {
   LoginPage({Key key, this.title, this.registerUser}) : super(key: key);
 
   final String title;
@@ -32,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    // WidgetsBinding.instance.addObserver(this);
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => login(message));
     mqttClientWrapper.prepareMqttClient(Constants.mac);
@@ -112,6 +111,25 @@ class _LoginPageState extends State<LoginPage> {
                   filled: true))
         ],
       ),
+    );
+  }
+
+  bool _switchValue = false;
+
+  Widget _saveSwitch() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text("Lưu tài khoản"),
+        Switch(
+          value: _switchValue,
+          onChanged: (value) {
+            setState(() {
+              _switchValue = !_switchValue;
+            });
+          },
+        )
+      ],
     );
   }
 
@@ -315,7 +333,7 @@ class _LoginPageState extends State<LoginPage> {
                   _title(),
                   SizedBox(height: 50),
                   _emailPasswordWidget(),
-                  SizedBox(height: 20),
+                  _saveSwitch(),
                   _submitButton(),
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 10),

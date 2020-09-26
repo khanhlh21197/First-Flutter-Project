@@ -136,14 +136,14 @@ class _SignUpPageState extends State<SignUpPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Already have an account ?',
+              'Bạn đã có tài khoản ?',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
             SizedBox(
               width: 10,
             ),
             Text(
-              'Login',
+              'Đăng nhập',
               style: TextStyle(
                   color: Color(0xfff79c4f),
                   fontSize: 13,
