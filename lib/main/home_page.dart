@@ -19,12 +19,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   _HomePageState(this.loginResponse);
 
   final Map loginResponse;
   List<Device> devices;
   String iduser;
+  DeviceResponse response;
 
   MQTTClientWrapper mqttClientWrapper;
 
@@ -81,9 +82,10 @@ class _HomePageState extends State<HomePage>
                           width: 320.0,
                           child: RaisedButton(
                             onPressed: () {
+                              Navigator.of(context).pop(this);
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      AddDevice()));
+                                      AddDevice(response)));
                             },
                             child: Text(
                               "Thêm phòng",
@@ -96,9 +98,10 @@ class _HomePageState extends State<HomePage>
                           width: 320.0,
                           child: RaisedButton(
                             onPressed: () {
+                              Navigator.of(context).pop(this);
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      AddDevice()));
+                                      AddDevice(response)));
                             },
                             child: Text(
                               "Thêm thiết bị",
@@ -120,11 +123,7 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    mqttClientWrapper =
-        MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    mqttClientWrapper.prepareMqttClient(Constants.mac);
-
-    var response = DeviceResponse.fromJson(loginResponse);
+    response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
     devices = response.id.map((e) => Device.fromJson(e)).toList();
     devices.forEach((element) {
@@ -134,16 +133,26 @@ class _HomePageState extends State<HomePage>
         element.isEnable = false;
       }
     });
-    // WidgetsBinding.instance.addObserver(LifecycleEventHandler(
-    //     resumeCallBack: () async => setState(() {
-    //
-    //         })));
+    mqttClientWrapper = MQTTClientWrapper(
+            () => print('Success'), (message) => handle(message));
+    mqttClientWrapper.prepareMqttClient(Constants.mac);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
   }
+
+    @override
+    void didChangeAppLifecycleState(AppLifecycleState state) {
+      if (state == AppLifecycleState.resumed) {
+        mqttClientWrapper = MQTTClientWrapper(
+            () => print('Success'), (message) => handle(message));
+        mqttClientWrapper.prepareMqttClient(Constants.mac);
+      }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +167,6 @@ class _HomePageState extends State<HomePage>
             width: MediaQuery.of(context).size.width,
             padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top + 50,
-                bottom: 30,
                 left: 30,
                 right: 30.0),
             decoration: BoxDecoration(
@@ -283,7 +291,7 @@ class _HomePageState extends State<HomePage>
                     ],
                   ),
                   Text(
-                    'Power uses for today',
+                    'Điện năng tiêu thụ trong ngày',
                     style: TextStyle(color: Colors.white54, fontSize: 18),
                   ),
                 ],
@@ -414,7 +422,7 @@ class _HomePageState extends State<HomePage>
         child: Row(
           children: <Widget>[
             Text(
-              'Bedroom',
+              'Phòng ngủ',
               style: TextStyle(
                   color: Color(0xff4e80f3),
                   fontSize: 18,
@@ -424,19 +432,19 @@ class _HomePageState extends State<HomePage>
               width: 25,
             ),
             _roomLabel(
-              'Living Room',
+              'Phòng khách',
             ),
             SizedBox(
               width: 25,
             ),
             _roomLabel(
-              'Study Room',
+              'Phòng học',
             ),
             SizedBox(
               width: 25,
             ),
             _roomLabel(
-              'Kitchin',
+              'Bếp',
             ),
             SizedBox(
               width: 25,

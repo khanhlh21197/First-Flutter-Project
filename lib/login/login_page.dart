@@ -11,7 +11,7 @@ import 'package:my_first_flutter_project/singup/signup.dart';
 import '../mqttClientWrapper.dart';
 
 // ignore: must_be_immutable
-class LoginPage extends StatefulWidget with WidgetsBindingObserver {
+class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title, this.registerUser}) : super(key: key);
 
   final String title;
@@ -22,7 +22,7 @@ class LoginPage extends StatefulWidget with WidgetsBindingObserver {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   MQTTClientWrapper mqttClientWrapper;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -30,10 +30,25 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addObserver(this);
-    mqttClientWrapper =
-        MQTTClientWrapper(() => print('Success'), (message) => login(message));
+    mqttClientWrapper = MQTTClientWrapper(
+            () => print('Success'), (message) => login(message));
     mqttClientWrapper.prepareMqttClient(Constants.mac);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      mqttClientWrapper = MQTTClientWrapper(
+          () => print('Success'), (message) => login(message));
+      mqttClientWrapper.prepareMqttClient(Constants.mac);
+    }
   }
 
   void _tryLogin() {
