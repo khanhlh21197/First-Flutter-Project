@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_first_flutter_project/constants.dart' as Constants;
+import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart' as Constants;
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 
-import '../mqttClientWrapper.dart';
+import '../helper/mqttClientWrapper.dart';
 
 class AddDevice extends StatefulWidget {
   AddDevice(this.deviceResponse);

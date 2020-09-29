@@ -3,12 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
-import 'package:my_first_flutter_project/constants.dart' as Constants;
+import 'package:my_first_flutter_project/helper/shared_prefs_helper.dart';
 import 'package:my_first_flutter_project/main/home_page.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 
-import '../mqttClientWrapper.dart';
+import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
+    as Constants;
+
+import '../helper/mqttClientWrapper.dart';
 
 // ignore: must_be_immutable
 class LoginPage extends StatefulWidget {
@@ -24,15 +27,22 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   MQTTClientWrapper mqttClientWrapper;
+  SharedPrefsHelper sharedPrefsHelper;
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  Widget _body = CircularProgressIndicator();
 
   @override
   void initState() {
     super.initState();
-    mqttClientWrapper = MQTTClientWrapper(
-            () => print('Success'), (message) => login(message));
+    mqttClientWrapper =
+        MQTTClientWrapper(() => print('Success'), (message) => login(message));
     mqttClientWrapper.prepareMqttClient(Constants.mac);
+
+    sharedPrefsHelper = SharedPrefsHelper();
+    // _emailController.text = sharedPrefsHelper.getStringValuesSF('email');
+    // _passwordController.text = sharedPrefsHelper.getStringValuesSF('password');
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -62,6 +72,12 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
     if (responseMap['result'] == 'true') {
       print('Register success');
+      if (_switchValue) {
+        sharedPrefsHelper.addStringToSF('email', _emailController.text);
+        sharedPrefsHelper.addStringToSF('password', _passwordController.text);
+      } else {
+        sharedPrefsHelper.removeValues();
+      }
       Navigator.push(
           context,
           MaterialPageRoute(

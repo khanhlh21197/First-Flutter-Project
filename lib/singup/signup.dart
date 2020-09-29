@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
-import 'package:my_first_flutter_project/constants.dart' as Constants;
+import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart' as Constants;
 import 'package:my_first_flutter_project/login/login_page.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 
-import '../mqttClientWrapper.dart';
+import '../helper/mqttClientWrapper.dart';
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({Key key, this.title}) : super(key: key);
