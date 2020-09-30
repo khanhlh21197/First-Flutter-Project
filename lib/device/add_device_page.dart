@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart' as Constants;
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
+
+import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
+    as Constants;
 
 import '../helper/mqttClientWrapper.dart';
 
@@ -22,8 +24,8 @@ class _AddDeviceState extends State<AddDevice> {
   final DeviceResponse deviceResponse;
 
   String dropdownValue = 'One';
-  TextEditingController _deviceNameController;
-  TextEditingController _deviceIdController;
+  TextEditingController _deviceNameController = TextEditingController();
+  TextEditingController _deviceIdController = TextEditingController();
   MQTTClientWrapper mqttClientWrapper;
 
   List<String> spinnerItems = ['One', 'Two', 'Three', 'Four', 'Five'];

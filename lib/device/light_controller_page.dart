@@ -1,40 +1,67 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:my_first_flutter_project/model/device.dart';
-
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
-    as Constants;
+import 'package:my_first_flutter_project/model/lenh.dart';
 
 import '../helper/mqttClientWrapper.dart';
 
 class LightController extends StatefulWidget {
   final Device device;
+  final String iduser;
 
-  LightController(this.device);
+  LightController(this.device, this.iduser);
 
   @override
   State<StatefulWidget> createState() {
-    return _LightController(device);
+    return _LightController(device, iduser);
   }
 }
 
 class _LightController extends State<LightController> {
   MQTTClientWrapper mqttClientWrapper;
   final Device device;
+  final String iduser;
+
   DateTime _dateTimeOn = DateTime.now();
   DateTime _dateTimeOff = DateTime.now();
   bool _timerOnSwitch = false;
   bool _timerOffSwitch = false;
 
-  _LightController(this.device);
+  _LightController(this.device, this.iduser);
 
   @override
   void initState() {
     super.initState();
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    mqttClientWrapper.prepareMqttClient(Constants.mac);
+    mqttClientWrapper.prepareMqttClient('S${device.mathietbi}');
+  }
+
+  Widget _backButton() {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context);
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
+              child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
+            ),
+            Text('Back',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black))
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -43,116 +70,159 @@ class _LightController extends State<LightController> {
     int w = 12;
 
     return Scaffold(
-      body: Container(
-        height: height,
-        child: Stack(
-          children: <Widget>[
-            Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('${device.tenthietbi}',
-                          style: TextStyle(fontSize: 26))
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Center(
-                        child: Icon(
-                          Icons.lightbulb_outline,
-                          color: device.isEnable ? Colors.amber : Colors.grey,
-                          size: 150,
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Text('Điện tiêu thụ: ${device.isEnable ? w : 0}W',
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: device.isEnable ? Colors.amber : Colors.grey)),
-                  SizedBox(height: 10),
-                  Switch(
-                      value: device.isEnable,
-                      onChanged: (_) {
-                        setState(() {
-                          device.isEnable = !device.isEnable;
-                        });
-                      }),
-                  SizedBox(height: 20),
-                  Container(
-                    color: _timerOnSwitch ? Colors.greenAccent : Colors.grey,
-                    child: Row(
+        body: Stack(
+      children: <Widget>[
+        Positioned(top: 40, left: 0, child: _backButton()),
+        Container(
+          height: height,
+          child: Stack(
+            children: <Widget>[
+              Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'Hẹn giờ bật',
-                          style: TextStyle(fontSize: 26),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        _timePicker(true),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Switch(
-                            value: _timerOnSwitch,
-                            onChanged: (_) {
-                              setState(() {
-                                _timerOnSwitch = !_timerOnSwitch;
-                              });
-                            })
+                        Text('${device.tenthietbi}',
+                            style: TextStyle(fontSize: 26))
                       ],
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    color: _timerOffSwitch ? Colors.greenAccent : Colors.grey,
-                    child: Row(
+                    SizedBox(height: 10),
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Hẹn giờ tắt',
-                          style: TextStyle(fontSize: 26),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        _timePicker(false),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Switch(
-                            value: _timerOffSwitch,
-                            onChanged: (_) {
-                              setState(() {
-                                _timerOffSwitch = !_timerOffSwitch;
-                              });
-                            })
+                      children: <Widget>[
+                        Center(
+                          child: Icon(
+                            Icons.lightbulb_outline,
+                            color: device.isEnable ? Colors.amber : Colors.grey,
+                            size: 150,
+                          ),
+                        )
                       ],
                     ),
-                  )
-                ],
-              ),
-            )
-          ],
+                    SizedBox(height: 10),
+                    Text('Điện tiêu thụ: ${device.isEnable ? w : 0}W',
+                        style: TextStyle(
+                            fontSize: 20,
+                            color:
+                                device.isEnable ? Colors.amber : Colors.grey)),
+                    SizedBox(height: 10),
+                    CupertinoSwitch(
+                        value: device.isEnable,
+                        onChanged: (_) {
+                          setState(() {
+                            device.isEnable = !device.isEnable;
+                            if (device.isEnable) {
+                              Lenh lenh = Lenh('bat', '', iduser);
+                              mqttClientWrapper.publishMessage(
+                                  'P${device.mathietbi}', jsonEncode(lenh));
+                            } else {
+                              Lenh lenh = Lenh('tat', '', iduser);
+                              mqttClientWrapper.publishMessage(
+                                  'P${device.mathietbi}', jsonEncode(lenh));
+                            }
+                          });
+                        }),
+                    SizedBox(height: 20),
+                    Card(
+                      color: _timerOnSwitch ? Colors.amber : Colors.transparent,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Hẹn giờ bật',
+                            style: TextStyle(fontSize: 26),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          _timePicker(true),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          CupertinoSwitch(
+                              value: _timerOnSwitch,
+                              onChanged: (_) {
+                                setState(() {
+                                  _timerOnSwitch = !_timerOnSwitch;
+                                  String param =
+                                      '${_dateTimeOn.hour}&${_dateTimeOn.minute}';
+                                  if (_timerOnSwitch) {
+                                    Lenh lenh =
+                                        Lenh('hengiobat', param, iduser);
+                                    mqttClientWrapper.publishMessage(
+                                        'P${device.mathietbi}',
+                                        jsonEncode(lenh));
+                                  } else {
+                                    // Lenh lenh = Lenh('hengiotat', param, iduser);
+                                    // mqttClientWrapper.publishMessage(
+                                    //     'P${device.mathietbi}', jsonEncode(lenh));
+                                  }
+                                });
+                              })
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Card(
+                      color:
+                          _timerOffSwitch ? Colors.amber : Colors.transparent,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Hẹn giờ tắt',
+                            style: TextStyle(fontSize: 26),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          _timePicker(false),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          CupertinoSwitch(
+                              value: _timerOffSwitch,
+                              onChanged: (_) {
+                                setState(() {
+                                  _timerOffSwitch = !_timerOffSwitch;
+                                  String param =
+                                      '${_dateTimeOff.hour}&${_dateTimeOff.minute}';
+                                  if (_timerOffSwitch) {
+                                    Lenh lenh =
+                                        Lenh('hengiobat', param, iduser);
+                                    mqttClientWrapper.publishMessage(
+                                        'P${device.mathietbi}',
+                                        jsonEncode(lenh));
+                                  } else {
+                                    // Lenh lenh = Lenh('hengiotat', param, iduser);
+                                    // mqttClientWrapper.publishMessage(
+                                    //     'P${device.mathietbi}', jsonEncode(lenh));
+                                  }
+                                });
+                              })
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
-      ),
-    );
+      ],
+    ));
   }
 
-  handle(String message) {}
+  handle(String message) {
+    print('Light Controller $message');
+  }
 
   Widget _timePicker(bool on) {
     return new TimePickerSpinner(
@@ -160,7 +230,7 @@ class _LightController extends State<LightController> {
       normalTextStyle: TextStyle(fontSize: 24, color: Colors.black),
       highlightedTextStyle: TextStyle(fontSize: 24, color: Colors.red),
       spacing: 50,
-      itemHeight: 50,
+      itemHeight: 30,
       isForce2Digits: true,
       onTimeChange: (time) {
         setState(() {

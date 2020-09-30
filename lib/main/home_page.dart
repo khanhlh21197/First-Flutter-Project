@@ -434,7 +434,7 @@ class _HomePageState extends State<HomePage>
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) =>
-                LightController(devices[index])));
+                LightController(devices[index], iduser)));
       },
     );
   }

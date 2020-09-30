@@ -50,13 +50,13 @@ class _UserProfilePageState extends State<StatefulWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              height: 80,
+              height: 10,
             ),
             Container(
               width: MediaQuery.of(context).size.width,
               child: Text(
-                'Profile',
-                style: TextStyle(fontSize: 43, fontWeight: FontWeight.bold),
+                'Thông tin',
+                style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(
@@ -81,16 +81,16 @@ class _UserProfilePageState extends State<StatefulWidget> {
               height: 30,
             ),
             Text(
-              'Sonu Sharma',
+              'Khanh Le',
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             SizedBox(
-              height: 70,
+              height: 30,
             ),
-            _placeContainer('Evelens Apartment', Color(0xff526fff), false),
-            _placeContainer('Parents House', Color(0xff8f48ff), false),
-            _placeContainer('Add another one', Color(0xffffffff), true),
+            _placeContainer('lek21197@gmail.com', Color(0xff526fff), false),
+            _placeContainer('0963003197', Color(0xff8f48ff), false),
+            _placeContainer('Thêm tài khoản', Color(0xffffffff), true),
           ],
         ),
       ),
