@@ -19,7 +19,7 @@ class MQTTClientWrapper {
 
   MQTTClientWrapper(this.onConnectedCallback, this.onMessageArrived);
 
-  void prepareMqttClient(String topic) async {
+  Future<void> prepareMqttClient(String topic) async {
     _setupMqttClient();
     await _connectClient();
     _subscribeToTopic(topic);
@@ -74,7 +74,6 @@ class MQTTClientWrapper {
   void _subscribeToTopic(String topicName) {
     print('MQTTClientWrapper::Subscribing to the $topicName topic');
     client.subscribe(topicName, MqttQos.atMostOnce);
-
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
       final MqttPublishMessage recMess = c[0].payload;
       final String message =

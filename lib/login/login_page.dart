@@ -28,6 +28,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   MQTTClientWrapper mqttClientWrapper;
   SharedPrefsHelper sharedPrefsHelper;
+  bool loading = false;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -62,6 +63,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   }
 
   void _tryLogin() {
+    setState(() {
+      loading = true;
+    });
     User user = User('02:00:00:00:00:00', _emailController.text,
         _passwordController.text, '', '', '');
     mqttClientWrapper.login(user);
@@ -71,6 +75,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
+      setState(() {
+        loading = false;
+      });
       print('Register success');
       if (_switchValue) {
         sharedPrefsHelper.addStringToSF('email', _emailController.text);

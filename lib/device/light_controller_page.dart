@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
 
@@ -97,7 +98,7 @@ class _LightController extends State<LightController> {
                       children: <Widget>[
                         Center(
                           child: Icon(
-                            Icons.lightbulb_outline,
+                            FontAwesomeIcons.lightbulb,
                             color: device.isEnable ? Colors.amber : Colors.grey,
                             size: 150,
                           ),

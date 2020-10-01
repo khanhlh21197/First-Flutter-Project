@@ -2,13 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart' as Constants;
 import 'package:my_first_flutter_project/device/add_device_page.dart';
 import 'package:my_first_flutter_project/device/light_controller_page.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
+
+import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
+as Constants;
 
 import '../helper/mqttClientWrapper.dart';
 
@@ -67,7 +69,7 @@ class _HomePageState extends State<HomePage>
               return Dialog(
                 shape: RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(20.0)), //this right here
+                    BorderRadius.circular(20.0)), //this right here
                 child: Container(
                   height: 200,
                   child: Padding(
@@ -140,14 +142,6 @@ class _HomePageState extends State<HomePage>
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     mqttClientWrapper.prepareMqttClient(Constants.mac);
-    //
-    // Device device = Device('', iduser, '', '', '', Constants.mac);
-    // Future.delayed(
-    //     Duration(seconds: 2),
-    //     () => {
-    //           mqttClientWrapper.publishMessage(
-    //               'statusthietbi', jsonEncode(device))
-    //         });
   }
 
   @override
@@ -162,7 +156,7 @@ class _HomePageState extends State<HomePage>
       setState(() {
         print('HomePageLifeCycleState : $state');
         mqttClientWrapper = MQTTClientWrapper(
-            () => print('Success'), (message) => handle(message));
+                () => print('Success'), (message) => handle(message));
         mqttClientWrapper.prepareMqttClient(Constants.mac);
       });
     }
@@ -174,32 +168,38 @@ class _HomePageState extends State<HomePage>
 
     return Material(
         child: Stack(
-      children: <Widget>[
-        Column(children: <Widget>[
-          Container(
-            height: 258,
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 50,
-                left: 30,
-                right: 30.0),
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xff669df4), Color(0xff4e80f3)]),
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30))),
-            child: _upperContainer(),
-          ),
-          _roomCategories(),
-          _applianceGrid(devices)
-        ]),
-        Positioned(top: 40, left: 0, child: _backButton()),
-        Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
-      ],
-    ));
+          children: <Widget>[
+            Column(children: <Widget>[
+              Container(
+                height: 258,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                padding: EdgeInsets.only(
+                    top: MediaQuery
+                        .of(context)
+                        .padding
+                        .top + 50,
+                    left: 30,
+                    right: 30.0),
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xff669df4), Color(0xff4e80f3)]),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30))),
+                child: _upperContainer(),
+              ),
+              _roomCategories(),
+              _applianceGrid(devices)
+            ]),
+            Positioned(top: 40, left: 0, child: _backButton()),
+            Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
+          ],
+        ));
 
     // return MaterialApp(
     //   title: title,
@@ -326,38 +326,38 @@ class _HomePageState extends State<HomePage>
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
-          padding: EdgeInsets.all(0),
+          padding: EdgeInsets.all(5),
           children: List.generate(devices.length, (index) {
             return devices[index].tenthietbi != null
                 ? _buildApplianceCard(devices, index)
                 : Container(
-                    height: 120,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
-                    margin: index % 2 == 0
-                        ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)
-                        : EdgeInsets.fromLTRB(7.5, 7.5, 15, 7.5),
-                    decoration: BoxDecoration(
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              blurRadius: 10,
-                              offset: Offset(0, 10),
-                              color: Color(0xfff1f0f2))
-                        ],
-                        color: Colors.white,
-                        border: Border.all(
-                            width: 1,
-                            style: BorderStyle.solid,
-                            color: Color(0xffa3a3a3)),
-                        borderRadius: BorderRadius.circular(20)),
-                    child: FloatingActionButton(
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {},
-                    ),
-                  );
+              height: 120,
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
+              margin: index % 2 == 0
+                  ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)
+                  : EdgeInsets.fromLTRB(7.5, 7.5, 15, 7.5),
+              decoration: BoxDecoration(
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                        blurRadius: 10,
+                        offset: Offset(0, 10),
+                        color: Color(0xfff1f0f2))
+                  ],
+                  color: Colors.white,
+                  border: Border.all(
+                      width: 1,
+                      style: BorderStyle.solid,
+                      color: Color(0xffa3a3a3)),
+                  borderRadius: BorderRadius.circular(20)),
+              child: FloatingActionButton(
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.add,
+                  color: Colors.black,
+                ),
+                onPressed: () {},
+              ),
+            );
           }),
         ));
   }
@@ -373,9 +373,11 @@ class _HomePageState extends State<HomePage>
         decoration: BoxDecoration(
             boxShadow: <BoxShadow>[
               BoxShadow(
-                  blurRadius: 10,
-                  offset: Offset(0, 10),
-                  color: Color(0xfff1f0f2))
+                color: Colors.black,
+                blurRadius: 2.0,
+                spreadRadius: 0.0,
+                offset: Offset(1.0, 1.0),
+              )
             ],
             gradient: LinearGradient(
                 begin: Alignment.topCenter,
