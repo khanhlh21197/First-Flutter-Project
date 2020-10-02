@@ -32,7 +32,18 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  Widget _body = CircularProgressIndicator();
+
+  Widget _circularProgress() {
+    return Dialog(
+      child: new Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          new CircularProgressIndicator(),
+          new Text("Loading"),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -351,46 +362,55 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    return Scaffold(
-        body: Container(
-      height: height,
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-              top: -height * .15,
-              right: -MediaQuery.of(context).size.width * .4,
-              child: BezierContainer()),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: height * .2),
-                  _title(),
-                  SizedBox(height: 50),
-                  _emailPasswordWidget(),
-                  _saveSwitch(),
-                  _submitButton(),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.centerRight,
-                    child: Text('Quên mật khẩu ?',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
+    return loading
+        ? new Container(
+            color: Colors.transparent,
+            width: MediaQuery.of(context).size.width, //70.0,
+            height: MediaQuery.of(context).size.height, //70.0,
+            child: new Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: new Center(child: new CircularProgressIndicator())),
+          )
+        : Scaffold(
+            body: Container(
+            height: height,
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                    top: -height * .15,
+                    right: -MediaQuery.of(context).size.width * .4,
+                    child: BezierContainer()),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(height: height * .2),
+                        _title(),
+                        SizedBox(height: 50),
+                        _emailPasswordWidget(),
+                        _saveSwitch(),
+                        _submitButton(),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          alignment: Alignment.centerRight,
+                          child: Text('Quên mật khẩu ?',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500)),
+                        ),
+                        _divider(),
+                        _facebookButton(),
+                        SizedBox(height: height * .055),
+                        _createAccountLabel(),
+                      ],
+                    ),
                   ),
-                  _divider(),
-                  _facebookButton(),
-                  SizedBox(height: height * .055),
-                  _createAccountLabel(),
-                ],
-              ),
+                ),
+                // Positioned(top: 40, left: 0, child: _backButton()),
+              ],
             ),
-          ),
-          // Positioned(top: 40, left: 0, child: _backButton()),
-        ],
-      ),
-    ));
+          ));
   }
 }
