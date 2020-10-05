@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
+import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/helper/shared_prefs_helper.dart';
 import 'package:my_first_flutter_project/main/home_page.dart';
 import 'package:my_first_flutter_project/model/user.dart';
@@ -48,14 +49,20 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    mqttClientWrapper =
-        MQTTClientWrapper(() => print('Success'), (message) => login(message));
-    mqttClientWrapper.prepareMqttClient(Constants.mac);
+    // mqttClientWrapper =
+    //     MQTTClientWrapper(() => print('Success'), (message) => login(message));
+    // mqttClientWrapper.prepareMqttClient(Constants.mac);
 
     sharedPrefsHelper = SharedPrefsHelper();
     // _emailController.text = sharedPrefsHelper.getStringValuesSF('email');
     // _passwordController.text = sharedPrefsHelper.getStringValuesSF('password');
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  Future<void> initMqtt() async {
+    mqttClientWrapper =
+        MQTTClientWrapper(() => print('Success'), (message) => login(message));
+    await mqttClientWrapper.prepareMqttClient(Constants.mac);
   }
 
   @override
@@ -66,20 +73,29 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      mqttClientWrapper = MQTTClientWrapper(
-          () => print('Success'), (message) => login(message));
-      mqttClientWrapper.prepareMqttClient(Constants.mac);
-    }
+    setState(() {
+      if (state == AppLifecycleState.resumed) {
+        mqttClientWrapper = MQTTClientWrapper(
+            () => print('Success'), (message) => login(message));
+        mqttClientWrapper.prepareMqttClient(Constants.mac);
+      }
+    });
   }
 
-  void _tryLogin() {
+  Future<void> _tryLogin() async {
     setState(() {
       loading = true;
     });
     User user = User('02:00:00:00:00:00', _emailController.text,
         _passwordController.text, '', '', '');
-    mqttClientWrapper.login(user);
+
+    if (mqttClientWrapper.connectionState ==
+        MqttCurrentConnectionState.CONNECTED) {
+      mqttClientWrapper.login(user);
+    } else {
+      await initMqtt();
+      mqttClientWrapper.login(user);
+    }
   }
 
   void login(String message) {
@@ -103,17 +119,23 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                     loginResponse: responseMap,
                   )));
     } else {
-      final snackBar = SnackBar(
-        content: Text('Yay! A SnackBar!'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            // Some code to undo the change.
-          },
-        ),
-      );
+      this._showToast(context);
       // Scaffold.of(context).showSnackBar(snackbar);
     }
+  }
+
+  void _showToast(BuildContext context) {
+    final scaffold = Scaffold.of(context);
+    final snackBar = SnackBar(
+      content: Text('Đăng nhập thất bại!'),
+      action: SnackBarAction(
+        label: 'Quay lại',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+    scaffold.showSnackBar(snackBar);
   }
 
   Widget _backButton() {
@@ -361,6 +383,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    initMqtt();
     final height = MediaQuery.of(context).size.height;
     return loading
         ? new Container(
