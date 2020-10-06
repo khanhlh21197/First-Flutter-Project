@@ -49,6 +49,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    initMqtt();
     // mqttClientWrapper =
     //     MQTTClientWrapper(() => print('Success'), (message) => login(message));
     // mqttClientWrapper.prepareMqttClient(Constants.mac);
@@ -383,7 +384,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    initMqtt();
     final height = MediaQuery.of(context).size.height;
     return loading
         ? new Container(

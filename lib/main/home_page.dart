@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -39,16 +40,17 @@ class _HomePageState extends State<HomePage>
     return (await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-            title: new Text('Are you sure?'),
-            content: new Text('Do you want to exit an App'),
+            title: new Text('Bạn muốn thoát ứng dụng ?'),
+            // content: new Text('Bạn muốn thoát ứng dụng?'),
             actions: <Widget>[
               new FlatButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: new Text('No'),
+                child: new Text('Hủy'),
               ),
               new FlatButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: new Text('Yes'),
+                onPressed: () => exit(0),
+                // Navigator.of(context).pop(true),
+                child: new Text('Đồng ý'),
               ),
             ],
           ),
@@ -69,11 +71,11 @@ class _HomePageState extends State<HomePage>
               padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
               child: Icon(Icons.keyboard_arrow_left, color: Colors.white),
             ),
-            Text('Back',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white))
+            // Text('Back',
+            //     style: TextStyle(
+            //         fontSize: 16,
+            //         fontWeight: FontWeight.w500,
+            //         color: Colors.white))
           ],
         ),
       ),
@@ -110,9 +112,7 @@ class _HomePageState extends State<HomePage>
                           child: RaisedButton(
                             onPressed: () {
                               Navigator.of(context).pop(this);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      AddDevice(response)));
+                              _navigateAddDevicePage();
                             },
                             child: Text(
                               "Thêm phòng",
@@ -150,6 +150,7 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
+    initMqtt();
     WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
@@ -193,7 +194,6 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final String title = 'Home Page';
-    initMqtt();
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -560,6 +560,26 @@ class _HomePageState extends State<HomePage>
       mqttClientWrapper.publishMessage(
           'P${device.mathietbi}', lenh.toJson().toString());
     }
+  }
+
+  _navigateAddDevicePage() async {
+    final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => AddDevice(response)));
+    _showToast(kindOfDevice);
+  }
+
+  void _showToast(BuildContext context) {
+    final scaffold = Scaffold.of(context);
+    final snackBar = SnackBar(
+      content: Text('Đăng nhập thất bại!'),
+      action: SnackBarAction(
+        label: 'Quay lại',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+    scaffold.showSnackBar(snackBar);
   }
 }
 

@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:my_first_flutter_project/model/dao/user_dao.dart';
 
 @entity
 class User {

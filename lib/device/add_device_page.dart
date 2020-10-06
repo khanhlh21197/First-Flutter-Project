@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 
@@ -23,18 +24,16 @@ class _AddDeviceState extends State<AddDevice> {
 
   final DeviceResponse deviceResponse;
 
-  String dropdownValue = 'One';
+  String dropdownValue = 'Đèn';
   TextEditingController _deviceNameController = TextEditingController();
   TextEditingController _deviceIdController = TextEditingController();
   MQTTClientWrapper mqttClientWrapper;
 
-  List<String> spinnerItems = ['One', 'Two', 'Three', 'Four', 'Five'];
+  final List<String> spinnerItems = ['Đèn', 'Điều hòa', 'TV', 'Quạt'];
 
   @override
   void initState() {
-    mqttClientWrapper = MQTTClientWrapper(
-        () => print('Success'), (message) => addDevice(message));
-    mqttClientWrapper.prepareMqttClient(Constants.mac);
+    initMqtt();
     super.initState();
   }
 
@@ -42,7 +41,7 @@ class _AddDeviceState extends State<AddDevice> {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
-      Navigator.pop(context);
+      Navigator.pop(context, dropdownValue);
     } else {
       final snackBar = SnackBar(
         content: Text('Thất bại, vui lòng thử lại sau!'),
@@ -58,6 +57,43 @@ class _AddDeviceState extends State<AddDevice> {
       // it to show a SnackBar.
       Scaffold.of(context).showSnackBar(snackBar);
     }
+  }
+
+  Widget _dropdownAirConditioner(BuildContext context) {
+    // ignore: non_constant_identifier_names
+    String ACSelectedItem = 'Panasonic';
+    var _dropdownACItems = ['Panasonic', 'Nagakawa'];
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Dropdown Button"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.cyan,
+              border: Border.all()),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+                value: ACSelectedItem,
+                items: _dropdownACItems
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    ACSelectedItem = value;
+                  });
+                }),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -87,6 +123,10 @@ class _AddDeviceState extends State<AddDevice> {
                   onChanged: (String data) {
                     setState(() {
                       dropdownValue = data;
+                      if (dropdownValue == spinnerItems[0]) {}
+                      if (dropdownValue == spinnerItems[1]) {}
+                      if (dropdownValue == spinnerItems[2]) {}
+                      if (dropdownValue == spinnerItems[3]) {}
                     });
                   },
                   items: spinnerItems
@@ -110,6 +150,12 @@ class _AddDeviceState extends State<AddDevice> {
                 _entryField('Mã thiết bị', _deviceIdController)
               ],
             ),
+            SizedBox(
+              height: 20,
+            ),
+            Visibility(
+                visible: dropdownValue == spinnerItems[1],
+                child: _dropdownAirConditioner(context)),
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
@@ -137,7 +183,7 @@ class _AddDeviceState extends State<AddDevice> {
               '',
               Constants.mac);
           String deviceJson = jsonEncode(device);
-          mqttClientWrapper.publishMessage('registerthietbi', deviceJson);
+          publishMessage('registerthietbi', deviceJson);
         } else {
           Navigator.pop(context);
         }
@@ -191,5 +237,21 @@ class _AddDeviceState extends State<AddDevice> {
         ],
       ),
     );
+  }
+
+  Future<void> initMqtt() async {
+    mqttClientWrapper = MQTTClientWrapper(
+        () => print('Success'), (message) => addDevice(message));
+    await mqttClientWrapper.prepareMqttClient(Constants.mac);
+  }
+
+  Future<void> publishMessage(String topic, String message) async {
+    if (mqttClientWrapper.connectionState ==
+        MqttCurrentConnectionState.CONNECTED) {
+      mqttClientWrapper.publishMessage(topic, message);
+    } else {
+      await initMqtt();
+      mqttClientWrapper.publishMessage(topic, message);
+    }
   }
 }

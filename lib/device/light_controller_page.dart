@@ -54,11 +54,11 @@ class _LightController extends State<LightController> {
               padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
               child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
             ),
-            Text('Back',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black))
+            // Text('Back',
+            //     style: TextStyle(
+            //         fontSize: 16,
+            //         fontWeight: FontWeight.w500,
+            //         color: Colors.black))
           ],
         ),
       ),
@@ -130,7 +130,7 @@ class _LightController extends State<LightController> {
                         }),
                     SizedBox(height: 20),
                     Card(
-                      color: _timerOnSwitch ? Colors.amber : Colors.transparent,
+                      color: _timerOnSwitch ? Colors.yellow : Colors.transparent,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -172,7 +172,7 @@ class _LightController extends State<LightController> {
                     SizedBox(height: 20),
                     Card(
                       color:
-                          _timerOffSwitch ? Colors.amber : Colors.transparent,
+                          _timerOffSwitch ? Colors.yellow : Colors.transparent,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
