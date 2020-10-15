@@ -2,12 +2,20 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:my_first_flutter_project/actions/actions.dart';
+import 'package:my_first_flutter_project/helper/reminder/notificationHelper.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
+import 'package:my_first_flutter_project/store/store.dart';
 
 import '../helper/mqttClientWrapper.dart';
+
+const String custom = 'Custom time';
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class LightController extends StatefulWidget {
   final Device device;
@@ -25,6 +33,8 @@ class _LightController extends State<LightController> {
   MQTTClientWrapper mqttClientWrapper;
   final Device device;
   final String iduser;
+  TimeOfDay customNotificationTime;
+  bool customReminder = false;
 
   DateTime _dateTimeOn = DateTime.now();
   DateTime _dateTimeOff = DateTime.now();
@@ -116,6 +126,11 @@ class _LightController extends State<LightController> {
                         value: device.isEnable,
                         onChanged: (_) {
                           setState(() {
+                            initNotifications(flutterLocalNotificationsPlugin)
+                                .then((value) => {
+                                      showNotification(
+                                          flutterLocalNotificationsPlugin)
+                                    });
                             device.isEnable = !device.isEnable;
                             if (device.isEnable) {
                               Lenh lenh = Lenh('bat', '', iduser);
@@ -130,7 +145,8 @@ class _LightController extends State<LightController> {
                         }),
                     SizedBox(height: 20),
                     Card(
-                      color: _timerOnSwitch ? Colors.yellow : Colors.transparent,
+                      color:
+                          _timerOnSwitch ? Colors.yellow : Colors.transparent,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -197,7 +213,7 @@ class _LightController extends State<LightController> {
                                       '${_dateTimeOff.hour}&${_dateTimeOff.minute}';
                                   if (_timerOffSwitch) {
                                     Lenh lenh =
-                                        Lenh('hengiobat', param, iduser);
+                                        Lenh('hengiotat', param, iduser);
                                     mqttClientWrapper.publishMessage(
                                         'P${device.mathietbi}',
                                         jsonEncode(lenh));
@@ -219,6 +235,41 @@ class _LightController extends State<LightController> {
         ),
       ],
     ));
+  }
+
+  _showTimeDialog(StateSetter setState) async {
+    TimeOfDay selectedTime = await showTimePicker(
+      initialTime: TimeOfDay.now(),
+      context: context,
+    );
+
+    setState(() {
+      customNotificationTime = selectedTime;
+      customReminder = true;
+    });
+
+    _configureCustomReminder(true);
+  }
+
+  void _configureCustomReminder(bool value) {
+    if (customNotificationTime != null) {
+      if (value) {
+        var now = new DateTime.now();
+        var notificationTime = new DateTime(now.year, now.month, now.day,
+            customNotificationTime.hour, customNotificationTime.minute);
+
+        getStore().dispatch(SetReminderAction(
+            time: notificationTime.toIso8601String(),
+            name: custom,
+            repeat: RepeatInterval.Daily));
+
+        scheduleNotification(
+            flutterLocalNotificationsPlugin, '4', custom, notificationTime);
+      } else {
+        getStore().dispatch(RemoveReminderAction(custom));
+        turnOffNotificationById(flutterLocalNotificationsPlugin, 4);
+      }
+    }
   }
 
   handle(String message) {

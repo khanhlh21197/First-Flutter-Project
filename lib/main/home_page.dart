@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
 import 'package:my_first_flutter_project/device/light_controller_page.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
@@ -15,6 +16,9 @@ import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/he
     as Constants;
 
 import '../helper/mqttClientWrapper.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.loginResponse}) : super(key: key);
@@ -61,7 +65,7 @@ class _HomePageState extends State<HomePage>
   Widget _backButton() {
     return InkWell(
       onTap: () {
-        Navigator.pop(context);
+        _onWillPop();
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
@@ -389,80 +393,85 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildApplianceCard(List<Device> devices, int index) {
-    return InkWell(
-      child: Container(
-        height: 220,
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        margin: index % 2 == 0
-            ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)
-            : EdgeInsets.fromLTRB(7.5, 7.5, 15, 7.5),
-        decoration: BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.black,
-                blurRadius: 2.0,
-                spreadRadius: 0.0,
-                offset: Offset(1.0, 1.0),
-              )
-            ],
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: devices[index].isEnable
-                    ? [Color(0xff669df4), Color(0xff4e80f3)]
-                    : [Colors.white, Colors.white]),
-            borderRadius: BorderRadius.circular(20)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                // devices[index].leftIcon
-                Icon(Icons.devices,
+    return GestureDetector(
+      child: InkWell(
+        child: Container(
+          height: 220,
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          margin: index % 2 == 0
+              ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)
+              : EdgeInsets.fromLTRB(7.5, 7.5, 15, 7.5),
+          decoration: BoxDecoration(
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black,
+                  blurRadius: 2.0,
+                  spreadRadius: 0.0,
+                  offset: Offset(1.0, 1.0),
+                )
+              ],
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: devices[index].isEnable
+                      ? [Color(0xff669df4), Color(0xff4e80f3)]
+                      : [Colors.white, Colors.white]),
+              borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  // devices[index].leftIcon
+                  Icon(Icons.devices,
+                      color: devices[index].isEnable
+                          ? Colors.white
+                          : Color(0xffa3a3a3)),
+                  Switch(
+                      value: devices[index].isEnable,
+                      activeColor: Color(0xff457be4),
+                      onChanged: (_) {
+                        setState(() {
+                          devices[index].isEnable = !devices[index].isEnable;
+                          handleDevice(devices[index]);
+                          // print('${devices[index].isEnable}');
+                        });
+                      })
+                ],
+              ),
+              SizedBox(
+                height: 46,
+              ),
+              Text(
+                devices[index].tenthietbi,
+                style: TextStyle(
                     color: devices[index].isEnable
                         ? Colors.white
-                        : Color(0xffa3a3a3)),
-                Switch(
-                    value: devices[index].isEnable,
-                    activeColor: Color(0xff457be4),
-                    onChanged: (_) {
-                      setState(() {
-                        devices[index].isEnable = !devices[index].isEnable;
-                        handleDevice(devices[index]);
-                        // print('${devices[index].isEnable}');
-                      });
-                    })
-              ],
-            ),
-            SizedBox(
-              height: 46,
-            ),
-            Text(
-              devices[index].tenthietbi,
-              style: TextStyle(
-                  color: devices[index].isEnable
-                      ? Colors.white
-                      : Color(0xff302e45),
-                  fontSize: 25,
-                  fontWeight: FontWeight.w600),
-            ),
-            Text(
-              devices[index].mathietbi,
-              style: TextStyle(
-                  color: devices[index].isEnable
-                      ? Colors.white
-                      : Color(0xffa3a3a3),
-                  fontSize: 20),
-            ),
-            // Icon(model.allYatch[index].topRightIcon,color:model.allYatch[index].isEnable ? Colors.white : Color(0xffa3a3a3))
-          ],
+                        : Color(0xff302e45),
+                    fontSize: 25,
+                    fontWeight: FontWeight.w600),
+              ),
+              Text(
+                devices[index].mathietbi,
+                style: TextStyle(
+                    color: devices[index].isEnable
+                        ? Colors.white
+                        : Color(0xffa3a3a3),
+                    fontSize: 20),
+              ),
+              // Icon(model.allYatch[index].topRightIcon,color:model.allYatch[index].isEnable ? Colors.white : Color(0xffa3a3a3))
+            ],
+          ),
         ),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  LightController(devices[index], iduser)));
+        },
       ),
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) =>
-                LightController(devices[index], iduser)));
+      onLongPress: () {
+        _showToast(context);
       },
     );
   }
