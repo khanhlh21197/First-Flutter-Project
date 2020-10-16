@@ -62,6 +62,35 @@ class _HomePageState extends State<HomePage>
         false;
   }
 
+  Future<bool> _deleteDevice(Device device) async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Bạn muốn xóa thiết bị ?'),
+            // content: new Text('Bạn muốn thoát ứng dụng?'),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('Hủy'),
+              ),
+              new FlatButton(
+                onPressed: () {
+                  setState(() {
+                    Device d = Device('', iduser, device.tenthietbi,
+                        device.mathietbi, '', Constants.mac);
+                    String dJson = jsonEncode(d);
+                    mqttClientWrapper.publishMessage('deletethietbi', dJson);
+                  });
+                },
+                // Navigator.of(context).pop(true),
+                child: new Text('Đồng ý'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -471,7 +500,10 @@ class _HomePageState extends State<HomePage>
         },
       ),
       onLongPress: () {
-        _showToast(context);
+        setState(() {
+          print('Item OnLongPressed');
+          _deleteDevice(devices[index]);
+        });
       },
     );
   }
