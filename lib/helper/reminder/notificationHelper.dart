@@ -34,16 +34,17 @@ Future<void> initNotifications(
 }
 
 Future<void> showNotification(
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+    String title,
+    String body) async {
   var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       '0', 'Natalia', 'your channel description',
       importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
   var iOSPlatformChannelSpecifics = IOSNotificationDetails();
   var platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(
-      0, 'Natalia title', 'plain body', platformChannelSpecifics,
-      payload: 'item x');
+  await flutterLocalNotificationsPlugin
+      .show(0, title, body, platformChannelSpecifics, payload: 'item x');
 }
 
 Future<void> turnOffNotification(

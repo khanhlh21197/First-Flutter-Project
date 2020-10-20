@@ -129,7 +129,9 @@ class _LightController extends State<LightController> {
                             initNotifications(flutterLocalNotificationsPlugin)
                                 .then((value) => {
                                       showNotification(
-                                          flutterLocalNotificationsPlugin)
+                                          flutterLocalNotificationsPlugin,
+                                          'onChanged',
+                                          '$_')
                                     });
                             device.isEnable = !device.isEnable;
                             if (device.isEnable) {
