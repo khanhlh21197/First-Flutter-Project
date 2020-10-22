@@ -41,6 +41,7 @@ dependencies:
   flutter_local_notifications: ^1.4.2
   rxdart: ^0.23.1
   redux_persist: ^0.8.3
+  qrscan: ^0.2.17
 
 dev_dependencies:
   flutter_test:

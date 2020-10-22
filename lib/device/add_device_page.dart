@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
 
 import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
     as Constants;
@@ -148,6 +149,21 @@ class _AddDeviceState extends State<AddDevice> {
             Column(
               children: <Widget>[
                 _entryField('Mã thiết bị', _deviceIdController)
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                GestureDetector(
+                  child: Icon(Icons.camera),
+                  onTap: () async {
+                    String cameraScanResult = await scanner.scan();
+                    _deviceIdController.text = cameraScanResult;
+                  },
+                )
               ],
             ),
             SizedBox(
