@@ -5,12 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
+import 'package:my_first_flutter_project/device/light_controller_page.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
-import 'package:my_first_flutter_project/room/room_page.dart';
 
 import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
     as Constants;
@@ -20,18 +20,18 @@ import '../helper/mqttClientWrapper.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.loginResponse}) : super(key: key);
+class RoomPage extends StatefulWidget {
+  RoomPage({Key key, this.loginResponse}) : super(key: key);
 
   final Map loginResponse;
 
   @override
-  _HomePageState createState() => _HomePageState(loginResponse);
+  _RoomPageState createState() => _RoomPageState(loginResponse);
 }
 
-class _HomePageState extends State<HomePage>
+class _RoomPageState extends State<RoomPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  _HomePageState(this.loginResponse);
+  _RoomPageState(this.loginResponse);
 
   final Map loginResponse;
   List<Device> devices;
@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage>
   Widget _backButton() {
     return InkWell(
       onTap: () {
-        _onWillPop();
+        Navigator.pop(context);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
@@ -229,7 +229,7 @@ class _HomePageState extends State<HomePage>
     final String title = 'Home Page';
 
     return WillPopScope(
-      onWillPop: _onWillPop,
+      // onWillPop: _onWillPop,
       child: Material(
           child: Stack(
         children: <Widget>[
@@ -251,7 +251,7 @@ class _HomePageState extends State<HomePage>
                       bottomRight: Radius.circular(30))),
               child: _upperContainer(),
             ),
-            // _roomCategories(),
+            _roomCategories(),
             _applianceGrid(devices)
           ]),
           Positioned(top: 40, left: 0, child: _backButton()),
@@ -496,9 +496,7 @@ class _HomePageState extends State<HomePage>
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
-                  RoomPage(loginResponse: loginResponse)
-              // LightController(devices[index], iduser))
-              ));
+                  LightController(devices[index], iduser)));
         },
       ),
       onLongPress: () {
