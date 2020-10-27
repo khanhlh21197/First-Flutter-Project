@@ -53,10 +53,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     // mqttClientWrapper =
     //     MQTTClientWrapper(() => print('Success'), (message) => login(message));
     // mqttClientWrapper.prepareMqttClient(Constants.mac);
-
     sharedPrefsHelper = SharedPrefsHelper();
-    // _emailController.text = sharedPrefsHelper.getStringValuesSF('email');
-    // _passwordController.text = sharedPrefsHelper.getStringValuesSF('password');
+    getSharedPrefs();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -66,9 +64,20 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
   }
 
+  Future<Null> getSharedPrefs() async {
+    setState(() async {
+      _emailController.text = await sharedPrefsHelper.getStringValuesSF('email');
+      _passwordController.text =
+          await sharedPrefsHelper.getStringValuesSF('password');
+      _switchValue = await sharedPrefsHelper.getBoolValuesSF('switchValue');
+    });
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -99,7 +108,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     }
   }
 
-  void login(String message) {
+  Future<void> login(String message) async {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
@@ -108,10 +117,11 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       });
       print('Register success');
       if (_switchValue) {
-        sharedPrefsHelper.addStringToSF('email', _emailController.text);
-        sharedPrefsHelper.addStringToSF('password', _passwordController.text);
+        await sharedPrefsHelper.addStringToSF('email', _emailController.text);
+        await sharedPrefsHelper.addStringToSF('password', _passwordController.text);
+        await sharedPrefsHelper.addBoolToSF('switchValue', _switchValue);
       } else {
-        sharedPrefsHelper.removeValues();
+        await sharedPrefsHelper.removeValues();
       }
       Navigator.push(
           context,
