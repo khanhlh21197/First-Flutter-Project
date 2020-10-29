@@ -206,6 +206,10 @@ class _RoomPageState extends State<RoomPage>
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
+
+    Device device = Device('', iduser, '', '', '', Constants.mac);
+    String deviceJson = jsonEncode(device);
+    mqttClientWrapper.publishMessage(Constants.device_status, deviceJson);
   }
 
   @override
@@ -234,23 +238,23 @@ class _RoomPageState extends State<RoomPage>
           child: Stack(
         children: <Widget>[
           Column(children: <Widget>[
-            // Container(
-            //   height: 258,
-            //   width: MediaQuery.of(context).size.width,
-            //   padding: EdgeInsets.only(
-            //       top: MediaQuery.of(context).padding.top + 50,
-            //       left: 30,
-            //       right: 30.0),
-            //   decoration: BoxDecoration(
-            //       gradient: LinearGradient(
-            //           begin: Alignment.topCenter,
-            //           end: Alignment.bottomCenter,
-            //           colors: [Color(0xff669df4), Color(0xff4e80f3)]),
-            //       borderRadius: BorderRadius.only(
-            //           bottomLeft: Radius.circular(30),
-            //           bottomRight: Radius.circular(30))),
-            //   child: _upperContainer(),
-            // ),
+            Container(
+              height: 258,
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 50,
+                  left: 30,
+                  right: 30.0),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xff669df4), Color(0xff4e80f3)]),
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30))),
+              child: _upperContainer(),
+            ),
             // _roomCategories(),
             _applianceGrid(devices)
           ]),

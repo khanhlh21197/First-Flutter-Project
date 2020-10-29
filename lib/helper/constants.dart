@@ -11,6 +11,7 @@ final String defaultMarkerId = "1";
 final String serverUri = "45.119.82.186";
 final int port = 1234;
 final String login_topic = "loginuser";
+final String device_status = "statusthietbi";
 final String mac = "02:00:00:00:00:00";
 
 const kPrimaryColor = Color(0xFF6F35A5);

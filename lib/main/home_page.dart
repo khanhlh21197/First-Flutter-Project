@@ -5,10 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
-import 'package:my_first_flutter_project/model/lenh.dart';
+import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/room/room_page.dart';
 
@@ -35,6 +34,7 @@ class _HomePageState extends State<HomePage>
 
   final Map loginResponse;
   List<Device> devices;
+  List<Room> rooms = List();
   String iduser;
   DeviceResponse response;
 
@@ -186,6 +186,7 @@ class _HomePageState extends State<HomePage>
     initMqtt();
     WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
+    initRoomData();
     iduser = response.message;
     devices = response.id.map((e) => Device.fromJson(e)).toList();
     devices.forEach((element) {
@@ -252,7 +253,7 @@ class _HomePageState extends State<HomePage>
               child: _upperContainer(),
             ),
             // _roomCategories(),
-            _applianceGrid(devices)
+            _applianceGrid(rooms)
           ]),
           Positioned(top: 40, left: 0, child: _backButton()),
           Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
@@ -376,7 +377,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _applianceGrid(List<Device> devices) {
+  Widget _applianceGrid(List<Room> rooms) {
     return Container(
         alignment: Alignment.topCenter,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
@@ -386,9 +387,9 @@ class _HomePageState extends State<HomePage>
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
           padding: EdgeInsets.all(5),
-          children: List.generate(devices.length, (index) {
-            return devices[index].tenthietbi != null
-                ? _buildApplianceCard(devices, index)
+          children: List.generate(rooms.length, (index) {
+            return rooms[index].name != null
+                ? _buildApplianceCard(rooms, index)
                 : Container(
                     height: 120,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
@@ -421,7 +422,7 @@ class _HomePageState extends State<HomePage>
         ));
   }
 
-  Widget _buildApplianceCard(List<Device> devices, int index) {
+  Widget _buildApplianceCard(List<Room> rooms, int index) {
     return GestureDetector(
       child: InkWell(
         child: Container(
@@ -442,7 +443,7 @@ class _HomePageState extends State<HomePage>
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: devices[index].isEnable
+                  colors: rooms[index].isEnable
                       ? [Color(0xff669df4), Color(0xff4e80f3)]
                       : [Colors.white, Colors.white]),
               borderRadius: BorderRadius.circular(20)),
@@ -454,37 +455,46 @@ class _HomePageState extends State<HomePage>
                 children: <Widget>[
                   // devices[index].leftIcon
                   Icon(Icons.devices,
-                      color: devices[index].isEnable
+                      color: rooms[index].isEnable
                           ? Colors.white
                           : Color(0xffa3a3a3)),
-                  Switch(
-                      value: devices[index].isEnable,
-                      activeColor: Color(0xff457be4),
-                      onChanged: (_) {
-                        setState(() {
-                          devices[index].isEnable = !devices[index].isEnable;
-                          handleDevice(devices[index]);
-                          // print('${devices[index].isEnable}');
-                        });
-                      })
+                  Text(
+                    '${rooms[index].numberOfDevices} thiết bị',
+                    style: TextStyle(
+                        color: rooms[index].isEnable
+                            ? Colors.white
+                            : Color(0xff302e45),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600),
+                  )
+                  // Switch(
+                  //     value: rooms[index].isEnable,
+                  //     activeColor: Color(0xff457be4),
+                  //     onChanged: (_) {
+                  //       setState(() {
+                  //         rooms[index].isEnable = !rooms[index].isEnable;
+                  //         handleRoom(rooms[index]);
+                  //         // print('${devices[index].isEnable}');
+                  //       });
+                  //     })
                 ],
               ),
               SizedBox(
                 height: 46,
               ),
               Text(
-                devices[index].tenthietbi,
+                rooms[index].name,
                 style: TextStyle(
-                    color: devices[index].isEnable
+                    color: rooms[index].isEnable
                         ? Colors.white
                         : Color(0xff302e45),
                     fontSize: 25,
                     fontWeight: FontWeight.w600),
               ),
               Text(
-                devices[index].mathietbi,
+                rooms[index].id,
                 style: TextStyle(
-                    color: devices[index].isEnable
+                    color: rooms[index].isEnable
                         ? Colors.white
                         : Color(0xffa3a3a3),
                     fontSize: 20),
@@ -496,9 +506,8 @@ class _HomePageState extends State<HomePage>
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
-                  RoomPage(loginResponse: loginResponse)
-              // LightController(devices[index], iduser))
-              ));
+                  RoomPage(loginResponse: loginResponse)));
+          // LightController(devices[index], iduser)));
         },
       ),
       onLongPress: () {
@@ -587,22 +596,22 @@ class _HomePageState extends State<HomePage>
     ),
   );
 
-  Future<void> handleDevice(Device device) async {
-    Lenh lenh;
-    if (device.isEnable) {
-      lenh = Lenh('bat', '', iduser);
-    } else {
-      lenh = Lenh('tat', '', iduser);
-    }
-    if (mqttClientWrapper.connectionState ==
-        MqttCurrentConnectionState.CONNECTED) {
-      mqttClientWrapper.publishMessage(
-          'P${device.mathietbi}', lenh.toJson().toString());
-    } else {
-      await initMqtt();
-      mqttClientWrapper.publishMessage(
-          'P${device.mathietbi}', lenh.toJson().toString());
-    }
+  Future<void> handleRoom(Room room) async {
+    // Lenh lenh;
+    // if (room.isEnable) {
+    //   lenh = Lenh('bat', '', iduser);
+    // } else {
+    //   lenh = Lenh('tat', '', iduser);
+    // }
+    // if (mqttClientWrapper.connectionState ==
+    //     MqttCurrentConnectionState.CONNECTED) {
+    //   mqttClientWrapper.publishMessage(
+    //       'P${device.mathietbi}', lenh.toJson().toString());
+    // } else {
+    //   await initMqtt();
+    //   mqttClientWrapper.publishMessage(
+    //       'P${device.mathietbi}', lenh.toJson().toString());
+    // }
   }
 
   _navigateAddDevicePage() async {
@@ -623,6 +632,13 @@ class _HomePageState extends State<HomePage>
       ),
     );
     scaffold.showSnackBar(snackBar);
+  }
+
+  void initRoomData() {
+    Room room = new Room('Phong 1', 'Ma 1', '10', true);
+    rooms.add(room);
+    room = new Room('Phong 1', 'Ma 1', '10', false);
+    rooms.add(room);
   }
 }
 
