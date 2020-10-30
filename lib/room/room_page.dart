@@ -249,7 +249,7 @@ class _RoomPageState extends State<RoomPage>
         children: <Widget>[
           Column(children: <Widget>[
             Container(
-              height: 200,
+              height: 220,
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top + 50,
@@ -439,7 +439,7 @@ class _RoomPageState extends State<RoomPage>
     return GestureDetector(
       child: InkWell(
         child: Container(
-          height: 220,
+          height: 200,
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           margin: index % 2 == 0
               ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)

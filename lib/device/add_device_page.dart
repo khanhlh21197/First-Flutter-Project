@@ -60,6 +60,12 @@ class _AddDeviceState extends State<AddDevice> {
     }
   }
 
+  Widget _appBar() {
+    return AppBar(
+      title: Text("Thêm thiết bị"),
+    );
+  }
+
   Widget _dropdownAirConditioner(BuildContext context) {
     // ignore: non_constant_identifier_names
     String ACSelectedItem = 'Panasonic';
@@ -101,90 +107,91 @@ class _AddDeviceState extends State<AddDevice> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
+        appBar: _appBar(),
         body: Container(
-      margin: EdgeInsets.only(top: 20, left: 10, right: 10),
-      height: height,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text("Chọn loại thiết bị"),
-                DropdownButton<String>(
-                  value: dropdownValue,
-                  icon: Icon(Icons.arrow_drop_down),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.red, fontSize: 18),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  onChanged: (String data) {
-                    setState(() {
-                      dropdownValue = data;
-                      if (dropdownValue == spinnerItems[0]) {}
-                      if (dropdownValue == spinnerItems[1]) {}
-                      if (dropdownValue == spinnerItems[2]) {}
-                      if (dropdownValue == spinnerItems[3]) {}
-                    });
-                  },
-                  items: spinnerItems
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+          margin: EdgeInsets.only(top: 20, left: 10, right: 10),
+          height: height,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Text("Chọn loại thiết bị"),
+                    DropdownButton<String>(
+                      value: dropdownValue,
+                      icon: Icon(Icons.arrow_drop_down),
+                      iconSize: 24,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.red, fontSize: 18),
+                      underline: Container(
+                        height: 2,
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      onChanged: (String data) {
+                        setState(() {
+                          dropdownValue = data;
+                          if (dropdownValue == spinnerItems[0]) {}
+                          if (dropdownValue == spinnerItems[1]) {}
+                          if (dropdownValue == spinnerItems[2]) {}
+                          if (dropdownValue == spinnerItems[3]) {}
+                        });
+                      },
+                      items: spinnerItems
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    )
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    _entryField('Tên thiết bị', _deviceNameController)
+                  ],
+                ),
+                SizedBox(height: 20),
+                Column(
+                  children: <Widget>[
+                    _entryField('Mã thiết bị', _deviceIdController)
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    GestureDetector(
+                      child: Icon(Icons.camera),
+                      onTap: () async {
+                        String cameraScanResult = await scanner.scan();
+                        _deviceIdController.text = cameraScanResult;
+                      },
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Visibility(
+                    visible: dropdownValue == spinnerItems[1],
+                    child: _dropdownAirConditioner(context)),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    SizedBox(height: 10),
+                    _button('Thêm'),
+                    SizedBox(height: 10),
+                    _button('Hủy'),
+                  ],
                 )
               ],
             ),
-            Column(
-              children: <Widget>[
-                _entryField('Tên thiết bị', _deviceNameController)
-              ],
-            ),
-            SizedBox(height: 20),
-            Column(
-              children: <Widget>[
-                _entryField('Mã thiết bị', _deviceIdController)
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                GestureDetector(
-                  child: Icon(Icons.camera),
-                  onTap: () async {
-                    String cameraScanResult = await scanner.scan();
-                    _deviceIdController.text = cameraScanResult;
-                  },
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Visibility(
-                visible: dropdownValue == spinnerItems[1],
-                child: _dropdownAirConditioner(context)),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                SizedBox(height: 10),
-                _button('Thêm'),
-                SizedBox(height: 10),
-                _button('Hủy'),
-              ],
-            )
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 
   Widget _button(String text) {

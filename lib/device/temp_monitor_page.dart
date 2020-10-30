@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_first_flutter_project/helper/mqttClientWrapper.dart';
 import 'package:my_first_flutter_project/model/device.dart';
+import 'package:my_first_flutter_project/patient/patient_page.dart';
 
 class TempPage extends StatefulWidget {
   final Device device;
@@ -196,7 +197,10 @@ class _TempPageState extends State<TempPage> {
                   label: Text('Thông tin bệnh nhân'.toUpperCase(),
                       style: TextStyle(color: Colors.blue, fontSize: 18)),
                   icon: Icon(Icons.info),
-                  color: Colors.blue,
+                  onPressed: () => {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => PatientPage()))
+                  },
                 ),
               ]),
             ]),
