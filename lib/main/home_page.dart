@@ -228,6 +228,9 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final String title = 'Home Page';
+    final double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).padding;
+    double newheight = height - padding.top - padding.bottom;
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -236,7 +239,7 @@ class _HomePageState extends State<HomePage>
         children: <Widget>[
           Column(children: <Widget>[
             Container(
-              height: 258,
+              height: 220,
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top + 50,
@@ -253,7 +256,7 @@ class _HomePageState extends State<HomePage>
               child: _upperContainer(),
             ),
             // _roomCategories(),
-            _applianceGrid(rooms)
+            _applianceGrid(rooms, newheight)
           ]),
           Positioned(top: 40, left: 0, child: _backButton()),
           Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
@@ -321,7 +324,7 @@ class _HomePageState extends State<HomePage>
             ],
           ),
           SizedBox(
-            height: 40,
+            height: 25,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -346,7 +349,7 @@ class _HomePageState extends State<HomePage>
                   Row(
                     children: <Widget>[
                       Text(
-                        '7.9',
+                        '${rooms.length}',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 25,
@@ -356,7 +359,7 @@ class _HomePageState extends State<HomePage>
                         width: 5,
                       ),
                       Text(
-                        'kwh',
+                        'phòng',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -365,8 +368,8 @@ class _HomePageState extends State<HomePage>
                     ],
                   ),
                   Text(
-                    'Điện năng tiêu thụ trong ngày',
-                    style: TextStyle(color: Colors.white54, fontSize: 18),
+                    '5 phòng có bệnh nhân sốt',
+                    style: TextStyle(color: Colors.red, fontSize: 18),
                   ),
                 ],
               )
@@ -377,11 +380,11 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _applianceGrid(List<Room> rooms) {
+  Widget _applianceGrid(List<Room> rooms, double newheight) {
     return Container(
         alignment: Alignment.topCenter,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-        height: 350,
+        height: newheight - 200,
         child: GridView.count(
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
@@ -426,7 +429,7 @@ class _HomePageState extends State<HomePage>
     return GestureDetector(
       child: InkWell(
         child: Container(
-          height: 220,
+          height: 200,
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           margin: index % 2 == 0
               ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)
@@ -459,7 +462,7 @@ class _HomePageState extends State<HomePage>
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    '${rooms[index].numberOfDevices} thiết bị',
+                    '${rooms[index].numberOfDevices} bệnh nhân',
                     style: TextStyle(
                         color: rooms[index].isEnable
                             ? Colors.white
@@ -492,11 +495,10 @@ class _HomePageState extends State<HomePage>
                     fontWeight: FontWeight.w600),
               ),
               Text(
-                rooms[index].id,
+                'Sốt: ${rooms[index].id} BN',
                 style: TextStyle(
-                    color: rooms[index].isEnable
-                        ? Colors.white
-                        : Color(0xffa3a3a3),
+                    color: rooms[index].isEnable ? Colors.white : Colors.red,
+                    // : Color(0xffa3a3a3),
                     fontSize: 20),
               ),
               // Icon(model.allYatch[index].topRightIcon,color:model.allYatch[index].isEnable ? Colors.white : Color(0xffa3a3a3))
@@ -506,8 +508,8 @@ class _HomePageState extends State<HomePage>
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
-                  RoomPage(loginResponse: loginResponse)));
-          // LightController(devices[index], iduser)));
+                  RoomPage(loginResponse: loginResponse, room: rooms[index])));
+          // TempPage(devices[index], iduser)));
         },
       ),
       onLongPress: () {
@@ -635,9 +637,15 @@ class _HomePageState extends State<HomePage>
   }
 
   void initRoomData() {
-    Room room = new Room('Phong 1', 'Ma 1', '10', true);
+    Room room = new Room('Phòng 101', '1', '7', true);
     rooms.add(room);
-    room = new Room('Phong 1', 'Ma 1', '10', false);
+    room = new Room('Phòng 102', '2', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 201', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 202', '3', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
     rooms.add(room);
   }
 }

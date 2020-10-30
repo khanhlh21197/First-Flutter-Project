@@ -5,11 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
-import 'package:my_first_flutter_project/device/light_controller_page.dart';
+import 'package:my_first_flutter_project/device/temp_monitor_page.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
+import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 
 import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
@@ -21,19 +22,21 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 class RoomPage extends StatefulWidget {
-  RoomPage({Key key, this.loginResponse}) : super(key: key);
+  RoomPage({Key key, this.loginResponse, this.room}) : super(key: key);
 
   final Map loginResponse;
+  final Room room;
 
   @override
-  _RoomPageState createState() => _RoomPageState(loginResponse);
+  _RoomPageState createState() => _RoomPageState(loginResponse, room);
 }
 
 class _RoomPageState extends State<RoomPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  _RoomPageState(this.loginResponse);
+  _RoomPageState(this.loginResponse, this.room);
 
   final Map loginResponse;
+  final Room room;
   List<Device> devices;
   String iduser;
   DeviceResponse response;
@@ -183,8 +186,8 @@ class _RoomPageState extends State<RoomPage>
   @override
   void initState() {
     super.initState();
-    initMqtt();
     WidgetsBinding.instance.addObserver(this);
+    // getDeviceStatus();
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
     devices = response.id.map((e) => Device.fromJson(e)).toList();
@@ -195,14 +198,17 @@ class _RoomPageState extends State<RoomPage>
         element.isEnable = false;
       }
     });
-    // mqttClientWrapper =
-    //     MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    // mqttClientWrapper.prepareMqttClient(Constants.mac);
 
-    // initMqtt();
+    initMqtt();
   }
 
   Future<void> initMqtt() async {
+    mqttClientWrapper =
+        MQTTClientWrapper(() => print('Success'), (message) => handle(message));
+    await mqttClientWrapper.prepareMqttClient(Constants.mac);
+  }
+
+  Future<void> getDeviceStatus() async {
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
@@ -224,6 +230,7 @@ class _RoomPageState extends State<RoomPage>
       if (state == AppLifecycleState.resumed) {
         print('HomePageLifeCycleState : $state');
         initMqtt();
+        getDeviceStatus();
       }
     });
   }
@@ -231,6 +238,9 @@ class _RoomPageState extends State<RoomPage>
   @override
   Widget build(BuildContext context) {
     final String title = 'Home Page';
+    final double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).padding;
+    double newheight = height - padding.top - padding.bottom;
 
     return WillPopScope(
       // onWillPop: _onWillPop,
@@ -239,7 +249,7 @@ class _RoomPageState extends State<RoomPage>
         children: <Widget>[
           Column(children: <Widget>[
             Container(
-              height: 258,
+              height: 200,
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top + 50,
@@ -256,7 +266,7 @@ class _RoomPageState extends State<RoomPage>
               child: _upperContainer(),
             ),
             // _roomCategories(),
-            _applianceGrid(devices)
+            _applianceGrid(devices, newheight)
           ]),
           Positioned(top: 40, left: 0, child: _backButton()),
           Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
@@ -306,7 +316,7 @@ class _RoomPageState extends State<RoomPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Hello Khanh!',
+                    '${room.name}',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -324,7 +334,7 @@ class _RoomPageState extends State<RoomPage>
             ],
           ),
           SizedBox(
-            height: 40,
+            height: 25,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -349,7 +359,7 @@ class _RoomPageState extends State<RoomPage>
                   Row(
                     children: <Widget>[
                       Text(
-                        '7.9',
+                        '${room.numberOfDevices}',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 25,
@@ -359,7 +369,7 @@ class _RoomPageState extends State<RoomPage>
                         width: 5,
                       ),
                       Text(
-                        'kwh',
+                        'bệnh nhân',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -368,8 +378,8 @@ class _RoomPageState extends State<RoomPage>
                     ],
                   ),
                   Text(
-                    'Điện năng tiêu thụ trong ngày',
-                    style: TextStyle(color: Colors.white54, fontSize: 18),
+                    '${room.id} bệnh nhân sốt',
+                    style: TextStyle(color: Colors.redAccent, fontSize: 18),
                   ),
                 ],
               )
@@ -380,11 +390,11 @@ class _RoomPageState extends State<RoomPage>
     );
   }
 
-  Widget _applianceGrid(List<Device> devices) {
+  Widget _applianceGrid(List<Device> devices, double newheight) {
     return Container(
         alignment: Alignment.topCenter,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-        height: 350,
+        height: newheight - 200,
         child: GridView.count(
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
@@ -498,9 +508,11 @@ class _RoomPageState extends State<RoomPage>
           ),
         ),
         onTap: () {
+          print('Index of device: $index');
+          print('${devices[index].toString()}');
           Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
-                  LightController(devices[index], iduser)));
+                  TempPage(devices[index], iduser)));
         },
       ),
       onLongPress: () {
@@ -566,8 +578,11 @@ class _RoomPageState extends State<RoomPage>
 
     if (responseMap['result'] == 'true') {
       response = DeviceResponse.fromJson(loginResponse);
+      iduser = response.message;
       devices.clear();
       devices = response.id.map((e) => Device.fromJson(e)).toList();
+      print('Length of devices: ${devices.length}');
+      print('Devices: ${devices.toString()}');
 
       devices.forEach((element) {
         if (element.trangthai == 'BAT') {
