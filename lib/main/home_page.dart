@@ -232,6 +232,12 @@ class _HomePageState extends State<HomePage>
     var padding = MediaQuery.of(context).padding;
     double newheight = height - padding.top - padding.bottom;
 
+    //gridView
+    var size = MediaQuery.of(context).size;
+    /*24 is for notification bar on Android*/
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 2;
+    final double itemWidth = size.width / 2;
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Material(
@@ -239,10 +245,10 @@ class _HomePageState extends State<HomePage>
         children: <Widget>[
           Column(children: <Widget>[
             Container(
-              height: 220,
+              height: 170,
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + 50,
+                  top: MediaQuery.of(context).padding.top + 30,
                   left: 30,
                   right: 30.0),
               decoration: BoxDecoration(
@@ -258,7 +264,7 @@ class _HomePageState extends State<HomePage>
             // _roomCategories(),
             _applianceGrid(rooms, newheight)
           ]),
-          Positioned(top: 40, left: 0, child: _backButton()),
+          Positioned(top: 25, left: 0, child: _backButton()),
           Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
         ],
       )),
@@ -306,7 +312,7 @@ class _HomePageState extends State<HomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Hello Khanh!',
+                    'Xin chào Khanh!',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -324,7 +330,7 @@ class _HomePageState extends State<HomePage>
             ],
           ),
           SizedBox(
-            height: 25,
+            height: 10,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -384,11 +390,12 @@ class _HomePageState extends State<HomePage>
     return Container(
         alignment: Alignment.topCenter,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-        height: newheight - 200,
+        height: newheight - 150,
         child: GridView.count(
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
+          childAspectRatio: 1.4,
           padding: EdgeInsets.all(5),
           children: List.generate(rooms.length, (index) {
             return rooms[index].name != null
@@ -457,12 +464,12 @@ class _HomePageState extends State<HomePage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   // devices[index].leftIcon
-                  Icon(Icons.devices,
+                  Icon(Icons.meeting_room,
                       color: rooms[index].isEnable
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    '${rooms[index].numberOfDevices} bệnh nhân',
+                    '${rooms[index].name}',
                     style: TextStyle(
                         color: rooms[index].isEnable
                             ? Colors.white
@@ -483,10 +490,10 @@ class _HomePageState extends State<HomePage>
                 ],
               ),
               SizedBox(
-                height: 46,
+                height: 25,
               ),
               Text(
-                rooms[index].name,
+                '${rooms[index].numberOfDevices} bệnh nhân',
                 style: TextStyle(
                     color: rooms[index].isEnable
                         ? Colors.white
@@ -647,6 +654,23 @@ class _HomePageState extends State<HomePage>
     rooms.add(room);
     room = new Room('Phòng 302', '1', '8', false);
     rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+    room = new Room('Phòng 302', '1', '8', false);
+    rooms.add(room);
+
   }
 }
 

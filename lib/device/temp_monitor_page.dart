@@ -134,7 +134,7 @@ class _TempPageState extends State<TempPage> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      '27.25 \u2103',
+                      '${device.nhietdo} \u2103',
                       style: TextStyle(fontSize: 42, color: Colors.red),
                     )
                   ],

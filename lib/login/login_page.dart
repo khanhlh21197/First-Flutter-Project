@@ -30,6 +30,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   MQTTClientWrapper mqttClientWrapper;
   SharedPrefsHelper sharedPrefsHelper;
   bool loading = false;
+  bool _switchValue = false;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -196,15 +197,13 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     );
   }
 
-  bool _switchValue = false;
-
   Widget _saveSwitch() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Text("Lưu tài khoản"),
         Switch(
-          value: _switchValue,
+          value: this._switchValue,
           onChanged: (value) {
             setState(() {
               _switchValue = !_switchValue;

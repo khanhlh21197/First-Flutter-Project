@@ -14,6 +14,8 @@ class Device {
   String trangthai;
   @ColumnInfo(name: 'mac', nullable: false)
   String mac;
+  @ColumnInfo(name: 'nhietdo', nullable: false)
+  String nhietdo;
   bool isEnable = false;
 
   String get id => _id;

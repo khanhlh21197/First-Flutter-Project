@@ -194,8 +194,10 @@ class _RoomPageState extends State<RoomPage>
     devices.forEach((element) {
       if (element.trangthai == 'BAT') {
         element.isEnable = true;
+        element.nhietdo = '37';
       } else {
         element.isEnable = false;
+        element.nhietdo = '38';
       }
     });
 
@@ -249,10 +251,10 @@ class _RoomPageState extends State<RoomPage>
         children: <Widget>[
           Column(children: <Widget>[
             Container(
-              height: 220,
+              height: 170,
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + 50,
+                  top: MediaQuery.of(context).padding.top + 30,
                   left: 30,
                   right: 30.0),
               decoration: BoxDecoration(
@@ -268,7 +270,7 @@ class _RoomPageState extends State<RoomPage>
             // _roomCategories(),
             _applianceGrid(devices, newheight)
           ]),
-          Positioned(top: 40, left: 0, child: _backButton()),
+          Positioned(top: 30, left: 0, child: _backButton()),
           Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
         ],
       )),
@@ -334,7 +336,7 @@ class _RoomPageState extends State<RoomPage>
             ],
           ),
           SizedBox(
-            height: 25,
+            height: 10,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -394,11 +396,12 @@ class _RoomPageState extends State<RoomPage>
     return Container(
         alignment: Alignment.topCenter,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-        height: newheight - 200,
+        height: newheight - 150,
         child: GridView.count(
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
+          childAspectRatio: 1.4 ,
           padding: EdgeInsets.all(5),
           children: List.generate(devices.length, (index) {
             return devices[index].tenthietbi != null
@@ -467,10 +470,28 @@ class _RoomPageState extends State<RoomPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   // devices[index].leftIcon
-                  Icon(Icons.devices,
-                      color: devices[index].isEnable
-                          ? Colors.white
-                          : Color(0xffa3a3a3)),
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    width: 50,
+                    height: 50,
+                    child: Center(
+                      child: Text(
+                        '${devices[index].nhietdo} \u2103',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: devices[index].isEnable
+                            ? Colors.green
+                            : Colors.red),
+                  ),
+                  // Icon(Icons.devices,
+                  //     color: devices[index].isEnable
+                  //         ? Colors.white
+                  //         : Color(0xffa3a3a3)),
                   Switch(
                       value: devices[index].isEnable,
                       activeColor: Color(0xff457be4),
@@ -484,24 +505,26 @@ class _RoomPageState extends State<RoomPage>
                 ],
               ),
               SizedBox(
-                height: 46,
+                height: 10,
               ),
               Text(
                 devices[index].tenthietbi,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: devices[index].isEnable
                         ? Colors.white
                         : Color(0xff302e45),
-                    fontSize: 25,
+                    fontSize: 18,
                     fontWeight: FontWeight.w600),
               ),
               Text(
                 devices[index].mathietbi,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: devices[index].isEnable
                         ? Colors.white
                         : Color(0xffa3a3a3),
-                    fontSize: 20),
+                    fontSize: 16),
               ),
               // Icon(model.allYatch[index].topRightIcon,color:model.allYatch[index].isEnable ? Colors.white : Color(0xffa3a3a3))
             ],
