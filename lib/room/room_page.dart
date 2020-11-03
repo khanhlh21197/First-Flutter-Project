@@ -318,7 +318,7 @@ class _RoomPageState extends State<RoomPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    '${room.name}',
+                    'Phòng ${room.name}',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -371,17 +371,17 @@ class _RoomPageState extends State<RoomPage>
                         width: 5,
                       ),
                       Text(
-                        'bệnh nhân',
+                        'bệnh nhân sốt',
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
                   Text(
-                    '${room.id} bệnh nhân sốt',
-                    style: TextStyle(color: Colors.redAccent, fontSize: 18),
+                    '${room.id} bệnh nhân',
+                    style: TextStyle(fontSize: 18),
                   ),
                 ],
               )
@@ -401,7 +401,7 @@ class _RoomPageState extends State<RoomPage>
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
-          childAspectRatio: 1.4 ,
+          childAspectRatio: 1.62,
           padding: EdgeInsets.all(5),
           children: List.generate(devices.length, (index) {
             return devices[index].tenthietbi != null
@@ -470,28 +470,37 @@ class _RoomPageState extends State<RoomPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   // devices[index].leftIcon
-                  Container(
-                    padding: EdgeInsets.all(5),
-                    width: 50,
-                    height: 50,
-                    child: Center(
-                      child: Text(
-                        '${devices[index].nhietdo} \u2103',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ),
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: devices[index].isEnable
-                            ? Colors.green
-                            : Colors.red),
-                  ),
-                  // Icon(Icons.devices,
+                  // Container(
+                  //   padding: EdgeInsets.all(5),
+                  //   width: 60,
+                  //   height: 60,
+                  //   child: Center(
+                  //     child: Text(
+                  //       '${devices[index].nhietdo} \u2103',
+                  //       textAlign: TextAlign.center,
+                  //       style: TextStyle(
+                  //           fontWeight: FontWeight.bold, fontSize: 16),
+                  //     ),
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //       shape: BoxShape.circle,
+                  //       color: devices[index].isEnable
+                  //           ? Colors.green
+                  //           : Colors.red),
+                  // ),
+                  new Tab(icon: new Image.asset('assets/images/thermometer.png')),
+                  // Icon(Icons.warning_amber_outlined,
                   //     color: devices[index].isEnable
                   //         ? Colors.white
                   //         : Color(0xffa3a3a3)),
+                  Text(
+                    '${devices[index].nhietdo} \u2103',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Colors.red),
+                  ),
                   Switch(
                       value: devices[index].isEnable,
                       activeColor: Color(0xff457be4),
@@ -504,9 +513,9 @@ class _RoomPageState extends State<RoomPage>
                       })
                 ],
               ),
-              SizedBox(
-                height: 10,
-              ),
+              // SizedBox(
+              //   height: 5,
+              // ),
               Text(
                 devices[index].tenthietbi,
                 overflow: TextOverflow.ellipsis,

@@ -169,7 +169,21 @@ class _HomePageState extends State<HomePage>
                             ),
                             color: const Color(0xFF1BC0C5),
                           ),
-                        )
+                        ),
+                        SizedBox(
+                          width: 320.0,
+                          child: RaisedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(this);
+                              _navigateAddDevicePage();
+                            },
+                            child: Text(
+                              "Tạo tài khoản",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            color: const Color(0xFF1BC0C5),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -365,7 +379,7 @@ class _HomePageState extends State<HomePage>
                         width: 5,
                       ),
                       Text(
-                        'phòng',
+                        'phòng có bệnh nhân sốt',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -374,8 +388,8 @@ class _HomePageState extends State<HomePage>
                     ],
                   ),
                   Text(
-                    '5 phòng có bệnh nhân sốt',
-                    style: TextStyle(color: Colors.red, fontSize: 18),
+                    'Tổng số phòng : ${rooms.length}',
+                    style: TextStyle(fontSize: 18),
                   ),
                 ],
               )
@@ -394,8 +408,8 @@ class _HomePageState extends State<HomePage>
         child: GridView.count(
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
-          crossAxisCount: 2,
-          childAspectRatio: 1.4,
+          crossAxisCount: 3,
+          childAspectRatio: 1.6,
           padding: EdgeInsets.all(5),
           children: List.generate(rooms.length, (index) {
             return rooms[index].name != null
@@ -403,7 +417,7 @@ class _HomePageState extends State<HomePage>
                 : Container(
                     height: 120,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
-                    margin: index % 2 == 0
+                    margin: index % 3 == 0
                         ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)
                         : EdgeInsets.fromLTRB(7.5, 7.5, 15, 7.5),
                     decoration: BoxDecoration(
@@ -438,9 +452,9 @@ class _HomePageState extends State<HomePage>
         child: Container(
           height: 200,
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          margin: index % 2 == 0
-              ? EdgeInsets.fromLTRB(15, 7.5, 7.5, 7.5)
-              : EdgeInsets.fromLTRB(7.5, 7.5, 15, 7.5),
+          margin: index % 3 == 0
+              ? EdgeInsets.fromLTRB(5, 5, 5, 5)
+              : EdgeInsets.fromLTRB(5, 5, 5, 5),
           decoration: BoxDecoration(
               boxShadow: <BoxShadow>[
                 BoxShadow(
@@ -469,7 +483,7 @@ class _HomePageState extends State<HomePage>
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    '${rooms[index].name}',
+                    'P.${rooms[index].name}',
                     style: TextStyle(
                         color: rooms[index].isEnable
                             ? Colors.white
@@ -490,21 +504,22 @@ class _HomePageState extends State<HomePage>
                 ],
               ),
               SizedBox(
-                height: 25,
+                height: 5,
               ),
-              Text(
-                '${rooms[index].numberOfDevices} bệnh nhân',
-                style: TextStyle(
-                    color: rooms[index].isEnable
-                        ? Colors.white
-                        : Color(0xff302e45),
-                    fontSize: 25,
-                    fontWeight: FontWeight.w600),
-              ),
+              // Text(
+              //   '${rooms[index].numberOfDevices} bệnh nhân',
+              //   style: TextStyle(
+              //       color: rooms[index].isEnable
+              //           ? Colors.white
+              //           : Color(0xff302e45),
+              //       fontSize: 25,
+              //       fontWeight: FontWeight.w600),
+              // ),
               Text(
                 'Sốt: ${rooms[index].id} BN',
                 style: TextStyle(
                     color: rooms[index].isEnable ? Colors.white : Colors.red,
+                    fontWeight: FontWeight.w600,
                     // : Color(0xffa3a3a3),
                     fontSize: 20),
               ),
@@ -629,6 +644,13 @@ class _HomePageState extends State<HomePage>
     _showToast(kindOfDevice);
   }
 
+  _navigateCreateUserPage() async {
+    //khanhlh
+    final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => AddDevice(response)));
+    _showToast(kindOfDevice);
+  }
+
   void _showToast(BuildContext context) {
     final scaffold = Scaffold.of(context);
     final snackBar = SnackBar(
@@ -644,33 +666,32 @@ class _HomePageState extends State<HomePage>
   }
 
   void initRoomData() {
-    Room room = new Room('Phòng 101', '1', '7', true);
+    Room room = new Room('101', '1', '7', true);
     rooms.add(room);
-    room = new Room('Phòng 102', '2', '8', false);
+    room = new Room('102', '2', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 201', '1', '8', false);
+    room = new Room('201', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 202', '3', '8', false);
+    room = new Room('202', '3', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-    room = new Room('Phòng 302', '1', '8', false);
+    room = new Room('302', '1', '8', false);
     rooms.add(room);
-
   }
 }
 
