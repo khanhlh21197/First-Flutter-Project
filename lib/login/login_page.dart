@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
+import 'package:my_first_flutter_project/helper/loader.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/helper/shared_prefs_helper.dart';
 import 'package:my_first_flutter_project/main/home_page.dart';
@@ -31,6 +32,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   SharedPrefsHelper sharedPrefsHelper;
   bool loading = false;
   bool _switchValue = false;
+  final GlobalKey<State> _keyLoader = new GlobalKey<State>();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -67,7 +69,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   Future<Null> getSharedPrefs() async {
     setState(() async {
-      _emailController.text = await sharedPrefsHelper.getStringValuesSF('email');
+      _emailController.text =
+          await sharedPrefsHelper.getStringValuesSF('email');
       _passwordController.text =
           await sharedPrefsHelper.getStringValuesSF('password');
       _switchValue = await sharedPrefsHelper.getBoolValuesSF('switchValue');
@@ -100,7 +103,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     User user = User('02:00:00:00:00:00', _emailController.text,
         _passwordController.text, '', '', '');
 
-    if (mqttClientWrapper.connectionState ==
+    if (mqttClientWrapper.connectionState !=
         MqttCurrentConnectionState.CONNECTED) {
       mqttClientWrapper.login(user);
     } else {
@@ -110,6 +113,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   }
 
   Future<void> login(String message) async {
+    Navigator.of(_keyLoader.currentContext, rootNavigator: true)
+        .pop(); //close the dialoge
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
@@ -119,7 +124,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       print('Register success');
       if (_switchValue) {
         await sharedPrefsHelper.addStringToSF('email', _emailController.text);
-        await sharedPrefsHelper.addStringToSF('password', _passwordController.text);
+        await sharedPrefsHelper.addStringToSF(
+            'password', _passwordController.text);
         await sharedPrefsHelper.addBoolToSF('switchValue', _switchValue);
       } else {
         await sharedPrefsHelper.removeValues();
@@ -216,8 +222,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   Widget _submitButton() {
     return InkWell(
-      onTap: () {
-        _tryLogin();
+      onTap: () async {
+        Dialogs.showLoadingDialog(context, _keyLoader);
+        await _tryLogin();
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -394,55 +401,57 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    return loading
-        ? new Container(
-            color: Colors.transparent,
-            width: MediaQuery.of(context).size.width, //70.0,
-            height: MediaQuery.of(context).size.height, //70.0,
-            child: new Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: new Center(child: new CircularProgressIndicator())),
-          )
-        : Scaffold(
+    return
+        // loading
+        //   ? new Container(
+        //       color: Colors.transparent,
+        //       width: MediaQuery.of(context).size.width, //70.0,
+        //       height: MediaQuery.of(context).size.height, //70.0,
+        //       child: new Padding(
+        //           padding: const EdgeInsets.all(5.0),
+        //           child: new Center(child: new CircularProgressIndicator())),
+        //     )
+        //   :
+        Scaffold(
             body: Container(
-            height: height,
-            child: Stack(
-              children: <Widget>[
-                Positioned(
-                    top: -height * .15,
-                    right: -MediaQuery.of(context).size.width * .4,
-                    child: BezierContainer()),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(height: height * .2),
-                        _title(),
-                        SizedBox(height: 50),
-                        _emailPasswordWidget(),
-                        _saveSwitch(),
-                        _submitButton(),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          alignment: Alignment.centerRight,
-                          child: Text('Quên mật khẩu ?',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500)),
-                        ),
-                        _divider(),
-                        _facebookButton(),
-                        SizedBox(height: height * .055),
-                        _createAccountLabel(),
-                      ],
-                    ),
+      height: height,
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+              top: -height * .15,
+              right: -MediaQuery.of(context).size.width * .4,
+              child: BezierContainer()),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: height * .2),
+                  _title(),
+                  SizedBox(height: 50),
+                  _emailPasswordWidget(),
+                  _saveSwitch(),
+                  _submitButton(),
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.centerRight,
+                    child: Text('Quên mật khẩu ?',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500)),
                   ),
-                ),
-                // Positioned(top: 40, left: 0, child: _backButton()),
-              ],
+                  _divider(),
+                  _facebookButton(),
+                  SizedBox(height: height * .055),
+                  _createAccountLabel(),
+                ],
+              ),
             ),
-          ));
+          ),
+          // Positioned(top: 40, left: 0, child: _backButton()),
+        ],
+      ),
+    ));
   }
 }

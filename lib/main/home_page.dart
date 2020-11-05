@@ -10,6 +10,7 @@ import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/room/room_page.dart';
+import 'package:my_first_flutter_project/singup/signup.dart';
 
 import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
     as Constants;
@@ -128,7 +129,7 @@ class _HomePageState extends State<HomePage>
                     borderRadius:
                         BorderRadius.circular(20.0)), //this right here
                 child: Container(
-                  height: 200,
+                  height: 220,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -231,12 +232,11 @@ class _HomePageState extends State<HomePage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    setState(() {
-      if (state == AppLifecycleState.resumed) {
-        print('HomePageLifeCycleState : $state');
-        initMqtt();
-      }
-    });
+    print('HomePageLifeCycleState : $state');
+    if (state == AppLifecycleState.resumed) {
+      print('HomePageLifeCycleState : $state');
+      initMqtt();
+    }
   }
 
   @override
@@ -527,8 +527,8 @@ class _HomePageState extends State<HomePage>
             ],
           ),
         ),
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
+        onTap: () async {
+          await Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
                   RoomPage(loginResponse: loginResponse, room: rooms[index])));
           // TempPage(devices[index], iduser)));
@@ -646,9 +646,8 @@ class _HomePageState extends State<HomePage>
 
   _navigateCreateUserPage() async {
     //khanhlh
-    final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => AddDevice(response)));
-    _showToast(kindOfDevice);
+    await Navigator.of(context).push(
+        MaterialPageRoute(builder: (BuildContext context) => SignUpPage()));
   }
 
   void _showToast(BuildContext context) {

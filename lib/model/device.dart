@@ -23,6 +23,10 @@ class Device {
   Device(this._id, this.iduser, this.tenthietbi, this.mathietbi, this.trangthai,
       this.mac);
 
+  String toString() {
+    return '$_id - $iduser - $tenthietbi - $mathietbi - $trangthai - $mac';
+  }
+
   Device.fromJson(Map<String, dynamic> json)
       : _id = json['_id'],
         iduser = json['iduser'],

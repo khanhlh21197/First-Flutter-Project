@@ -207,13 +207,15 @@ class _RoomPageState extends State<RoomPage>
   Future<void> initMqtt() async {
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
+
     await mqttClientWrapper.prepareMqttClient(Constants.mac);
   }
 
   Future<void> getDeviceStatus() async {
-    mqttClientWrapper =
-        MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    await mqttClientWrapper.prepareMqttClient(Constants.mac);
+    if (mqttClientWrapper.connectionState !=
+        MqttCurrentConnectionState.CONNECTED) {
+      await initMqtt();
+    }
 
     Device device = Device('', iduser, '', '', '', Constants.mac);
     String deviceJson = jsonEncode(device);
@@ -228,13 +230,11 @@ class _RoomPageState extends State<RoomPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    setState(() {
-      if (state == AppLifecycleState.resumed) {
-        print('HomePageLifeCycleState : $state');
-        initMqtt();
-        getDeviceStatus();
-      }
-    });
+    if (state == AppLifecycleState.resumed) {
+      print('RoomPageLifeCycleState : $state');
+      initMqtt();
+      getDeviceStatus();
+    }
   }
 
   @override
@@ -488,7 +488,14 @@ class _RoomPageState extends State<RoomPage>
                   //           ? Colors.green
                   //           : Colors.red),
                   // ),
-                  new Tab(icon: new Image.asset('assets/images/thermometer.png')),
+                  Image.asset(
+                    'assets/images/thermometer.png',
+                    width: 30,
+                    height: 30,
+                    color: double.parse(devices[index].nhietdo) < 37.5
+                        ? Colors.blue
+                        : Colors.red,
+                  ),
                   // Icon(Icons.warning_amber_outlined,
                   //     color: devices[index].isEnable
                   //         ? Colors.white
@@ -497,10 +504,15 @@ class _RoomPageState extends State<RoomPage>
                     '${devices[index].nhietdo} \u2103',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Colors.red),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: double.parse(devices[index].nhietdo) < 37.5
+                          ? Colors.blue
+                          : Colors.red,
+                    ),
                   ),
+                  // Visibility(child: MyBlinkingButton(),
+                  // visible: (double.parse(${devices[index].nhietdo})) > 37.5 ? true : false,),
                   Switch(
                       value: devices[index].isEnable,
                       activeColor: Color(0xff457be4),
@@ -539,12 +551,13 @@ class _RoomPageState extends State<RoomPage>
             ],
           ),
         ),
-        onTap: () {
+        onTap: () async {
           print('Index of device: $index');
           print('${devices[index].toString()}');
-          Navigator.of(context).push(MaterialPageRoute(
+          await Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
                   TempPage(devices[index], iduser)));
+          getDeviceStatus();
         },
       ),
       onLongPress: () {
@@ -605,24 +618,29 @@ class _RoomPageState extends State<RoomPage>
     );
   }
 
-  void handle(String message) {
+  Future<void> handle(String message) async {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
       response = DeviceResponse.fromJson(loginResponse);
       iduser = response.message;
-      devices.clear();
-      devices = response.id.map((e) => Device.fromJson(e)).toList();
-      print('Length of devices: ${devices.length}');
-      print('Devices: ${devices.toString()}');
+      setState(() {
+        devices.clear();
+        print('Length of devices: ${devices.length}');
+        devices = response.id.map((e) => Device.fromJson(e)).toList();
 
-      devices.forEach((element) {
-        if (element.trangthai == 'BAT') {
-          element.isEnable = true;
-        } else {
-          element.isEnable = false;
-        }
+        devices.forEach((element) {
+          if (element.trangthai == 'BAT') {
+            element.isEnable = true;
+            element.nhietdo = '38';
+          } else {
+            element.isEnable = false;
+            element.nhietdo = '37';
+          }
+          print(element.toString());
+        });
       });
+      print('Length of devices: ${devices.length}');
     }
   }
 
