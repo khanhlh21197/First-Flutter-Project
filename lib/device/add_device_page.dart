@@ -13,17 +13,19 @@ import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/he
 import '../helper/mqttClientWrapper.dart';
 
 class AddDevice extends StatefulWidget {
-  AddDevice(this.deviceResponse);
+  AddDevice(this.deviceResponse, this.typeOfAdd);
 
   final DeviceResponse deviceResponse;
+  final int typeOfAdd;
 
-  _AddDeviceState createState() => _AddDeviceState(deviceResponse);
+  _AddDeviceState createState() => _AddDeviceState(deviceResponse, typeOfAdd);
 }
 
 class _AddDeviceState extends State<AddDevice> {
-  _AddDeviceState(this.deviceResponse);
+  _AddDeviceState(this.deviceResponse, this.typeOfAdd);
 
   final DeviceResponse deviceResponse;
+  final int typeOfAdd;
 
   String dropdownValue = 'Đèn';
   TextEditingController _deviceNameController = TextEditingController();
@@ -194,6 +196,23 @@ class _AddDeviceState extends State<AddDevice> {
         ));
   }
 
+  Widget _nameText(int typeOfAdd, String text) {
+    switch (typeOfAdd) {
+      case Constants.ADD_DEPARTMENT:
+        {
+          return Text('');
+        }
+      case Constants.ADD_ROOM:
+        {
+          return Text('');
+        }
+      case Constants.ADD_DEVICE:
+        {
+          return Text('');
+        }
+    }
+  }
+
   Widget _button(String text) {
     return InkWell(
       onTap: () {
@@ -238,6 +257,24 @@ class _AddDeviceState extends State<AddDevice> {
 
   Widget _entryField(String title, TextEditingController _controller,
       {bool isPassword = false}) {
+    switch (typeOfAdd) {
+      case Constants.ADD_DEPARTMENT:
+        {
+          title = '12';
+          break;
+        }
+      case Constants.ADD_ROOM:
+        {
+          title = '';
+          break;
+        }
+
+      case Constants.ADD_DEVICE:
+        {
+          title = '';
+          break;
+        }
+    }
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(

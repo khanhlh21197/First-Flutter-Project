@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
-import 'package:my_first_flutter_project/device/temp_monitor_page.dart';
+import 'package:my_first_flutter_project/device/light_controller_page.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
@@ -131,7 +131,7 @@ class _RoomPageState extends State<RoomPage>
                     borderRadius:
                         BorderRadius.circular(20.0)), //this right here
                 child: Container(
-                  height: 200,
+                  height: 220,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -148,7 +148,7 @@ class _RoomPageState extends State<RoomPage>
                           child: RaisedButton(
                             onPressed: () {
                               Navigator.of(context).pop(this);
-                              _navigateAddDevicePage();
+                              _navigateAddDevicePage(Constants.ADD_ROOM);
                             },
                             child: Text(
                               "Thêm phòng",
@@ -162,9 +162,7 @@ class _RoomPageState extends State<RoomPage>
                           child: RaisedButton(
                             onPressed: () {
                               Navigator.of(context).pop(this);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      AddDevice(response)));
+                              _navigateAddDevicePage(Constants.ADD_DEVICE);
                             },
                             child: Text(
                               "Thêm thiết bị",
@@ -172,7 +170,21 @@ class _RoomPageState extends State<RoomPage>
                             ),
                             color: const Color(0xFF1BC0C5),
                           ),
-                        )
+                        ),
+                        SizedBox(
+                          width: 320.0,
+                          child: RaisedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(this);
+                              _navigateAddDevicePage(Constants.ADD_DEPARTMENT);
+                            },
+                            child: Text(
+                              "Tạo tài khoản",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            color: const Color(0xFF1BC0C5),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -556,7 +568,7 @@ class _RoomPageState extends State<RoomPage>
           print('${devices[index].toString()}');
           await Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
-                  TempPage(devices[index], iduser)));
+                  LightController(devices[index], iduser)));
           getDeviceStatus();
         },
       ),
@@ -672,9 +684,10 @@ class _RoomPageState extends State<RoomPage>
     }
   }
 
-  _navigateAddDevicePage() async {
+  _navigateAddDevicePage(int typeOfAdd) async {
     final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => AddDevice(response)));
+        builder: (BuildContext context) => AddDevice(response, typeOfAdd)));
+    getDeviceStatus();
     _showToast(kindOfDevice);
   }
 

@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
-import 'package:my_first_flutter_project/model/department.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
+import 'package:my_first_flutter_project/room/room_page.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
@@ -18,29 +18,31 @@ import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/he
     as Constants;
 
 import '../helper/mqttClientWrapper.dart';
-import 'department_page.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.loginResponse}) : super(key: key);
+class DepartmentPage extends StatefulWidget {
+  DepartmentPage({Key key, this.loginResponse, this.rooms}) : super(key: key);
 
   final Map loginResponse;
+  final List<Room> rooms;
 
   @override
-  _HomePageState createState() => _HomePageState(loginResponse);
+  _DepartmentPageState createState() =>
+      _DepartmentPageState(loginResponse, rooms);
 }
 
-class _HomePageState extends State<HomePage>
+class _DepartmentPageState extends State<DepartmentPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  _HomePageState(this.loginResponse);
+  _DepartmentPageState(this.loginResponse, this.rooms);
 
   final Map loginResponse;
+  final List<Room> rooms;
+
   AudioPlayer audioPlayer = AudioPlayer();
   List<Device> devices;
-  List<Room> rooms = List();
-  List<Department> departments = List();
+
   String iduser;
   DeviceResponse response;
 
@@ -100,7 +102,7 @@ class _HomePageState extends State<HomePage>
   Widget _backButton() {
     return InkWell(
       onTap: () {
-        _onWillPop();
+        Navigator.pop(context);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
@@ -132,7 +134,7 @@ class _HomePageState extends State<HomePage>
               return Dialog(
                 shape: RoundedRectangleBorder(
                     borderRadius:
-                    BorderRadius.circular(20.0)), //this right here
+                        BorderRadius.circular(20.0)), //this right here
                 child: Container(
                   height: 220,
                   child: Padding(
@@ -232,7 +234,6 @@ class _HomePageState extends State<HomePage>
     initOneSignal(Constants.one_signal_app_id);
     WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
-    initListData();
     iduser = response.message;
     devices = response.id.map((e) => Device.fromJson(e)).toList();
     devices.forEach((element) {
@@ -307,7 +308,7 @@ class _HomePageState extends State<HomePage>
               child: _upperContainer(),
             ),
             // _roomCategories(),
-            _applianceGrid(departments, newheight)
+            _applianceGrid(rooms, newheight)
           ]),
           Positioned(top: 25, left: 0, child: _backButton()),
           Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
@@ -431,7 +432,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _applianceGrid(List<Department> departments, double newheight) {
+  Widget _applianceGrid(List<Room> rooms, double newheight) {
     return Container(
         alignment: Alignment.topCenter,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
@@ -439,12 +440,12 @@ class _HomePageState extends State<HomePage>
         child: GridView.count(
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
-          crossAxisCount: 2,
-          childAspectRatio: 2.4,
+          crossAxisCount: 3,
+          childAspectRatio: 1.6,
           padding: EdgeInsets.all(5),
-          children: List.generate(departments.length, (index) {
-            return departments[index].name != null
-                ? _buildApplianceCard(departments, index)
+          children: List.generate(rooms.length, (index) {
+            return rooms[index].name != null
+                ? _buildApplianceCard(rooms, index)
                 : Container(
                     height: 120,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
@@ -477,13 +478,13 @@ class _HomePageState extends State<HomePage>
         ));
   }
 
-  Widget _buildApplianceCard(List<Department> departments, int index) {
+  Widget _buildApplianceCard(List<Room> rooms, int index) {
     return GestureDetector(
       child: InkWell(
         child: Container(
           height: 200,
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          margin: index % 2 == 0
+          margin: index % 3 == 0
               ? EdgeInsets.fromLTRB(5, 5, 5, 5)
               : EdgeInsets.fromLTRB(5, 5, 5, 5),
           decoration: BoxDecoration(
@@ -498,7 +499,7 @@ class _HomePageState extends State<HomePage>
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: departments[index].isEnable
+                  colors: rooms[index].isEnable
                       ? [Color(0xff669df4), Color(0xff4e80f3)]
                       : [Colors.white, Colors.white]),
               borderRadius: BorderRadius.circular(20)),
@@ -510,13 +511,13 @@ class _HomePageState extends State<HomePage>
                 children: <Widget>[
                   // devices[index].leftIcon
                   Icon(Icons.meeting_room,
-                      color: departments[index].isEnable
+                      color: rooms[index].isEnable
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    'K.${departments[index].name}',
+                    'P.${rooms[index].name}',
                     style: TextStyle(
-                        color: departments[index].isEnable
+                        color: rooms[index].isEnable
                             ? Colors.white
                             : Color(0xff302e45),
                         fontSize: 18,
@@ -547,10 +548,9 @@ class _HomePageState extends State<HomePage>
               //       fontWeight: FontWeight.w600),
               // ),
               Text(
-                'Sốt: ${departments[index].id} Phòng',
+                'Sốt: ${rooms[index].id} BN',
                 style: TextStyle(
-                    color:
-                        departments[index].isEnable ? Colors.white : Colors.red,
+                    color: rooms[index].isEnable ? Colors.white : Colors.red,
                     fontWeight: FontWeight.w600,
                     // : Color(0xffa3a3a3),
                     fontSize: 20),
@@ -562,8 +562,7 @@ class _HomePageState extends State<HomePage>
         onTap: () async {
           await Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
-                  DepartmentPage(loginResponse: loginResponse, rooms: rooms)));
-          // RoomPage(loginResponse: loginResponse, room: rooms[index])));
+                  RoomPage(loginResponse: loginResponse, room: rooms[index])));
           // TempPage(devices[index], iduser)));
         },
       ),
@@ -695,40 +694,6 @@ class _HomePageState extends State<HomePage>
       ),
     );
     scaffold.showSnackBar(snackBar);
-  }
-
-  void initListData() {
-    Department d = new Department('1', '1', '8', true);
-    departments.add(d);
-    d = new Department('2', '2', '3', true);
-    departments.add(d);
-
-    Room room = new Room('101', '1', '7', true);
-    rooms.add(room);
-    room = new Room('102', '2', '8', false);
-    rooms.add(room);
-    room = new Room('201', '1', '8', false);
-    rooms.add(room);
-    room = new Room('202', '3', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
   }
 }
 

@@ -3,6 +3,11 @@ import 'dart:ui';
 final double defaultZoom = 10.8746;
 final double newZoom = 15.8746;
 
+//type of add
+const int ADD_DEPARTMENT = 0;
+const int ADD_ROOM = 1;
+const int ADD_DEVICE = 2;
+
 final String defaultMarkerId = "1";
 
 // final String serverUri = "test.mosquitto.org";
