@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
+import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/room.dart';
@@ -14,9 +15,7 @@ import 'package:my_first_flutter_project/room/room_page.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
-    as Constants;
-
+import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -87,7 +86,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                     Device d = Device('', iduser, device.tenthietbi,
                         device.mathietbi, '', Constants.mac);
                     String dJson = jsonEncode(d);
-                    mqttClientWrapper.publishMessage('deletethietbi', dJson);
+                    publishMessage('deletethietbi', dJson);
                   });
                 },
                 // Navigator.of(context).pop(true),
@@ -162,34 +161,34 @@ class _DepartmentPageState extends State<DepartmentPage>
                             color: const Color(0xFF1BC0C5),
                           ),
                         ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
-                              _navigateAddDevicePage(Constants.ADD_DEVICE);
-                            },
-                            child: Text(
-                              "Thêm thiết bị",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
-                              _navigateAddDevicePage(Constants.ADD_DEPARTMENT);
-                            },
-                            child: Text(
-                              "Tạo tài khoản",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
+                        // SizedBox(
+                        //   width: 320.0,
+                        //   child: RaisedButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context).pop(this);
+                        //       _navigateAddDevicePage(Constants.ADD_DEVICE);
+                        //     },
+                        //     child: Text(
+                        //       "Thêm thiết bị",
+                        //       style: TextStyle(color: Colors.white),
+                        //     ),
+                        //     color: const Color(0xFF1BC0C5),
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   width: 320.0,
+                        //   child: RaisedButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context).pop(this);
+                        //       _navigateAddDevicePage(Constants.ADD_DEPARTMENT);
+                        //     },
+                        //     child: Text(
+                        //       "Tạo tài khoản",
+                        //       style: TextStyle(color: Colors.white),
+                        //     ),
+                        //     color: const Color(0xFF1BC0C5),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -235,14 +234,14 @@ class _DepartmentPageState extends State<DepartmentPage>
     WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
-    devices = response.id.map((e) => Device.fromJson(e)).toList();
-    devices.forEach((element) {
-      if (element.trangthai == 'BAT') {
-        element.isEnable = true;
-      } else {
-        element.isEnable = false;
-      }
-    });
+    // devices = response.id.map((e) => Device.fromJson(e)).toList();
+    // devices.forEach((element) {
+    //   if (element.trangthai == 'BAT') {
+    //     element.isEnable = true;
+    //   } else {
+    //     element.isEnable = false;
+    //   }
+    // });
     // mqttClientWrapper =
     //     MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     // mqttClientWrapper.prepareMqttClient(Constants.mac);
@@ -444,7 +443,7 @@ class _DepartmentPageState extends State<DepartmentPage>
           childAspectRatio: 1.6,
           padding: EdgeInsets.all(5),
           children: List.generate(rooms.length, (index) {
-            return rooms[index].name != null
+            return rooms[index].tenphong != null
                 ? _buildApplianceCard(rooms, index)
                 : Container(
                     height: 120,
@@ -515,7 +514,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    'P.${rooms[index].name}',
+                    'P.${rooms[index].tenphong}',
                     style: TextStyle(
                         color: rooms[index].isEnable
                             ? Colors.white
@@ -548,7 +547,7 @@ class _DepartmentPageState extends State<DepartmentPage>
               //       fontWeight: FontWeight.w600),
               // ),
               Text(
-                'Sốt: ${rooms[index].id} BN',
+                'Sốt: 5 BN',
                 style: TextStyle(
                     color: rooms[index].isEnable ? Colors.white : Colors.red,
                     fontWeight: FontWeight.w600,
@@ -560,9 +559,10 @@ class _DepartmentPageState extends State<DepartmentPage>
           ),
         ),
         onTap: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  RoomPage(loginResponse: loginResponse, room: rooms[index])));
+          Room room = new Room(
+              '', iduser, '', '${rooms[index].maphong}', Constants.mac);
+          String json = jsonEncode(room);
+          publishMessage('loginphong', json);
           // TempPage(devices[index], iduser)));
         },
       ),
@@ -624,7 +624,7 @@ class _DepartmentPageState extends State<DepartmentPage>
     );
   }
 
-  void handle(String message) {
+  void handle(String message) async {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
@@ -639,6 +639,10 @@ class _DepartmentPageState extends State<DepartmentPage>
           element.isEnable = false;
         }
       });
+
+      await Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) =>
+              RoomPage(loginResponse: loginResponse, devices: devices)));
     }
   }
 
@@ -670,10 +674,22 @@ class _DepartmentPageState extends State<DepartmentPage>
     // }
   }
 
+  Future<void> publishMessage(String topic, String message) async {
+    if (mqttClientWrapper.connectionState ==
+        MqttCurrentConnectionState.CONNECTED) {
+      mqttClientWrapper.publishMessage(topic, message);
+    } else {
+      await initMqtt();
+      mqttClientWrapper.publishMessage(topic, message);
+    }
+  }
+
   _navigateAddDevicePage(int typeOfAdd) async {
-    final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
+    final Room room = await Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => AddDevice(response, typeOfAdd)));
-    _showToast(kindOfDevice);
+    setState(() {
+      rooms.add(room);
+    });
   }
 
   _navigateCreateUserPage() async {

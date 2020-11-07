@@ -10,8 +10,7 @@ import 'package:my_first_flutter_project/main/home_page.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
-    as Constants;
+import '../helper/constants.dart' as Constants;
 
 import '../helper/mqttClientWrapper.dart';
 
@@ -432,7 +431,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                   _title(),
                   SizedBox(height: 50),
                   _emailPasswordWidget(),
-                  _saveSwitch(),
+                  // _saveSwitch(),
                   _submitButton(),
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 10),

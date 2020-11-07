@@ -4,12 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/model/device.dart';
+import 'package:my_first_flutter_project/model/home.dart';
+import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
-    as Constants;
-
+import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 
 class AddDevice extends StatefulWidget {
@@ -31,6 +31,9 @@ class _AddDeviceState extends State<AddDevice> {
   TextEditingController _deviceNameController = TextEditingController();
   TextEditingController _deviceIdController = TextEditingController();
   MQTTClientWrapper mqttClientWrapper;
+  Home home;
+  Room room;
+  Device device;
 
   final List<String> spinnerItems = ['Đèn', 'Điều hòa', 'TV', 'Quạt'];
 
@@ -44,7 +47,17 @@ class _AddDeviceState extends State<AddDevice> {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
-      Navigator.pop(context, dropdownValue);
+      switch (typeOfAdd) {
+        case Constants.ADD_DEPARTMENT:
+          Navigator.pop(context, home);
+          break;
+        case Constants.ADD_ROOM:
+          Navigator.pop(context, room);
+          break;
+        case Constants.ADD_DEVICE:
+          Navigator.pop(context, device);
+          break;
+      }
     } else {
       final snackBar = SnackBar(
         content: Text('Thất bại, vui lòng thử lại sau!'),
@@ -150,15 +163,11 @@ class _AddDeviceState extends State<AddDevice> {
                   ],
                 ),
                 Column(
-                  children: <Widget>[
-                    _entryField('Tên thiết bị', _deviceNameController)
-                  ],
+                  children: <Widget>[_entryField('Tên', _deviceNameController)],
                 ),
                 SizedBox(height: 20),
                 Column(
-                  children: <Widget>[
-                    _entryField('Mã thiết bị', _deviceIdController)
-                  ],
+                  children: <Widget>[_entryField('Mã', _deviceIdController)],
                 ),
                 SizedBox(
                   height: 10,
@@ -196,36 +205,40 @@ class _AddDeviceState extends State<AddDevice> {
         ));
   }
 
-  Widget _nameText(int typeOfAdd, String text) {
-    switch (typeOfAdd) {
-      case Constants.ADD_DEPARTMENT:
-        {
-          return Text('');
-        }
-      case Constants.ADD_ROOM:
-        {
-          return Text('');
-        }
-      case Constants.ADD_DEVICE:
-        {
-          return Text('');
-        }
-    }
-  }
-
   Widget _button(String text) {
+    String topic = '';
     return InkWell(
       onTap: () {
         if (text == 'Thêm') {
-          Device device = Device(
-              '',
-              deviceResponse.message.toString(),
-              _deviceNameController.text,
-              _deviceIdController.text,
-              '',
-              Constants.mac);
-          String deviceJson = jsonEncode(device);
-          publishMessage('registerthietbi', deviceJson);
+          if (typeOfAdd == Constants.ADD_DEPARTMENT) {
+            topic = 'registernha';
+            home = new Home(
+                '',
+                deviceResponse.message.toString(),
+                _deviceNameController.text,
+                _deviceIdController.text,
+                Constants.mac);
+            publishMessage(topic, jsonEncode(home));
+          } else if (typeOfAdd == Constants.ADD_DEVICE) {
+            device = Device(
+                '',
+                deviceResponse.message.toString(),
+                _deviceNameController.text,
+                _deviceIdController.text,
+                '',
+                Constants.mac);
+            String deviceJson = jsonEncode(device);
+            publishMessage('registerthietbi', deviceJson);
+          } else if (typeOfAdd == Constants.ADD_ROOM) {
+            topic = 'registerphong';
+            room = new Room(
+                '',
+                deviceResponse.message.toString(),
+                _deviceNameController.text,
+                _deviceIdController.text,
+                Constants.mac);
+            publishMessage(topic, jsonEncode(room));
+          }
         } else {
           Navigator.pop(context);
         }
@@ -257,24 +270,6 @@ class _AddDeviceState extends State<AddDevice> {
 
   Widget _entryField(String title, TextEditingController _controller,
       {bool isPassword = false}) {
-    switch (typeOfAdd) {
-      case Constants.ADD_DEPARTMENT:
-        {
-          title = '12';
-          break;
-        }
-      case Constants.ADD_ROOM:
-        {
-          title = '';
-          break;
-        }
-
-      case Constants.ADD_DEVICE:
-        {
-          title = '';
-          break;
-        }
-    }
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(

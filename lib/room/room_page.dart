@@ -10,33 +10,29 @@ import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
-import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
-    as Constants;
-
+import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 class RoomPage extends StatefulWidget {
-  RoomPage({Key key, this.loginResponse, this.room}) : super(key: key);
+  RoomPage({Key key, this.loginResponse, this.devices}) : super(key: key);
 
   final Map loginResponse;
-  final Room room;
+  final List<Device> devices;
 
   @override
-  _RoomPageState createState() => _RoomPageState(loginResponse, room);
+  _RoomPageState createState() => _RoomPageState(loginResponse, devices);
 }
 
 class _RoomPageState extends State<RoomPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  _RoomPageState(this.loginResponse, this.room);
+  _RoomPageState(this.loginResponse, this.devices);
 
   final Map loginResponse;
-  final Room room;
   List<Device> devices;
   String iduser;
   DeviceResponse response;
@@ -82,7 +78,7 @@ class _RoomPageState extends State<RoomPage>
                     Device d = Device('', iduser, device.tenthietbi,
                         device.mathietbi, '', Constants.mac);
                     String dJson = jsonEncode(d);
-                    mqttClientWrapper.publishMessage('deletethietbi', dJson);
+                    publishMessage('deletethietbi', dJson);
                   });
                 },
                 // Navigator.of(context).pop(true),
@@ -202,16 +198,16 @@ class _RoomPageState extends State<RoomPage>
     // getDeviceStatus();
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
-    devices = response.id.map((e) => Device.fromJson(e)).toList();
-    devices.forEach((element) {
-      if (element.trangthai == 'BAT') {
-        element.isEnable = true;
-        element.nhietdo = '37';
-      } else {
-        element.isEnable = false;
-        element.nhietdo = '38';
-      }
-    });
+    // devices = response.id.map((e) => Device.fromJson(e)).toList();
+    // devices.forEach((element) {
+    //   if (element.trangthai == 'BAT') {
+    //     element.isEnable = true;
+    //     element.nhietdo = '37';
+    //   } else {
+    //     element.isEnable = false;
+    //     element.nhietdo = '38';
+    //   }
+    // });
 
     initMqtt();
   }
@@ -224,14 +220,9 @@ class _RoomPageState extends State<RoomPage>
   }
 
   Future<void> getDeviceStatus() async {
-    if (mqttClientWrapper.connectionState !=
-        MqttCurrentConnectionState.CONNECTED) {
-      await initMqtt();
-    }
-
     Device device = Device('', iduser, '', '', '', Constants.mac);
     String deviceJson = jsonEncode(device);
-    mqttClientWrapper.publishMessage(Constants.device_status, deviceJson);
+    publishMessage(Constants.device_status, deviceJson);
   }
 
   @override
@@ -330,7 +321,7 @@ class _RoomPageState extends State<RoomPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Phòng ${room.name}',
+                    'Phòng 1',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -372,13 +363,13 @@ class _RoomPageState extends State<RoomPage>
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      Text(
-                        '${room.numberOfDevices}',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w900),
-                      ),
+                      // Text(
+                      //   '${room.numberOfDevices}',
+                      //   style: TextStyle(
+                      //       color: Colors.white,
+                      //       fontSize: 25,
+                      //       fontWeight: FontWeight.w900),
+                      // ),
                       SizedBox(
                         width: 5,
                       ),
@@ -392,7 +383,7 @@ class _RoomPageState extends State<RoomPage>
                     ],
                   ),
                   Text(
-                    '${room.id} bệnh nhân',
+                    '5 bệnh nhân',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],
@@ -673,14 +664,16 @@ class _RoomPageState extends State<RoomPage>
     } else {
       lenh = Lenh('tat', '', iduser);
     }
+    publishMessage('P${device.mathietbi}', lenh.toJson().toString());
+  }
+
+  Future<void> publishMessage(String topic, String message) async {
     if (mqttClientWrapper.connectionState ==
         MqttCurrentConnectionState.CONNECTED) {
-      mqttClientWrapper.publishMessage(
-          'P${device.mathietbi}', lenh.toJson().toString());
+      mqttClientWrapper.publishMessage(topic, message);
     } else {
       await initMqtt();
-      mqttClientWrapper.publishMessage(
-          'P${device.mathietbi}', lenh.toJson().toString());
+      mqttClientWrapper.publishMessage(topic, message);
     }
   }
 

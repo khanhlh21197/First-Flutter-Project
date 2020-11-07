@@ -6,17 +6,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
+import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/department.dart';
 import 'package:my_first_flutter_project/model/device.dart';
+import 'package:my_first_flutter_project/model/home.dart';
 import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
-    as Constants;
-
+import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 import 'department_page.dart';
 
@@ -41,6 +41,7 @@ class _HomePageState extends State<HomePage>
   List<Device> devices;
   List<Room> rooms = List();
   List<Department> departments = List();
+  List<Home> homes = List();
   String iduser;
   DeviceResponse response;
 
@@ -85,7 +86,7 @@ class _HomePageState extends State<HomePage>
                     Device d = Device('', iduser, device.tenthietbi,
                         device.mathietbi, '', Constants.mac);
                     String dJson = jsonEncode(d);
-                    mqttClientWrapper.publishMessage('deletethietbi', dJson);
+                    publishMessage('deletethietbi', dJson);
                   });
                 },
                 // Navigator.of(context).pop(true),
@@ -132,7 +133,7 @@ class _HomePageState extends State<HomePage>
               return Dialog(
                 shape: RoundedRectangleBorder(
                     borderRadius:
-                    BorderRadius.circular(20.0)), //this right here
+                        BorderRadius.circular(20.0)), //this right here
                 child: Container(
                   height: 220,
                   child: Padding(
@@ -151,43 +152,43 @@ class _HomePageState extends State<HomePage>
                           child: RaisedButton(
                             onPressed: () {
                               Navigator.of(context).pop(this);
-                              _navigateAddDevicePage(Constants.ADD_ROOM);
-                            },
-                            child: Text(
-                              "Thêm phòng",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
-                              _navigateAddDevicePage(Constants.ADD_DEVICE);
-                            },
-                            child: Text(
-                              "Thêm thiết bị",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
                               _navigateAddDevicePage(Constants.ADD_DEPARTMENT);
                             },
                             child: Text(
-                              "Tạo tài khoản",
+                              "Thêm nhà",
                               style: TextStyle(color: Colors.white),
                             ),
                             color: const Color(0xFF1BC0C5),
                           ),
                         ),
+                        // SizedBox(
+                        //   width: 320.0,
+                        //   child: RaisedButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context).pop(this);
+                        //       _navigateAddDevicePage(Constants.ADD_DEVICE);
+                        //     },
+                        //     child: Text(
+                        //       "Thêm thiết bị",
+                        //       style: TextStyle(color: Colors.white),
+                        //     ),
+                        //     color: const Color(0xFF1BC0C5),
+                        //   ),
+                        // ),
+                        // SizedBox(
+                        //   width: 320.0,
+                        //   child: RaisedButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context).pop(this);
+                        //       _navigateAddDevicePage(Constants.ADD_DEPARTMENT);
+                        //     },
+                        //     child: Text(
+                        //       "Tạo tài khoản",
+                        //       style: TextStyle(color: Colors.white),
+                        //     ),
+                        //     color: const Color(0xFF1BC0C5),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -232,16 +233,17 @@ class _HomePageState extends State<HomePage>
     initOneSignal(Constants.one_signal_app_id);
     WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
-    initListData();
+
     iduser = response.message;
-    devices = response.id.map((e) => Device.fromJson(e)).toList();
-    devices.forEach((element) {
-      if (element.trangthai == 'BAT') {
-        element.isEnable = true;
-      } else {
-        element.isEnable = false;
-      }
-    });
+    homes = response.id.map((e) => Home.fromJson(e)).toList();
+    // devices = response.id.map((e) => Device.fromJson(e)).toList();
+    // devices.forEach((element) {
+    //   if (element.trangthai == 'BAT') {
+    //     element.isEnable = true;
+    //   } else {
+    //     element.isEnable = false;
+    //   }
+    // });
     // mqttClientWrapper =
     //     MQTTClientWrapper(() => print('Success'), (message) => handle(message));
     // mqttClientWrapper.prepareMqttClient(Constants.mac);
@@ -307,7 +309,7 @@ class _HomePageState extends State<HomePage>
               child: _upperContainer(),
             ),
             // _roomCategories(),
-            _applianceGrid(departments, newheight)
+            _applianceGrid(homes, newheight)
           ]),
           Positioned(top: 25, left: 0, child: _backButton()),
           Positioned(bottom: 16, right: 16, child: _floatingActionButton()),
@@ -431,7 +433,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _applianceGrid(List<Department> departments, double newheight) {
+  Widget _applianceGrid(List<Home> homes, double newheight) {
     return Container(
         alignment: Alignment.topCenter,
         // padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
@@ -442,9 +444,9 @@ class _HomePageState extends State<HomePage>
           crossAxisCount: 2,
           childAspectRatio: 2.4,
           padding: EdgeInsets.all(5),
-          children: List.generate(departments.length, (index) {
-            return departments[index].name != null
-                ? _buildApplianceCard(departments, index)
+          children: List.generate(homes.length, (index) {
+            return homes[index].tennha != null
+                ? _buildApplianceCard(homes, index)
                 : Container(
                     height: 120,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
@@ -477,7 +479,7 @@ class _HomePageState extends State<HomePage>
         ));
   }
 
-  Widget _buildApplianceCard(List<Department> departments, int index) {
+  Widget _buildApplianceCard(List<Home> homes, int index) {
     return GestureDetector(
       child: InkWell(
         child: Container(
@@ -498,7 +500,7 @@ class _HomePageState extends State<HomePage>
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: departments[index].isEnable
+                  colors: homes[index].isEnable
                       ? [Color(0xff669df4), Color(0xff4e80f3)]
                       : [Colors.white, Colors.white]),
               borderRadius: BorderRadius.circular(20)),
@@ -510,13 +512,13 @@ class _HomePageState extends State<HomePage>
                 children: <Widget>[
                   // devices[index].leftIcon
                   Icon(Icons.meeting_room,
-                      color: departments[index].isEnable
+                      color: homes[index].isEnable
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    'K.${departments[index].name}',
+                    'K.${homes[index].tennha}',
                     style: TextStyle(
-                        color: departments[index].isEnable
+                        color: homes[index].isEnable
                             ? Colors.white
                             : Color(0xff302e45),
                         fontSize: 18,
@@ -560,9 +562,10 @@ class _HomePageState extends State<HomePage>
           ),
         ),
         onTap: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  DepartmentPage(loginResponse: loginResponse, rooms: rooms)));
+          Home home =
+              new Home('', iduser, '', '${homes[index].manha}', Constants.mac);
+          String json = jsonEncode(home);
+          publishMessage('loginnha', json);
           // RoomPage(loginResponse: loginResponse, room: rooms[index])));
           // TempPage(devices[index], iduser)));
         },
@@ -576,47 +579,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _roomCategories() {
-    return Container(
-      padding: EdgeInsets.only(left: 20, top: 20, bottom: 20),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: <Widget>[
-            Text(
-              'Phòng ngủ',
-              style: TextStyle(
-                  color: Color(0xff4e80f3),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600),
-            ),
-            SizedBox(
-              width: 25,
-            ),
-            _roomLabel(
-              'Phòng khách',
-            ),
-            SizedBox(
-              width: 25,
-            ),
-            _roomLabel(
-              'Phòng học',
-            ),
-            SizedBox(
-              width: 25,
-            ),
-            _roomLabel(
-              'Bếp',
-            ),
-            SizedBox(
-              width: 25,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _roomLabel(String title) {
     return Text(
       title,
@@ -625,21 +587,34 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  void handle(String message) {
+  Future<void> handle(String message) async {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
       response = DeviceResponse.fromJson(loginResponse);
-      devices.clear();
-      devices = response.id.map((e) => Device.fromJson(e)).toList();
 
-      devices.forEach((element) {
-        if (element.trangthai == 'BAT') {
-          element.isEnable = true;
-        } else {
-          element.isEnable = false;
-        }
-      });
+      rooms.clear();
+      rooms = response.id.map((e) => Room.fromJson(e)).toList();
+
+      await Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) =>
+              DepartmentPage(loginResponse: loginResponse, rooms: rooms)));
+
+      // setState(() {
+      //   homes.clear();
+      //   homes = response.id.map((e) => Home.fromJson(e)).toList();
+      // });
+
+      // devices.clear();
+      // devices = response.id.map((e) => Device.fromJson(e)).toList();
+
+      // devices.forEach((element) {
+      //   if (element.trangthai == 'BAT') {
+      //     element.isEnable = true;
+      //   } else {
+      //     element.isEnable = false;
+      //   }
+      // });
     }
   }
 
@@ -671,10 +646,22 @@ class _HomePageState extends State<HomePage>
     // }
   }
 
+  Future<void> publishMessage(String topic, String message) async {
+    if (mqttClientWrapper.connectionState ==
+        MqttCurrentConnectionState.CONNECTED) {
+      mqttClientWrapper.publishMessage(topic, message);
+    } else {
+      await initMqtt();
+      mqttClientWrapper.publishMessage(topic, message);
+    }
+  }
+
   _navigateAddDevicePage(int typeOfAdd) async {
-    final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
+    final Home home = await Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => AddDevice(response, typeOfAdd)));
-    _showToast(kindOfDevice);
+    setState(() {
+      homes.add(home);
+    });
   }
 
   _navigateCreateUserPage() async {
@@ -695,40 +682,6 @@ class _HomePageState extends State<HomePage>
       ),
     );
     scaffold.showSnackBar(snackBar);
-  }
-
-  void initListData() {
-    Department d = new Department('1', '1', '8', true);
-    departments.add(d);
-    d = new Department('2', '2', '3', true);
-    departments.add(d);
-
-    Room room = new Room('101', '1', '7', true);
-    rooms.add(room);
-    room = new Room('102', '2', '8', false);
-    rooms.add(room);
-    room = new Room('201', '1', '8', false);
-    rooms.add(room);
-    room = new Room('202', '3', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
-    room = new Room('302', '1', '8', false);
-    rooms.add(room);
   }
 }
 

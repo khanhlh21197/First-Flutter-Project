@@ -6,8 +6,7 @@ import 'package:my_first_flutter_project/Widget/bezierContainer.dart';
 import 'package:my_first_flutter_project/login/login_page.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 
-import 'file:///E:/KhanhLH/AndroidStudioProjects/my_first_flutter_project/lib/helper/constants.dart'
-    as Constants;
+import '../helper/constants.dart' as Constants;
 
 import '../helper/mqttClientWrapper.dart';
 

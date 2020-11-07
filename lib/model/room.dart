@@ -3,31 +3,32 @@ import 'package:floor/floor.dart';
 @entity
 class Room {
   @primaryKey
+  String _id;
+  @ColumnInfo(name: 'iduser', nullable: false)
+  String iduser;
   @ColumnInfo(name: 'tenphong', nullable: false)
-  final String name;
+  final String tenphong;
   @ColumnInfo(name: 'maphong', nullable: false)
-  final String id;
-  @ColumnInfo(name: 'slthietbi', nullable: false)
-  final String numberOfDevices;
+  final String maphong;
   @ColumnInfo(name: 'isEnable', nullable: false)
   bool isEnable;
+  @ColumnInfo(name: 'mac', nullable: false)
+  String mac;
 
-  Room(this.name, this.id, this.numberOfDevices, this.isEnable);
+  Room(this._id, this.iduser, this.tenphong, this.maphong, this.mac);
 
-// Room.fromJson(Map<String, dynamic> json)
-//     : email = json['email'],
-//       pass = json['pass'],
-//       ten = json['ten'],
-//       sdt = json['sdt'],
-//       nha = json['nha'],
-//       mac = json['mac'];
-//
-// Map<String, dynamic> toJson() => {
-//   'email': email,
-//   'pass': pass,
-//   'ten': ten,
-//   'sdt': sdt,
-//   'nha': nha,
-//   'mac': mac,
-// };
+  Room.fromJson(Map<String, dynamic> json)
+      : _id = json['_id'],
+        iduser = json['iduser'],
+        tenphong = json['tenphong'],
+        maphong = json['maphong'],
+        mac = json['mac'];
+
+  Map<String, dynamic> toJson() => {
+        'id': _id,
+        'iduser': iduser,
+        'tenphong': tenphong,
+        'maphong': maphong,
+        'mac': mac
+      };
 }
