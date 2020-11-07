@@ -7,7 +7,6 @@ import 'package:my_first_flutter_project/login/login_page.dart';
 import 'package:my_first_flutter_project/model/user.dart';
 
 import '../helper/constants.dart' as Constants;
-
 import '../helper/mqttClientWrapper.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -100,7 +99,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _submitButton() {
     return InkWell(
       onTap: () {
-        print('submitButton onTap');
+        _tryRegister();
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -343,16 +342,21 @@ class _SignUpPageState extends State<SignUpPage> {
                     registerUser: registerUser,
                   )));
     } else {
-      final snackBar = SnackBar(
-        content: Text('Yay! A SnackBar!'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            // Some code to undo the change.
-          },
-        ),
-      );
-      // Scaffold.of(context).showSnackBar(snackbar);
+      _showToast(context);
     }
+  }
+
+  void _showToast(BuildContext context) {
+    final scaffold = Scaffold.of(context);
+    final snackBar = SnackBar(
+      content: Text('Đăng ký thất bại!'),
+      action: SnackBarAction(
+        label: 'Quay lại',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+    scaffold.showSnackBar(snackBar);
   }
 }

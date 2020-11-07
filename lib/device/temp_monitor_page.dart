@@ -79,7 +79,7 @@ class _TempPageState extends State<TempPage> {
   void initState() {
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    mqttClientWrapper.prepareMqttClient('S${device.mathietbi}');
+    mqttClientWrapper.prepareMqttClient('S${device.matb}');
     super.initState();
   }
 
@@ -107,7 +107,7 @@ class _TempPageState extends State<TempPage> {
                       },
                     ),
                     Text(
-                      '${device.tenthietbi}',
+                      '${device.tentb}',
                       style: TextStyle(fontSize: 32),
                     ),
                     IconButton(

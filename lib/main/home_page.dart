@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -37,11 +36,11 @@ class _HomePageState extends State<HomePage>
   _HomePageState(this.loginResponse);
 
   final Map loginResponse;
-  AudioPlayer audioPlayer = AudioPlayer();
   List<Device> devices;
   List<Room> rooms = List();
   List<Department> departments = List();
   List<Home> homes = List();
+  Home seletedHome;
   String iduser;
   DeviceResponse response;
 
@@ -83,8 +82,8 @@ class _HomePageState extends State<HomePage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
-                    Device d = Device('', iduser, device.tenthietbi,
-                        device.mathietbi, '', Constants.mac);
+                    Device d = Device('', iduser, '', '', device.tentb,
+                        device.matb, '', '', Constants.mac);
                     String dJson = jsonEncode(d);
                     publishMessage('deletethietbi', dJson);
                   });
@@ -124,6 +123,7 @@ class _HomePageState extends State<HomePage>
 
   Widget _floatingActionButton() {
     return FloatingActionButton(
+      heroTag: 'btn1',
       child: Icon(Icons.add),
       onPressed: () {
         SnackBarPage('onFabClicked', 'Btn');
@@ -199,11 +199,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Future play() async {
-    await audioPlayer.play('assets/sounds/warning.mp3');
-    print('Playing sound');
-  }
-
   void initOneSignal(oneSignalAppId) {
     var settings = {
       OSiOSSettings.autoPrompt: true,
@@ -216,7 +211,6 @@ class _HomePageState extends State<HomePage>
     OneSignal.shared
         .setNotificationReceivedHandler((OSNotification notification) {
       print('Received: ' + notification?.payload?.body ?? '');
-      play();
     });
 // will be called whenever a notification is opened/button pressed.
     OneSignal.shared
@@ -229,7 +223,6 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     initMqtt();
-    play();
     initOneSignal(Constants.one_signal_app_id);
     WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
@@ -467,6 +460,7 @@ class _HomePageState extends State<HomePage>
                             color: Color(0xffa3a3a3)),
                         borderRadius: BorderRadius.circular(20)),
                     child: FloatingActionButton(
+                      heroTag: 'btn2',
                       backgroundColor: Colors.white,
                       child: Icon(
                         Icons.add,
@@ -516,7 +510,8 @@ class _HomePageState extends State<HomePage>
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    'K.${homes[index].tennha}',
+                    '${homes[index].tennha}',
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         color: homes[index].isEnable
                             ? Colors.white
@@ -548,20 +543,21 @@ class _HomePageState extends State<HomePage>
               //       fontSize: 25,
               //       fontWeight: FontWeight.w600),
               // ),
-              Text(
-                'Sốt: ${departments[index].id} Phòng',
-                style: TextStyle(
-                    color:
-                        departments[index].isEnable ? Colors.white : Colors.red,
-                    fontWeight: FontWeight.w600,
-                    // : Color(0xffa3a3a3),
-                    fontSize: 20),
-              ),
+              // Text(
+              //   'Sốt: ${departments[index].id} Phòng',
+              //   style: TextStyle(
+              //       color:
+              //           departments[index].isEnable ? Colors.white : Colors.red,
+              //       fontWeight: FontWeight.w600,
+              //       // : Color(0xffa3a3a3),
+              //       fontSize: 20),
+              // ),
               // Icon(model.allYatch[index].topRightIcon,color:model.allYatch[index].isEnable ? Colors.white : Color(0xffa3a3a3))
             ],
           ),
         ),
         onTap: () async {
+          seletedHome = homes[index];
           Home home =
               new Home('', iduser, '', '${homes[index].manha}', Constants.mac);
           String json = jsonEncode(home);
@@ -591,14 +587,16 @@ class _HomePageState extends State<HomePage>
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
-      response = DeviceResponse.fromJson(loginResponse);
+      response = DeviceResponse.fromJson(jsonDecode(message));
 
       rooms.clear();
+      print('Home page: ${response.id}');
       rooms = response.id.map((e) => Room.fromJson(e)).toList();
+      print('loginnha: ${rooms.length}');
 
       await Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) =>
-              DepartmentPage(loginResponse: loginResponse, rooms: rooms)));
+          builder: (BuildContext context) => DepartmentPage(
+              loginResponse: loginResponse, rooms: rooms, home: seletedHome)));
 
       // setState(() {
       //   homes.clear();
@@ -658,7 +656,8 @@ class _HomePageState extends State<HomePage>
 
   _navigateAddDevicePage(int typeOfAdd) async {
     final Home home = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => AddDevice(response, typeOfAdd)));
+        builder: (BuildContext context) =>
+            AddDevice(iduser, '', '', typeOfAdd)));
     setState(() {
       homes.add(home);
     });

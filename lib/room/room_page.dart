@@ -9,7 +9,9 @@ import 'package:my_first_flutter_project/device/light_controller_page.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
+import 'package:my_first_flutter_project/model/home.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
+import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 
 import '../helper/constants.dart' as Constants;
@@ -19,21 +21,27 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 class RoomPage extends StatefulWidget {
-  RoomPage({Key key, this.loginResponse, this.devices}) : super(key: key);
+  RoomPage({Key key, this.loginResponse, this.devices, this.room, this.home})
+      : super(key: key);
 
   final Map loginResponse;
   final List<Device> devices;
+  final Room room;
+  final Home home;
 
   @override
-  _RoomPageState createState() => _RoomPageState(loginResponse, devices);
+  _RoomPageState createState() =>
+      _RoomPageState(loginResponse, devices, room, home);
 }
 
 class _RoomPageState extends State<RoomPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  _RoomPageState(this.loginResponse, this.devices);
+  _RoomPageState(this.loginResponse, this.devices, this.room, this.home);
 
   final Map loginResponse;
   List<Device> devices;
+  Room room;
+  Home home;
   String iduser;
   DeviceResponse response;
 
@@ -75,8 +83,8 @@ class _RoomPageState extends State<RoomPage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
-                    Device d = Device('', iduser, device.tenthietbi,
-                        device.mathietbi, '', Constants.mac);
+                    Device d = Device('', iduser, home.id, room.id,
+                        device.tentb, device.matb, '', '', Constants.mac);
                     String dJson = jsonEncode(d);
                     publishMessage('deletethietbi', dJson);
                   });
@@ -116,6 +124,7 @@ class _RoomPageState extends State<RoomPage>
 
   Widget _floatingActionButton() {
     return FloatingActionButton(
+      heroTag: 'btn5',
       child: Icon(Icons.add),
       onPressed: () {
         SnackBarPage('onFabClicked', 'Btn');
@@ -139,20 +148,20 @@ class _RoomPageState extends State<RoomPage>
                               border: InputBorder.none,
                               hintText: 'Vui lòng chọn'),
                         ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
-                              _navigateAddDevicePage(Constants.ADD_ROOM);
-                            },
-                            child: Text(
-                              "Thêm phòng",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
+                        // SizedBox(
+                        //   width: 320.0,
+                        //   child: RaisedButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context).pop(this);
+                        //       _navigateAddDevicePage(Constants.ADD_ROOM);
+                        //     },
+                        //     child: Text(
+                        //       "Thêm phòng",
+                        //       style: TextStyle(color: Colors.white),
+                        //     ),
+                        //     color: const Color(0xFF1BC0C5),
+                        //   ),
+                        // ),
                         SizedBox(
                           width: 320.0,
                           child: RaisedButton(
@@ -167,20 +176,20 @@ class _RoomPageState extends State<RoomPage>
                             color: const Color(0xFF1BC0C5),
                           ),
                         ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
-                              _navigateAddDevicePage(Constants.ADD_DEPARTMENT);
-                            },
-                            child: Text(
-                              "Tạo tài khoản",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
+                        // SizedBox(
+                        //   width: 320.0,
+                        //   child: RaisedButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context).pop(this);
+                        //       _navigateAddDevicePage(Constants.ADD_DEPARTMENT);
+                        //     },
+                        //     child: Text(
+                        //       "Tạo tài khoản",
+                        //       style: TextStyle(color: Colors.white),
+                        //     ),
+                        //     color: const Color(0xFF1BC0C5),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -198,16 +207,17 @@ class _RoomPageState extends State<RoomPage>
     // getDeviceStatus();
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
+
     // devices = response.id.map((e) => Device.fromJson(e)).toList();
-    // devices.forEach((element) {
-    //   if (element.trangthai == 'BAT') {
-    //     element.isEnable = true;
-    //     element.nhietdo = '37';
-    //   } else {
-    //     element.isEnable = false;
-    //     element.nhietdo = '38';
-    //   }
-    // });
+    devices.forEach((element) {
+      if (element.trangthai == 'BAT') {
+        element.isEnable = true;
+        element.nhietdo = '37';
+      } else {
+        element.isEnable = false;
+        element.nhietdo = '38';
+      }
+    });
 
     initMqtt();
   }
@@ -220,7 +230,7 @@ class _RoomPageState extends State<RoomPage>
   }
 
   Future<void> getDeviceStatus() async {
-    Device device = Device('', iduser, '', '', '', Constants.mac);
+    Device device = Device('', iduser, '', '', '', '', '', '', Constants.mac);
     String deviceJson = jsonEncode(device);
     publishMessage(Constants.device_status, deviceJson);
   }
@@ -404,10 +414,10 @@ class _RoomPageState extends State<RoomPage>
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
-          childAspectRatio: 1.62,
+          childAspectRatio: 1.5,
           padding: EdgeInsets.all(5),
           children: List.generate(devices.length, (index) {
-            return devices[index].tenthietbi != null
+            return devices[index].tentb != null
                 ? _buildApplianceCard(devices, index)
                 : Container(
                     height: 120,
@@ -429,6 +439,7 @@ class _RoomPageState extends State<RoomPage>
                             color: Color(0xffa3a3a3)),
                         borderRadius: BorderRadius.circular(20)),
                     child: FloatingActionButton(
+                      heroTag: 'btn$index',
                       backgroundColor: Colors.white,
                       child: Icon(
                         Icons.add,
@@ -491,29 +502,29 @@ class _RoomPageState extends State<RoomPage>
                   //           ? Colors.green
                   //           : Colors.red),
                   // ),
-                  Image.asset(
-                    'assets/images/thermometer.png',
-                    width: 30,
-                    height: 30,
-                    color: double.parse(devices[index].nhietdo) < 37.5
-                        ? Colors.blue
-                        : Colors.red,
-                  ),
+                  // Image.asset(
+                  //   'assets/images/thermometer.png',
+                  //   width: 30,
+                  //   height: 30,
+                  //   color: double.parse(devices[index].nhietdo) < 37.5
+                  //       ? Colors.blue
+                  //       : Colors.red,
+                  // ),
                   // Icon(Icons.warning_amber_outlined,
                   //     color: devices[index].isEnable
                   //         ? Colors.white
                   //         : Color(0xffa3a3a3)),
-                  Text(
-                    '${devices[index].nhietdo} \u2103',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      color: double.parse(devices[index].nhietdo) < 37.5
-                          ? Colors.blue
-                          : Colors.red,
-                    ),
-                  ),
+                  // Text(
+                  //   '${devices[index].nhietdo} \u2103',
+                  //   textAlign: TextAlign.center,
+                  //   style: TextStyle(
+                  //     fontWeight: FontWeight.bold,
+                  //     fontSize: 24,
+                  //     color: double.parse(devices[index].nhietdo) < 37.5
+                  //         ? Colors.blue
+                  //         : Colors.red,
+                  //   ),
+                  //   ),
                   // Visibility(child: MyBlinkingButton(),
                   // visible: (double.parse(${devices[index].nhietdo})) > 37.5 ? true : false,),
                   Switch(
@@ -532,7 +543,7 @@ class _RoomPageState extends State<RoomPage>
               //   height: 5,
               // ),
               Text(
-                devices[index].tenthietbi,
+                devices[index].tentb,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: devices[index].isEnable
@@ -542,7 +553,7 @@ class _RoomPageState extends State<RoomPage>
                     fontWeight: FontWeight.w600),
               ),
               Text(
-                devices[index].mathietbi,
+                devices[index].matb,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: devices[index].isEnable
@@ -664,7 +675,7 @@ class _RoomPageState extends State<RoomPage>
     } else {
       lenh = Lenh('tat', '', iduser);
     }
-    publishMessage('P${device.mathietbi}', lenh.toJson().toString());
+    publishMessage('P${device.matb}', lenh.toJson().toString());
   }
 
   Future<void> publishMessage(String topic, String message) async {
@@ -679,7 +690,8 @@ class _RoomPageState extends State<RoomPage>
 
   _navigateAddDevicePage(int typeOfAdd) async {
     final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => AddDevice(response, typeOfAdd)));
+        builder: (BuildContext context) =>
+            AddDevice(iduser, home.id, room.id, typeOfAdd)));
     getDeviceStatus();
     _showToast(kindOfDevice);
   }

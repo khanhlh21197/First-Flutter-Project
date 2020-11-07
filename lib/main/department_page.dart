@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -9,6 +8,7 @@ import 'package:my_first_flutter_project/device/add_device_page.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
 import 'package:my_first_flutter_project/model/device.dart';
+import 'package:my_first_flutter_project/model/home.dart';
 import 'package:my_first_flutter_project/model/room.dart';
 import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/room/room_page.dart';
@@ -22,25 +22,28 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 class DepartmentPage extends StatefulWidget {
-  DepartmentPage({Key key, this.loginResponse, this.rooms}) : super(key: key);
+  DepartmentPage({Key key, this.loginResponse, this.rooms, this.home})
+      : super(key: key);
 
   final Map loginResponse;
   final List<Room> rooms;
+  final Home home;
 
   @override
   _DepartmentPageState createState() =>
-      _DepartmentPageState(loginResponse, rooms);
+      _DepartmentPageState(loginResponse, rooms, home);
 }
 
 class _DepartmentPageState extends State<DepartmentPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  _DepartmentPageState(this.loginResponse, this.rooms);
+  _DepartmentPageState(this.loginResponse, this.rooms, this.home);
 
   final Map loginResponse;
-  final List<Room> rooms;
-
-  AudioPlayer audioPlayer = AudioPlayer();
+  List<Room> rooms;
+  final Home home;
   List<Device> devices;
+
+  Room seletedRoom;
 
   String iduser;
   DeviceResponse response;
@@ -83,8 +86,8 @@ class _DepartmentPageState extends State<DepartmentPage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
-                    Device d = Device('', iduser, device.tenthietbi,
-                        device.mathietbi, '', Constants.mac);
+                    Device d = Device('', iduser, '', '', device.tentb,
+                        device.matb, '', '', Constants.mac);
                     String dJson = jsonEncode(d);
                     publishMessage('deletethietbi', dJson);
                   });
@@ -124,6 +127,7 @@ class _DepartmentPageState extends State<DepartmentPage>
 
   Widget _floatingActionButton() {
     return FloatingActionButton(
+      heroTag: 'btn3',
       child: Icon(Icons.add),
       onPressed: () {
         SnackBarPage('onFabClicked', 'Btn');
@@ -199,11 +203,6 @@ class _DepartmentPageState extends State<DepartmentPage>
     );
   }
 
-  Future play() async {
-    await audioPlayer.play('assets/sounds/warning.mp3');
-    print('Playing sound');
-  }
-
   void initOneSignal(oneSignalAppId) {
     var settings = {
       OSiOSSettings.autoPrompt: true,
@@ -216,7 +215,6 @@ class _DepartmentPageState extends State<DepartmentPage>
     OneSignal.shared
         .setNotificationReceivedHandler((OSNotification notification) {
       print('Received: ' + notification?.payload?.body ?? '');
-      play();
     });
 // will be called whenever a notification is opened/button pressed.
     OneSignal.shared
@@ -229,11 +227,18 @@ class _DepartmentPageState extends State<DepartmentPage>
   void initState() {
     super.initState();
     initMqtt();
-    play();
     initOneSignal(Constants.one_signal_app_id);
     WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
+    // rooms = response.id.map((e) => Room.fromJson(e)).toList();
+    // print('Department Page: ${response.id}');
+    // print('Department Page: ${rooms.length}');
+    rooms.forEach((element) {
+      element.isEnable = false;
+      print('Department Page: ${element.tenphong}');
+      print('Department Page: ${element.maphong}');
+    });
     // devices = response.id.map((e) => Device.fromJson(e)).toList();
     // devices.forEach((element) {
     //   if (element.trangthai == 'BAT') {
@@ -284,7 +289,7 @@ class _DepartmentPageState extends State<DepartmentPage>
     final double itemWidth = size.width / 2;
 
     return WillPopScope(
-      onWillPop: _onWillPop,
+      // onWillPop: _onWillPop,
       child: Material(
           child: Stack(
         children: <Widget>[
@@ -440,10 +445,10 @@ class _DepartmentPageState extends State<DepartmentPage>
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 3,
-          childAspectRatio: 1.6,
+          childAspectRatio: 1.5,
           padding: EdgeInsets.all(5),
           children: List.generate(rooms.length, (index) {
-            return rooms[index].tenphong != null
+            return rooms != null
                 ? _buildApplianceCard(rooms, index)
                 : Container(
                     height: 120,
@@ -465,6 +470,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                             color: Color(0xffa3a3a3)),
                         borderRadius: BorderRadius.circular(20)),
                     child: FloatingActionButton(
+                      heroTag: 'btn$index',
                       backgroundColor: Colors.white,
                       child: Icon(
                         Icons.add,
@@ -514,7 +520,8 @@ class _DepartmentPageState extends State<DepartmentPage>
                           ? Colors.white
                           : Color(0xffa3a3a3)),
                   Text(
-                    'P.${rooms[index].tenphong}',
+                    '${rooms[index].tenphong}',
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         color: rooms[index].isEnable
                             ? Colors.white
@@ -547,7 +554,8 @@ class _DepartmentPageState extends State<DepartmentPage>
               //       fontWeight: FontWeight.w600),
               // ),
               Text(
-                'Sốt: 5 BN',
+                '${rooms[index].maphong}',
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: rooms[index].isEnable ? Colors.white : Colors.red,
                     fontWeight: FontWeight.w600,
@@ -559,8 +567,9 @@ class _DepartmentPageState extends State<DepartmentPage>
           ),
         ),
         onTap: () async {
-          Room room = new Room(
-              '', iduser, '', '${rooms[index].maphong}', Constants.mac);
+          seletedRoom = rooms[index];
+          Room room = new Room('', iduser, home.id, '',
+              '${rooms[index].maphong}', Constants.mac);
           String json = jsonEncode(room);
           publishMessage('loginphong', json);
           // TempPage(devices[index], iduser)));
@@ -628,8 +637,10 @@ class _DepartmentPageState extends State<DepartmentPage>
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
-      response = DeviceResponse.fromJson(loginResponse);
-      devices.clear();
+      response = DeviceResponse.fromJson(responseMap);
+      if (devices != null && devices.isNotEmpty) {
+        devices.clear();
+      }
       devices = response.id.map((e) => Device.fromJson(e)).toList();
 
       devices.forEach((element) {
@@ -641,8 +652,11 @@ class _DepartmentPageState extends State<DepartmentPage>
       });
 
       await Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) =>
-              RoomPage(loginResponse: loginResponse, devices: devices)));
+          builder: (BuildContext context) => RoomPage(
+              loginResponse: loginResponse,
+              devices: devices,
+              room: seletedRoom,
+              home: home)));
     }
   }
 
@@ -656,24 +670,6 @@ class _DepartmentPageState extends State<DepartmentPage>
     ),
   );
 
-  Future<void> handleRoom(Room room) async {
-    // Lenh lenh;
-    // if (room.isEnable) {
-    //   lenh = Lenh('bat', '', iduser);
-    // } else {
-    //   lenh = Lenh('tat', '', iduser);
-    // }
-    // if (mqttClientWrapper.connectionState ==
-    //     MqttCurrentConnectionState.CONNECTED) {
-    //   mqttClientWrapper.publishMessage(
-    //       'P${device.mathietbi}', lenh.toJson().toString());
-    // } else {
-    //   await initMqtt();
-    //   mqttClientWrapper.publishMessage(
-    //       'P${device.mathietbi}', lenh.toJson().toString());
-    // }
-  }
-
   Future<void> publishMessage(String topic, String message) async {
     if (mqttClientWrapper.connectionState ==
         MqttCurrentConnectionState.CONNECTED) {
@@ -686,9 +682,13 @@ class _DepartmentPageState extends State<DepartmentPage>
 
   _navigateAddDevicePage(int typeOfAdd) async {
     final Room room = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => AddDevice(response, typeOfAdd)));
+        builder: (BuildContext context) =>
+            AddDevice(iduser, home.id, '', typeOfAdd)));
     setState(() {
       rooms.add(room);
+      rooms.forEach((element) {
+        element.isEnable = false;
+      });
     });
   }
 

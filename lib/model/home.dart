@@ -12,9 +12,16 @@ class Home {
   String manha;
   @ColumnInfo(name: 'mac', nullable: false)
   String mac;
+  @ColumnInfo(name: 'idnha', nullable: false)
+  String idnha;
   bool isEnable = false;
 
-  String get id => _id;
+  String get id => idnha;
+
+  set id(String id) {
+    this._id = id;
+    this.idnha = id;
+  }
 
   Home(this._id, this.iduser, this.tennha, this.manha, this.mac);
 
@@ -27,6 +34,7 @@ class Home {
         iduser = json['iduser'],
         tennha = json['tennha'],
         manha = json['manha'],
+        idnha = json['idnha'],
         mac = json['mac'];
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +42,7 @@ class Home {
         'iduser': iduser,
         'tennha': tennha,
         'manha': manha,
-        'mac': mac
+        'mac': mac,
+        'idnha': idnha
       };
 }

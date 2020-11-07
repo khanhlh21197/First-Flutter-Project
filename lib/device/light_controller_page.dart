@@ -48,7 +48,7 @@ class _LightController extends State<LightController> {
     super.initState();
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    mqttClientWrapper.prepareMqttClient('S${device.mathietbi}');
+    mqttClientWrapper.prepareMqttClient('S${device.matb}');
   }
 
   Widget _backButton() {
@@ -97,7 +97,7 @@ class _LightController extends State<LightController> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${device.tenthietbi}',
+                        Text('${device.tentb}',
                             style: TextStyle(fontSize: 26))
                       ],
                     ),
@@ -137,11 +137,11 @@ class _LightController extends State<LightController> {
                             if (device.isEnable) {
                               Lenh lenh = Lenh('bat', '', iduser);
                               mqttClientWrapper.publishMessage(
-                                  'P${device.mathietbi}', jsonEncode(lenh));
+                                  'P${device.matb}', jsonEncode(lenh));
                             } else {
                               Lenh lenh = Lenh('tat', '', iduser);
                               mqttClientWrapper.publishMessage(
-                                  'P${device.mathietbi}', jsonEncode(lenh));
+                                  'P${device.matb}', jsonEncode(lenh));
                             }
                           });
                         }),
@@ -175,7 +175,7 @@ class _LightController extends State<LightController> {
                                     Lenh lenh =
                                         Lenh('hengiobat', param, iduser);
                                     mqttClientWrapper.publishMessage(
-                                        'P${device.mathietbi}',
+                                        'P${device.matb}',
                                         jsonEncode(lenh));
                                   } else {
                                     // Lenh lenh = Lenh('hengiotat', param, iduser);
@@ -217,7 +217,7 @@ class _LightController extends State<LightController> {
                                     Lenh lenh =
                                         Lenh('hengiotat', param, iduser);
                                     mqttClientWrapper.publishMessage(
-                                        'P${device.mathietbi}',
+                                        'P${device.matb}',
                                         jsonEncode(lenh));
                                   } else {
                                     // Lenh lenh = Lenh('hengiotat', param, iduser);

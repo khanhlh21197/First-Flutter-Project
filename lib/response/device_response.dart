@@ -1,10 +1,9 @@
-import 'package:my_first_flutter_project/model/device.dart';
-
 class DeviceResponse {
   final String errorCode;
   final String result;
   final String message;
   final List<dynamic> id;
+  String idnha;
 
   DeviceResponse(this.errorCode, this.result, this.message, this.id);
 
@@ -12,5 +11,6 @@ class DeviceResponse {
       : errorCode = json['errorCode'],
         result = json['result'],
         message = json['message'],
-        id = json['id'];
+        id = json['id'],
+        idnha = json['idnha'];
 }

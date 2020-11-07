@@ -11,7 +11,6 @@ import 'package:my_first_flutter_project/model/user.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 
 import '../helper/constants.dart' as Constants;
-
 import '../helper/mqttClientWrapper.dart';
 
 // ignore: must_be_immutable
@@ -102,7 +101,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     User user = User('02:00:00:00:00:00', _emailController.text,
         _passwordController.text, '', '', '');
 
-    if (mqttClientWrapper.connectionState !=
+    if (mqttClientWrapper.connectionState ==
         MqttCurrentConnectionState.CONNECTED) {
       mqttClientWrapper.login(user);
     } else {
@@ -120,15 +119,21 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       setState(() {
         loading = false;
       });
-      print('Register success');
-      if (_switchValue) {
-        await sharedPrefsHelper.addStringToSF('email', _emailController.text);
-        await sharedPrefsHelper.addStringToSF(
-            'password', _passwordController.text);
-        await sharedPrefsHelper.addBoolToSF('switchValue', _switchValue);
-      } else {
-        await sharedPrefsHelper.removeValues();
+      print('Login success');
+      if (_switchValue != null) {
+        if (_switchValue) {
+          await sharedPrefsHelper.addStringToSF('email', _emailController.text);
+          await sharedPrefsHelper.addStringToSF(
+              'password', _passwordController.text);
+          await sharedPrefsHelper.addBoolToSF('switchValue', _switchValue);
+        } else {
+          await sharedPrefsHelper.removeValues();
+        }
       }
+      await sharedPrefsHelper.addStringToSF('email', _emailController.text);
+      await sharedPrefsHelper.addStringToSF(
+          'password', _passwordController.text);
+      await sharedPrefsHelper.addBoolToSF('switchValue', _switchValue);
       Navigator.push(
           context,
           MaterialPageRoute(

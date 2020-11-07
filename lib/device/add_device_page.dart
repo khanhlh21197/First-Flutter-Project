@@ -6,25 +6,29 @@ import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/model/device.dart';
 import 'package:my_first_flutter_project/model/home.dart';
 import 'package:my_first_flutter_project/model/room.dart';
-import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
 import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 
 class AddDevice extends StatefulWidget {
-  AddDevice(this.deviceResponse, this.typeOfAdd);
+  AddDevice(this.iduser, this.idnha, this.idphong, this.typeOfAdd);
 
-  final DeviceResponse deviceResponse;
+  final String iduser;
+  final String idnha;
+  final String idphong;
   final int typeOfAdd;
 
-  _AddDeviceState createState() => _AddDeviceState(deviceResponse, typeOfAdd);
+  _AddDeviceState createState() =>
+      _AddDeviceState(iduser, idnha, idphong, typeOfAdd);
 }
 
 class _AddDeviceState extends State<AddDevice> {
-  _AddDeviceState(this.deviceResponse, this.typeOfAdd);
+  _AddDeviceState(this.iduser, this.idnha, this.idphong, this.typeOfAdd);
 
-  final DeviceResponse deviceResponse;
+  final String iduser;
+  final String idnha;
+  final String idphong;
   final int typeOfAdd;
 
   String dropdownValue = 'Đèn';
@@ -47,14 +51,19 @@ class _AddDeviceState extends State<AddDevice> {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
+      String saveId = responseMap['message'];
+      print(saveId);
       switch (typeOfAdd) {
         case Constants.ADD_DEPARTMENT:
+          home.id = saveId;
           Navigator.pop(context, home);
           break;
         case Constants.ADD_ROOM:
+          room.id = saveId;
           Navigator.pop(context, room);
           break;
         case Constants.ADD_DEVICE:
+          device.id = saveId;
           Navigator.pop(context, device);
           break;
       }
@@ -212,31 +221,26 @@ class _AddDeviceState extends State<AddDevice> {
         if (text == 'Thêm') {
           if (typeOfAdd == Constants.ADD_DEPARTMENT) {
             topic = 'registernha';
-            home = new Home(
-                '',
-                deviceResponse.message.toString(),
-                _deviceNameController.text,
-                _deviceIdController.text,
-                Constants.mac);
+            home = new Home('', iduser, _deviceNameController.text,
+                _deviceIdController.text, Constants.mac);
             publishMessage(topic, jsonEncode(home));
           } else if (typeOfAdd == Constants.ADD_DEVICE) {
             device = Device(
                 '',
-                deviceResponse.message.toString(),
+                iduser,
+                idnha,
+                idphong,
                 _deviceNameController.text,
                 _deviceIdController.text,
+                'loaitb',
                 '',
                 Constants.mac);
             String deviceJson = jsonEncode(device);
             publishMessage('registerthietbi', deviceJson);
           } else if (typeOfAdd == Constants.ADD_ROOM) {
             topic = 'registerphong';
-            room = new Room(
-                '',
-                deviceResponse.message.toString(),
-                _deviceNameController.text,
-                _deviceIdController.text,
-                Constants.mac);
+            room = new Room('', iduser, idnha, _deviceNameController.text,
+                _deviceIdController.text, Constants.mac);
             publishMessage(topic, jsonEncode(room));
           }
         } else {
