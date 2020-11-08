@@ -6,11 +6,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_first_flutter_project/actions/actions.dart';
+import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/helper/reminder/notificationHelper.dart';
 import 'package:my_first_flutter_project/model/device.dart';
+import 'package:my_first_flutter_project/model/history.dart';
 import 'package:my_first_flutter_project/model/lenh.dart';
+import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/store/store.dart';
 
+import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 
 const String custom = 'Custom time';
@@ -46,9 +50,7 @@ class _LightController extends State<LightController> {
   @override
   void initState() {
     super.initState();
-    mqttClientWrapper =
-        MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    mqttClientWrapper.prepareMqttClient('SUB${device.matb}');
+    initMqtt();
   }
 
   Widget _backButton() {
@@ -137,11 +139,11 @@ class _LightController extends State<LightController> {
                             device.isEnable = !device.isEnable;
                             if (device.isEnable) {
                               Lenh lenh = Lenh('bat', '', device.matb);
-                              mqttClientWrapper.publishMessage(
+                              publishMessage(
                                   'PUB${device.matb}', jsonEncode(lenh));
                             } else {
                               Lenh lenh = Lenh('tat', '', device.matb);
-                              mqttClientWrapper.publishMessage(
+                              publishMessage(
                                   'PUB${device.matb}', jsonEncode(lenh));
                             }
                           });
@@ -175,7 +177,7 @@ class _LightController extends State<LightController> {
                                   if (_timerOnSwitch) {
                                     Lenh lenh =
                                         Lenh('hengiobat', param, device.matb);
-                                    mqttClientWrapper.publishMessage(
+                                    publishMessage(
                                         'PUB${device.matb}', jsonEncode(lenh));
                                   } else {
                                     // Lenh lenh = Lenh('hengiotat', param, iduser);
@@ -216,7 +218,7 @@ class _LightController extends State<LightController> {
                                   if (_timerOffSwitch) {
                                     Lenh lenh =
                                         Lenh('hengiotat', param, device.matb);
-                                    mqttClientWrapper.publishMessage(
+                                    publishMessage(
                                         'PUB${device.matb}', jsonEncode(lenh));
                                   } else {
                                     // Lenh lenh = Lenh('hengiotat', param, iduser);
@@ -224,10 +226,12 @@ class _LightController extends State<LightController> {
                                     //     'P${device.mathietbi}', jsonEncode(lenh));
                                   }
                                 });
-                              })
+                              }),
                         ],
                       ),
-                    )
+                    ),
+                    SizedBox(height: 10),
+                    _historyWidget(),
                   ],
                 ),
               )
@@ -273,8 +277,74 @@ class _LightController extends State<LightController> {
     }
   }
 
-  handle(String message) {
-    print('Light Controller $message');
+  void handle(String message) async {
+    Map responseMap = jsonDecode(message);
+    print('History: $message');
+
+    if (responseMap['result'] == 'true') {
+      DeviceResponse response = DeviceResponse.fromJson(responseMap);
+      List<History> histories =
+          response.id.map((e) => History.fromJson(e)).toList();
+      print('History: ${histories.length}');
+      histories.forEach((element) {
+        if (element.hengio == 'hengiobat') {
+          element.hengio = 'Hẹn giờ bật';
+        } else {
+          element.hengio = 'Hẹn giờ tắt';
+        }
+        element.gio = element.time.split('&')[0] + ' giờ';
+        element.phut = element.time.split('&')[1] + ' phút';
+      });
+
+      // Navigator.of(context).push(MaterialPageRoute(
+      //     builder: (BuildContext context) => HistoryPage(histories)));
+
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)), //this right here
+              child: Container(
+                height: 300.0, // Change as per your requirement
+                width: 300.0, // Change as per your requirement
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: histories.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: histories.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text(
+                              '${histories[index].gio} ${histories[index].phut}'),
+                          subtitle: Text(histories[index].hengio),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            );
+          });
+    }
+  }
+
+  Widget setupAlertDialoadContainer(List<History> histories) {
+    return Container(
+      height: 300.0, // Change as per your requirement
+      width: 300.0, // Change as per your requirement
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: histories.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text(histories[index].time),
+          );
+        },
+      ),
+    );
   }
 
   Widget _timePicker(bool on) {
@@ -297,5 +367,52 @@ class _LightController extends State<LightController> {
         });
       },
     );
+  }
+
+  Widget _historyWidget() {
+    device.mac = Constants.mac;
+    return InkWell(
+        onTap: () => {publishMessage('historytime', jsonEncode(device))},
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          //change here don't //worked
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(
+                  left: 8.0, top: 8.0, bottom: 8.0, right: 12.0),
+              width: 15.0,
+              height: 15.0,
+              decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(40.0)),
+            ),
+            Text(
+              "Xem lịch sử hẹn giờ",
+              style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 19.0,
+                  fontWeight: FontWeight.bold),
+            ),
+            new Spacer(), // I just added one line
+            Icon(Icons.info, color: Colors.blue) // This Icon
+          ],
+        ));
+  }
+
+  Future<void> publishMessage(String topic, String message) async {
+    if (mqttClientWrapper.connectionState ==
+        MqttCurrentConnectionState.CONNECTED) {
+      mqttClientWrapper.publishMessage(topic, message);
+    } else {
+      await initMqtt();
+      mqttClientWrapper.publishMessage(topic, message);
+    }
+  }
+
+  Future<void> initMqtt() async {
+    mqttClientWrapper =
+        MQTTClientWrapper(() => print('Success'), (message) => handle(message));
+    await mqttClientWrapper.prepareMqttClient('SUB${device.matb}');
   }
 }

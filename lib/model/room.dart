@@ -11,9 +11,9 @@ class Room {
   @ColumnInfo(name: 'idphong', nullable: false)
   String idphong;
   @ColumnInfo(name: 'tenphong', nullable: false)
-  final String tenphong;
+  String tenphong;
   @ColumnInfo(name: 'maphong', nullable: false)
-  final String maphong;
+  String maphong;
   @ColumnInfo(name: 'isEnable', nullable: false)
   bool isEnable;
   @ColumnInfo(name: 'mac', nullable: false)

@@ -11,39 +11,40 @@ import 'package:qrscan/qrscan.dart' as scanner;
 import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 
-class AddDevice extends StatefulWidget {
-  AddDevice(this.iduser, this.idnha, this.idphong, this.typeOfAdd);
+class EditPage extends StatefulWidget {
+  EditPage(this.iduser, this.home, this.room, this.device, this.typeOfEdit);
 
   final String iduser;
-  final String idnha;
-  final String idphong;
-  final int typeOfAdd;
+  final Home home;
+  final Room room;
+  final Device device;
+  final int typeOfEdit;
 
-  _AddDeviceState createState() =>
-      _AddDeviceState(iduser, idnha, idphong, typeOfAdd);
+  _EditPageState createState() =>
+      _EditPageState(iduser, home, room, device, typeOfEdit);
 }
 
-class _AddDeviceState extends State<AddDevice> {
-  _AddDeviceState(this.iduser, this.idnha, this.idphong, this.typeOfAdd);
+class _EditPageState extends State<EditPage> {
+  _EditPageState(
+      this.iduser, this.home, this.room, this.device, this.typeOfEdit);
 
   final String iduser;
-  final String idnha;
-  final String idphong;
-  final int typeOfAdd;
+  final Home home;
+  final Room room;
+  final Device device;
+  final int typeOfEdit;
 
   String dropdownValue = 'Đèn';
   TextEditingController _deviceNameController = TextEditingController();
   TextEditingController _deviceIdController = TextEditingController();
   MQTTClientWrapper mqttClientWrapper;
-  Home home;
-  Room room;
-  Device device;
 
   final List<String> spinnerItems = ['Đèn', 'Điều hòa', 'TV', 'Quạt'];
 
   @override
   void initState() {
     initMqtt();
+    fillText();
     super.initState();
   }
 
@@ -51,24 +52,31 @@ class _AddDeviceState extends State<AddDevice> {
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
-      String saveId = responseMap['message'];
-      print(saveId);
-      switch (typeOfAdd) {
-        case Constants.ADD_DEPARTMENT:
-          home.id = saveId;
-          print('AddDevicePage: Add Home Success');
-          Navigator.pop(context, home);
-          break;
-        case Constants.ADD_ROOM:
-          room.id = saveId;
-          print('AddDevicePage: Add Room Success');
-          Navigator.pop(context, room);
-          break;
-        case Constants.ADD_DEVICE:
-          device.id = saveId;
-          print('AddDevicePage: Add Device Success');
-          Navigator.pop(context, device);
-          break;
+      switch (typeOfEdit) {
+        case Constants.EDIT_HOME:
+          {
+            home.tennha = _deviceNameController.text;
+            home.manha = _deviceNameController.text;
+            print('EditPage: Edit Home Success');
+            Navigator.pop(context, home);
+            break;
+          }
+        case Constants.EDIT_ROOM:
+          {
+            room.tenphong = _deviceNameController.text;
+            room.maphong = _deviceNameController.text;
+            print('EditPage: Edit Room Success');
+            Navigator.pop(context, room);
+            break;
+          }
+        case Constants.EDIT_DEVICE:
+          {
+            device.tentb = _deviceNameController.text;
+            device.matb = _deviceNameController.text;
+            print('EditPage: Edit Device Success');
+            Navigator.pop(context, device);
+            break;
+          }
       }
     } else {
       final snackBar = SnackBar(
@@ -89,7 +97,7 @@ class _AddDeviceState extends State<AddDevice> {
 
   Widget _appBar() {
     return AppBar(
-      title: Text("Thêm"),
+      title: Text("Chỉnh sửa"),
     );
   }
 
@@ -141,39 +149,6 @@ class _AddDeviceState extends State<AddDevice> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Text("Chọn loại thiết bị"),
-                    DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_drop_down),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.red, fontSize: 18),
-                      underline: Container(
-                        height: 2,
-                        color: Colors.deepPurpleAccent,
-                      ),
-                      onChanged: (String data) {
-                        setState(() {
-                          dropdownValue = data;
-                          if (dropdownValue == spinnerItems[0]) {}
-                          if (dropdownValue == spinnerItems[1]) {}
-                          if (dropdownValue == spinnerItems[2]) {}
-                          if (dropdownValue == spinnerItems[3]) {}
-                        });
-                      },
-                      items: spinnerItems
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    )
-                  ],
-                ),
                 Column(
                   children: <Widget>[_entryField('Tên', _deviceNameController)],
                 ),
@@ -206,7 +181,7 @@ class _AddDeviceState extends State<AddDevice> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     SizedBox(height: 10),
-                    _button('Thêm'),
+                    _button('Cập nhật'),
                     SizedBox(height: 10),
                     _button('Hủy'),
                   ],
@@ -221,30 +196,35 @@ class _AddDeviceState extends State<AddDevice> {
     String topic = '';
     return InkWell(
       onTap: () {
-        if (text == 'Thêm') {
-          if (typeOfAdd == Constants.ADD_DEPARTMENT) {
-            topic = 'registernha';
-            home = new Home('', iduser, _deviceNameController.text,
+        if (text == 'Cập nhật') {
+          if (typeOfEdit == Constants.EDIT_HOME) {
+            topic = 'updatenha';
+            Home h = new Home('', iduser, _deviceNameController.text,
                 _deviceIdController.text, Constants.mac);
-            publishMessage(topic, jsonEncode(home));
-          } else if (typeOfAdd == Constants.ADD_DEVICE) {
-            device = Device(
+            publishMessage(topic, jsonEncode(h));
+          } else if (typeOfEdit == Constants.EDIT_DEVICE) {
+            Device d = Device(
                 '',
                 iduser,
-                idnha,
-                idphong,
+                home.idnha,
+                room.idphong,
                 _deviceNameController.text,
                 _deviceIdController.text,
                 'loaitb',
                 '',
                 Constants.mac);
-            String deviceJson = jsonEncode(device);
-            publishMessage('registerthietbi', deviceJson);
-          } else if (typeOfAdd == Constants.ADD_ROOM) {
-            topic = 'registerphong';
-            room = new Room('', iduser, idnha, _deviceNameController.text,
-                _deviceIdController.text, Constants.mac);
-            publishMessage(topic, jsonEncode(room));
+            String deviceJson = jsonEncode(d);
+            publishMessage('updatethietbi', deviceJson);
+          } else if (typeOfEdit == Constants.EDIT_ROOM) {
+            topic = 'updatephong';
+            Room r = new Room(
+                '',
+                iduser,
+                home.idnha,
+                _deviceNameController.text,
+                _deviceIdController.text,
+                Constants.mac);
+            publishMessage(topic, jsonEncode(r));
           }
         } else {
           Navigator.pop(context);
@@ -314,6 +294,29 @@ class _AddDeviceState extends State<AddDevice> {
     } else {
       await initMqtt();
       mqttClientWrapper.publishMessage(topic, message);
+    }
+  }
+
+  void fillText() {
+    switch (typeOfEdit) {
+      case Constants.EDIT_HOME:
+        {
+          _deviceIdController.text = home.manha;
+          _deviceNameController.text = home.tennha;
+          break;
+        }
+      case Constants.EDIT_ROOM:
+        {
+          _deviceIdController.text = room.maphong;
+          _deviceNameController.text = room.tenphong;
+          break;
+        }
+      case Constants.EDIT_DEVICE:
+        {
+          _deviceIdController.text = device.matb;
+          _deviceNameController.text = device.tentb;
+          break;
+        }
     }
   }
 }

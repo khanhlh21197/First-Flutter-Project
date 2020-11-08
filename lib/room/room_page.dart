@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_first_flutter_project/device/add_device_page.dart';
+import 'package:my_first_flutter_project/device/edit_page.dart';
 import 'package:my_first_flutter_project/device/light_controller_page.dart';
 import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/main/user_profile_page.dart';
@@ -87,6 +88,7 @@ class _RoomPageState extends State<RoomPage>
               ),
               new FlatButton(
                 onPressed: () {
+                  Navigator.of(context).pop(false);
                   setState(() {
                     Device d = Device('', iduser, home.idnha, room.idphong,
                         device.tentb, device.matb, '', '', Constants.mac);
@@ -141,18 +143,17 @@ class _RoomPageState extends State<RoomPage>
                     borderRadius:
                         BorderRadius.circular(20.0)), //this right here
                 child: Container(
-                  height: 150,
+                  height: 120,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextField(
-                          decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Vui lòng chọn'),
+                        Text(
+                          'Vui lòng chọn',
                         ),
+                        SizedBox(height: 15),
                         // SizedBox(
                         //   width: 320.0,
                         //   child: RaisedButton(
@@ -590,11 +591,63 @@ class _RoomPageState extends State<RoomPage>
         },
       ),
       onLongPress: () {
-        setState(() {
-          print('Item OnLongPressed');
-          _deleteDevice(devices[index]);
-          deletePosition = index;
-        });
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0)), //this right here
+                child: Container(
+                  height: 160,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Vui lòng chọn',
+                        ),
+                        SizedBox(height: 15),
+                        SizedBox(
+                          width: 320.0,
+                          child: RaisedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(this);
+                              _navigateEditPage(Constants.EDIT_DEVICE, index);
+                            },
+                            child: Text(
+                              "Sửa thông tin",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            color: const Color(0xFF1BC0C5),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 320.0,
+                          child: RaisedButton(
+                            onPressed: () {
+                              setState(() {
+                                print('Item OnLongPressed');
+                                Navigator.of(context).pop(false);
+                                _deleteDevice(devices[index]);
+                                deletePosition = index;
+                              });
+                            },
+                            child: Text(
+                              "Xóa",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            color: const Color(0xFF1BC0C5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            });
       },
     );
   }
@@ -680,6 +733,7 @@ class _RoomPageState extends State<RoomPage>
           {
             setState(() {
               devices.removeAt(deletePosition);
+              print('Delete Device: True');
             });
             break;
           }
@@ -743,6 +797,17 @@ class _RoomPageState extends State<RoomPage>
       ),
     );
     scaffold.showSnackBar(snackBar);
+  }
+
+  void _navigateEditPage(int typeOfEdit, int index) async {
+    Device device = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) =>
+            EditPage(iduser, home, room, devices[index], typeOfEdit)));
+    setState(() {
+      print('Edit device: ${device.toString()}');
+      devices.removeAt(index);
+      devices.add(device);
+    });
   }
 }
 

@@ -8,6 +8,10 @@ const int ADD_DEPARTMENT = 0;
 const int ADD_ROOM = 1;
 const int ADD_DEVICE = 2;
 
+const int EDIT_HOME = 0;
+const int EDIT_ROOM = 1;
+const int EDIT_DEVICE = 2;
+
 final String defaultMarkerId = "1";
 
 // final String serverUri = "test.mosquitto.org";

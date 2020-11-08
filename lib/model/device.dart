@@ -34,7 +34,7 @@ class Device {
       this.loaitb, this.trangthai, this.mac);
 
   String toString() {
-    return '$_id - $idphong - $tentb - $matb - $trangthai - $mac';
+    return '$_id - $idphong - $tentb - $matb - $trangthai - $mac - $isEnable';
   }
 
   Device.fromJson(Map<String, dynamic> json)
