@@ -19,6 +19,8 @@ import '../helper/mqttClientWrapper.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
+const int DELETE_DEVICE = 0;
+const int STATUS_DEVICE = 1;
 
 class RoomPage extends StatefulWidget {
   RoomPage({Key key, this.loginResponse, this.devices, this.room, this.home})
@@ -44,6 +46,8 @@ class _RoomPageState extends State<RoomPage>
   Home home;
   String iduser;
   DeviceResponse response;
+  int deviceAction = 2;
+  int deletePosition = 0;
 
   MQTTClientWrapper mqttClientWrapper;
 
@@ -70,6 +74,7 @@ class _RoomPageState extends State<RoomPage>
   }
 
   Future<bool> _deleteDevice(Device device) async {
+    deviceAction = DELETE_DEVICE;
     return (await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
@@ -83,7 +88,7 @@ class _RoomPageState extends State<RoomPage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
-                    Device d = Device('', iduser, home.id, room.id,
+                    Device d = Device('', iduser, home.idnha, room.idphong,
                         device.tentb, device.matb, '', '', Constants.mac);
                     String dJson = jsonEncode(d);
                     publishMessage('deletethietbi', dJson);
@@ -136,7 +141,7 @@ class _RoomPageState extends State<RoomPage>
                     borderRadius:
                         BorderRadius.circular(20.0)), //this right here
                 child: Container(
-                  height: 220,
+                  height: 150,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -204,13 +209,15 @@ class _RoomPageState extends State<RoomPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // getDeviceStatus();
+    new Future.delayed(const Duration(seconds: 3), () {
+      getDeviceStatus();
+    });
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
 
     // devices = response.id.map((e) => Device.fromJson(e)).toList();
     devices.forEach((element) {
-      if (element.trangthai == 'BAT') {
+      if (element.trangthai == '1') {
         element.isEnable = true;
         element.nhietdo = '37';
       } else {
@@ -230,7 +237,9 @@ class _RoomPageState extends State<RoomPage>
   }
 
   Future<void> getDeviceStatus() async {
-    Device device = Device('', iduser, '', '', '', '', '', '', Constants.mac);
+    deviceAction = STATUS_DEVICE;
+    Device device = Device(
+        '', iduser, home.idnha, room.idphong, '', '', '', '', Constants.mac);
     String deviceJson = jsonEncode(device);
     publishMessage(Constants.device_status, deviceJson);
   }
@@ -417,7 +426,7 @@ class _RoomPageState extends State<RoomPage>
           childAspectRatio: 1.5,
           padding: EdgeInsets.all(5),
           children: List.generate(devices.length, (index) {
-            return devices[index].tentb != null
+            return devices != null
                 ? _buildApplianceCard(devices, index)
                 : Container(
                     height: 120,
@@ -542,24 +551,30 @@ class _RoomPageState extends State<RoomPage>
               // SizedBox(
               //   height: 5,
               // ),
-              Text(
-                devices[index].tentb,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    color: devices[index].isEnable
-                        ? Colors.white
-                        : Color(0xff302e45),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600),
+              Flexible(
+                child: Text(
+                  devices[index].tentb != null
+                      ? devices[index].tentb
+                      : 'TEN TB',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: devices[index].isEnable
+                          ? Colors.white
+                          : Color(0xff302e45),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600),
+                ),
               ),
-              Text(
-                devices[index].matb,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    color: devices[index].isEnable
-                        ? Colors.white
-                        : Color(0xffa3a3a3),
-                    fontSize: 16),
+              Flexible(
+                child: Text(
+                  devices[index].matb,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: devices[index].isEnable
+                          ? Colors.white
+                          : Color(0xffa3a3a3),
+                      fontSize: 16),
+                ),
               ),
               // Icon(model.allYatch[index].topRightIcon,color:model.allYatch[index].isEnable ? Colors.white : Color(0xffa3a3a3))
             ],
@@ -578,6 +593,7 @@ class _RoomPageState extends State<RoomPage>
         setState(() {
           print('Item OnLongPressed');
           _deleteDevice(devices[index]);
+          deletePosition = index;
         });
       },
     );
@@ -634,27 +650,40 @@ class _RoomPageState extends State<RoomPage>
 
   Future<void> handle(String message) async {
     Map responseMap = jsonDecode(message);
+    print('Device status: $message');
 
     if (responseMap['result'] == 'true') {
-      response = DeviceResponse.fromJson(loginResponse);
-      iduser = response.message;
-      setState(() {
-        devices.clear();
-        print('Length of devices: ${devices.length}');
-        devices = response.id.map((e) => Device.fromJson(e)).toList();
+      switch (deviceAction) {
+        case STATUS_DEVICE:
+          {
+            response = DeviceResponse.fromJson(responseMap);
+            // iduser = response.message;
+            setState(() {
+              devices.clear();
+              devices = response.id.map((e) => Device.fromJson(e)).toList();
 
-        devices.forEach((element) {
-          if (element.trangthai == 'BAT') {
-            element.isEnable = true;
-            element.nhietdo = '38';
-          } else {
-            element.isEnable = false;
-            element.nhietdo = '37';
+              devices.forEach((element) {
+                if (element.trangthai == '1') {
+                  element.isEnable = true;
+                  element.nhietdo = '38';
+                } else {
+                  element.isEnable = false;
+                  element.nhietdo = '37';
+                }
+                print(element.toString());
+              });
+            });
+            print('Length of devices: ${devices.length}');
+            break;
           }
-          print(element.toString());
-        });
-      });
-      print('Length of devices: ${devices.length}');
+        case DELETE_DEVICE:
+          {
+            setState(() {
+              devices.removeAt(deletePosition);
+            });
+            break;
+          }
+      }
     }
   }
 
@@ -689,11 +718,17 @@ class _RoomPageState extends State<RoomPage>
   }
 
   _navigateAddDevicePage(int typeOfAdd) async {
-    final kindOfDevice = await Navigator.of(context).push(MaterialPageRoute(
+    final Device device = await Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
             AddDevice(iduser, home.id, room.id, typeOfAdd)));
-    getDeviceStatus();
-    _showToast(kindOfDevice);
+    // _showToast(kindOfDevice);
+    setState(() {
+      devices.add(device);
+      // devices.forEach((element) {
+      //   element.isEnable = false;
+      // });
+    });
+    // getDeviceStatus();
   }
 
   void _showToast(BuildContext context) {

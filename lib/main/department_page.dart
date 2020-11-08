@@ -20,6 +20,8 @@ import '../helper/mqttClientWrapper.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
+const int LOGIN_PHONG = 0;
+const int DELETE_PHONG = 1;
 
 class DepartmentPage extends StatefulWidget {
   DepartmentPage({Key key, this.loginResponse, this.rooms, this.home})
@@ -42,6 +44,8 @@ class _DepartmentPageState extends State<DepartmentPage>
   List<Room> rooms;
   final Home home;
   List<Device> devices;
+  int roomAction = 2;
+  int deletePosition = 0;
 
   Room seletedRoom;
 
@@ -72,11 +76,12 @@ class _DepartmentPageState extends State<DepartmentPage>
         false;
   }
 
-  Future<bool> _deleteDevice(Device device) async {
+  Future<bool> _deleteRoom(Room room) async {
+    roomAction = DELETE_PHONG;
     return (await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-            title: new Text('Bạn muốn xóa thiết bị ?'),
+            title: new Text('Bạn muốn xóa phòng ?'),
             // content: new Text('Bạn muốn thoát ứng dụng?'),
             actions: <Widget>[
               new FlatButton(
@@ -86,10 +91,10 @@ class _DepartmentPageState extends State<DepartmentPage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
-                    Device d = Device('', iduser, '', '', device.tentb,
-                        device.matb, '', '', Constants.mac);
-                    String dJson = jsonEncode(d);
-                    publishMessage('deletethietbi', dJson);
+                    Room r = Room('', iduser, home.idnha, room.tenphong,
+                        room.maphong, Constants.mac);
+                    String dJson = jsonEncode(r);
+                    publishMessage('deletephong', dJson);
                   });
                 },
                 // Navigator.of(context).pop(true),
@@ -139,7 +144,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                     borderRadius:
                         BorderRadius.circular(20.0)), //this right here
                 child: Container(
-                  height: 220,
+                  height: 150,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -444,8 +449,8 @@ class _DepartmentPageState extends State<DepartmentPage>
         child: GridView.count(
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
-          crossAxisCount: 3,
-          childAspectRatio: 1.5,
+          crossAxisCount: 2,
+          childAspectRatio: 2,
           padding: EdgeInsets.all(5),
           children: List.generate(rooms.length, (index) {
             return rooms != null
@@ -519,7 +524,8 @@ class _DepartmentPageState extends State<DepartmentPage>
                       color: rooms[index].isEnable
                           ? Colors.white
                           : Color(0xffa3a3a3)),
-                  Text(
+                  Flexible(
+                      child: Text(
                     '${rooms[index].tenphong}',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -528,7 +534,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                             : Color(0xff302e45),
                         fontSize: 18,
                         fontWeight: FontWeight.w600),
-                  )
+                  ))
                   // Switch(
                   //     value: rooms[index].isEnable,
                   //     activeColor: Color(0xff457be4),
@@ -542,7 +548,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                 ],
               ),
               SizedBox(
-                height: 5,
+                height: 15,
               ),
               // Text(
               //   '${rooms[index].numberOfDevices} bệnh nhân',
@@ -572,13 +578,15 @@ class _DepartmentPageState extends State<DepartmentPage>
               '${rooms[index].maphong}', Constants.mac);
           String json = jsonEncode(room);
           publishMessage('loginphong', json);
+          roomAction = LOGIN_PHONG;
           // TempPage(devices[index], iduser)));
         },
       ),
       onLongPress: () {
         setState(() {
           print('Item OnLongPressed');
-          _deleteDevice(devices[index]);
+          _deleteRoom(rooms[index]);
+          deletePosition = index;
         });
       },
     );
@@ -636,27 +644,40 @@ class _DepartmentPageState extends State<DepartmentPage>
   void handle(String message) async {
     Map responseMap = jsonDecode(message);
 
-    if (responseMap['result'] == 'true') {
-      response = DeviceResponse.fromJson(responseMap);
-      if (devices != null && devices.isNotEmpty) {
-        devices.clear();
-      }
-      devices = response.id.map((e) => Device.fromJson(e)).toList();
+    switch (roomAction) {
+      case LOGIN_PHONG:
+        {
+          if (responseMap['result'] == 'true') {
+            response = DeviceResponse.fromJson(responseMap);
+            if (devices != null && devices.isNotEmpty) {
+              devices.clear();
+            }
+            devices = response.id.map((e) => Device.fromJson(e)).toList();
 
-      devices.forEach((element) {
-        if (element.trangthai == 'BAT') {
-          element.isEnable = true;
-        } else {
-          element.isEnable = false;
+            devices.forEach((element) {
+              if (element.trangthai == '1') {
+                element.isEnable = true;
+              } else {
+                element.isEnable = false;
+              }
+            });
+
+            await Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => RoomPage(
+                    loginResponse: loginResponse,
+                    devices: devices,
+                    room: seletedRoom,
+                    home: home)));
+          }
+          break;
         }
-      });
-
-      await Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) => RoomPage(
-              loginResponse: loginResponse,
-              devices: devices,
-              room: seletedRoom,
-              home: home)));
+      case DELETE_PHONG:
+        {
+          if (responseMap['result'] == 'true') {
+            rooms.removeAt(deletePosition);
+          }
+          break;
+        }
     }
   }
 

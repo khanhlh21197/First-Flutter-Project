@@ -19,6 +19,9 @@ import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 import 'department_page.dart';
 
+const int LOGIN_NHA = 0;
+const int DELETE_NHA = 1;
+
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -43,6 +46,8 @@ class _HomePageState extends State<HomePage>
   Home seletedHome;
   String iduser;
   DeviceResponse response;
+  int homeAction = 2;
+  int deletePosition = 0;
 
   MQTTClientWrapper mqttClientWrapper;
 
@@ -68,11 +73,11 @@ class _HomePageState extends State<HomePage>
         false;
   }
 
-  Future<bool> _deleteDevice(Device device) async {
+  Future<bool> _deleteHome(Home home) async {
     return (await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-            title: new Text('Bạn muốn xóa thiết bị ?'),
+            title: new Text('Bạn muốn xóa nhà ?'),
             // content: new Text('Bạn muốn thoát ứng dụng?'),
             actions: <Widget>[
               new FlatButton(
@@ -82,10 +87,11 @@ class _HomePageState extends State<HomePage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
-                    Device d = Device('', iduser, '', '', device.tentb,
-                        device.matb, '', '', Constants.mac);
-                    String dJson = jsonEncode(d);
-                    publishMessage('deletethietbi', dJson);
+                    Home h = Home(
+                        '', iduser, home.tennha, home.manha, Constants.mac);
+                    String dJson = jsonEncode(h);
+                    publishMessage('deletenha', dJson);
+                    homeAction = DELETE_NHA;
                   });
                 },
                 // Navigator.of(context).pop(true),
@@ -135,7 +141,7 @@ class _HomePageState extends State<HomePage>
                     borderRadius:
                         BorderRadius.circular(20.0)), //this right here
                 child: Container(
-                  height: 220,
+                  height: 150,
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -435,7 +441,7 @@ class _HomePageState extends State<HomePage>
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
-          childAspectRatio: 2.4,
+          childAspectRatio: 1.3,
           padding: EdgeInsets.all(5),
           children: List.generate(homes.length, (index) {
             return homes[index].tennha != null
@@ -505,20 +511,11 @@ class _HomePageState extends State<HomePage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   // devices[index].leftIcon
-                  Icon(Icons.meeting_room,
+                  Icon(Icons.home,
+                      size: 50,
                       color: homes[index].isEnable
                           ? Colors.white
                           : Color(0xffa3a3a3)),
-                  Text(
-                    '${homes[index].tennha}',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: homes[index].isEnable
-                            ? Colors.white
-                            : Color(0xff302e45),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600),
-                  )
                   // Switch(
                   //     value: rooms[index].isEnable,
                   //     activeColor: Color(0xff457be4),
@@ -532,7 +529,7 @@ class _HomePageState extends State<HomePage>
                 ],
               ),
               SizedBox(
-                height: 5,
+                height: 20,
               ),
               // Text(
               //   '${rooms[index].numberOfDevices} bệnh nhân',
@@ -543,15 +540,29 @@ class _HomePageState extends State<HomePage>
               //       fontSize: 25,
               //       fontWeight: FontWeight.w600),
               // ),
-              // Text(
-              //   'Sốt: ${departments[index].id} Phòng',
-              //   style: TextStyle(
-              //       color:
-              //           departments[index].isEnable ? Colors.white : Colors.red,
-              //       fontWeight: FontWeight.w600,
-              //       // : Color(0xffa3a3a3),
-              //       fontSize: 20),
-              // ),
+              Flexible(
+                  child: Text(
+                '${homes[index].tennha}',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: homes[index].isEnable
+                        ? Colors.white
+                        : Color(0xff302e45),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600),
+              )),
+              SizedBox(height: 5),
+              Flexible(
+                child: Text(
+                  '${homes[index].idnha}',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      // color: homes[index].isEnable ? Colors.white : Colors.red,
+                      // fontWeight: FontWeight.w600,
+                      // : Color(0xffa3a3a3),
+                      fontSize: 16),
+                ),
+              ),
               // Icon(model.allYatch[index].topRightIcon,color:model.allYatch[index].isEnable ? Colors.white : Color(0xffa3a3a3))
             ],
           ),
@@ -562,6 +573,7 @@ class _HomePageState extends State<HomePage>
               new Home('', iduser, '', '${homes[index].manha}', Constants.mac);
           String json = jsonEncode(home);
           publishMessage('loginnha', json);
+          homeAction = LOGIN_NHA;
           // RoomPage(loginResponse: loginResponse, room: rooms[index])));
           // TempPage(devices[index], iduser)));
         },
@@ -569,7 +581,8 @@ class _HomePageState extends State<HomePage>
       onLongPress: () {
         setState(() {
           print('Item OnLongPressed');
-          _deleteDevice(devices[index]);
+          _deleteHome(homes[index]);
+          deletePosition = index;
         });
       },
     );
@@ -586,33 +599,34 @@ class _HomePageState extends State<HomePage>
   Future<void> handle(String message) async {
     Map responseMap = jsonDecode(message);
 
-    if (responseMap['result'] == 'true') {
-      response = DeviceResponse.fromJson(jsonDecode(message));
+    switch (homeAction) {
+      case LOGIN_NHA:
+        {
+          if (responseMap['result'] == 'true') {
+            response = DeviceResponse.fromJson(jsonDecode(message));
 
-      rooms.clear();
-      print('Home page: ${response.id}');
-      rooms = response.id.map((e) => Room.fromJson(e)).toList();
-      print('loginnha: ${rooms.length}');
+            rooms.clear();
+            print('Home page: ${response.id}');
+            rooms = response.id.map((e) => Room.fromJson(e)).toList();
+            print('loginnha: ${rooms.length}');
 
-      await Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) => DepartmentPage(
-              loginResponse: loginResponse, rooms: rooms, home: seletedHome)));
-
-      // setState(() {
-      //   homes.clear();
-      //   homes = response.id.map((e) => Home.fromJson(e)).toList();
-      // });
-
-      // devices.clear();
-      // devices = response.id.map((e) => Device.fromJson(e)).toList();
-
-      // devices.forEach((element) {
-      //   if (element.trangthai == 'BAT') {
-      //     element.isEnable = true;
-      //   } else {
-      //     element.isEnable = false;
-      //   }
-      // });
+            await Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => DepartmentPage(
+                    loginResponse: loginResponse,
+                    rooms: rooms,
+                    home: seletedHome)));
+          }
+          break;
+        }
+      case DELETE_NHA:
+        {
+          if (responseMap['result'] == 'true') {
+            setState(() {
+              homes.removeAt(deletePosition);
+            });
+          }
+          break;
+        }
     }
   }
 

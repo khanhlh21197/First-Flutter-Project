@@ -1,15 +1,14 @@
 class Lenh {
   String lenh;
   String param;
-  String iduser;
+  String matb;
 
-  Lenh(this.lenh, this.param, this.iduser);
+  Lenh(this.lenh, this.param, this.matb);
 
   Lenh.fromJson(Map<String, dynamic> json)
       : lenh = json['lenh'],
         param = json['param'],
-        iduser = json['iduser'];
+        matb = json['matb'];
 
-  Map<String, dynamic> toJson() =>
-      {'lenh': lenh, 'param': param, 'iduser': iduser};
+  Map<String, dynamic> toJson() => {'lenh': lenh, 'param': param, 'matb': matb};
 }

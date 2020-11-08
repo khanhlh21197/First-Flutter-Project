@@ -48,7 +48,7 @@ class _LightController extends State<LightController> {
     super.initState();
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    mqttClientWrapper.prepareMqttClient('S${device.matb}');
+    mqttClientWrapper.prepareMqttClient('SUB${device.matb}');
   }
 
   Widget _backButton() {
@@ -97,8 +97,7 @@ class _LightController extends State<LightController> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${device.tentb}',
-                            style: TextStyle(fontSize: 26))
+                        Text('${device.tentb}', style: TextStyle(fontSize: 26))
                       ],
                     ),
                     SizedBox(height: 10),
@@ -130,18 +129,20 @@ class _LightController extends State<LightController> {
                                 .then((value) => {
                                       showNotification(
                                           flutterLocalNotificationsPlugin,
-                                          'onChanged',
-                                          '$_')
+                                          device.tentb != null
+                                              ? '${device.tentb}'
+                                              : "Ten TB",
+                                          _ ? 'Bật' : 'Tắt')
                                     });
                             device.isEnable = !device.isEnable;
                             if (device.isEnable) {
-                              Lenh lenh = Lenh('bat', '', iduser);
+                              Lenh lenh = Lenh('bat', '', device.matb);
                               mqttClientWrapper.publishMessage(
-                                  'P${device.matb}', jsonEncode(lenh));
+                                  'PUB${device.matb}', jsonEncode(lenh));
                             } else {
-                              Lenh lenh = Lenh('tat', '', iduser);
+                              Lenh lenh = Lenh('tat', '', device.matb);
                               mqttClientWrapper.publishMessage(
-                                  'P${device.matb}', jsonEncode(lenh));
+                                  'PUB${device.matb}', jsonEncode(lenh));
                             }
                           });
                         }),
@@ -173,10 +174,9 @@ class _LightController extends State<LightController> {
                                       '${_dateTimeOn.hour}&${_dateTimeOn.minute}';
                                   if (_timerOnSwitch) {
                                     Lenh lenh =
-                                        Lenh('hengiobat', param, iduser);
+                                        Lenh('hengiobat', param, device.matb);
                                     mqttClientWrapper.publishMessage(
-                                        'P${device.matb}',
-                                        jsonEncode(lenh));
+                                        'PUB${device.matb}', jsonEncode(lenh));
                                   } else {
                                     // Lenh lenh = Lenh('hengiotat', param, iduser);
                                     // mqttClientWrapper.publishMessage(
@@ -215,10 +215,9 @@ class _LightController extends State<LightController> {
                                       '${_dateTimeOff.hour}&${_dateTimeOff.minute}';
                                   if (_timerOffSwitch) {
                                     Lenh lenh =
-                                        Lenh('hengiotat', param, iduser);
+                                        Lenh('hengiotat', param, device.matb);
                                     mqttClientWrapper.publishMessage(
-                                        'P${device.matb}',
-                                        jsonEncode(lenh));
+                                        'PUB${device.matb}', jsonEncode(lenh));
                                   } else {
                                     // Lenh lenh = Lenh('hengiotat', param, iduser);
                                     // mqttClientWrapper.publishMessage(

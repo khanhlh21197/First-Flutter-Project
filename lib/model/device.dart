@@ -56,7 +56,7 @@ class Device {
         'tentb': tentb,
         'matb': matb,
         'loaitb': loaitb,
-        'status': trangthai,
+        'trangthai': trangthai,
         'mac': mac
       };
 }

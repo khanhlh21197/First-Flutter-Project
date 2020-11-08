@@ -20,7 +20,7 @@ final int port = 4567;
 final String login_topic = "loginuser";
 final String home_status = "statusnha";
 final String room_status = "statusphong";
-final String device_status = "statusthietbi";
+final String device_status = "statusphong";
 final String mac = "02:00:00:00:00:00";
 
 const kPrimaryColor = Color(0xFF6F35A5);
