@@ -87,6 +87,7 @@ class _HomePageState extends State<HomePage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
+                    Navigator.of(context).pop(false);
                     Home h = Home(
                         '', iduser, home.tennha, home.manha, Constants.mac);
                     String dJson = jsonEncode(h);
@@ -94,7 +95,6 @@ class _HomePageState extends State<HomePage>
                     homeAction = DELETE_NHA;
                   });
                 },
-                // Navigator.of(context).pop(true),
                 child: new Text('Đồng ý'),
               ),
             ],
@@ -415,7 +415,7 @@ class _HomePageState extends State<HomePage>
           childAspectRatio: 1.3,
           padding: EdgeInsets.all(5),
           children: List.generate(homes.length, (index) {
-            return homes[index].tennha != null
+            return homes.isNotEmpty
                 ? _buildApplianceCard(homes, index)
                 : Container(
                     height: 120,
@@ -482,21 +482,13 @@ class _HomePageState extends State<HomePage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   // devices[index].leftIcon
-                  Icon(Icons.home,
-                      size: 50,
-                      color: homes[index].isEnable
-                          ? Colors.white
-                          : Color(0xffa3a3a3)),
-                  // Switch(
-                  //     value: rooms[index].isEnable,
-                  //     activeColor: Color(0xff457be4),
-                  //     onChanged: (_) {
-                  //       setState(() {
-                  //         rooms[index].isEnable = !rooms[index].isEnable;
-                  //         handleRoom(rooms[index]);
-                  //         // print('${devices[index].isEnable}');
-                  //       });
-                  //     })
+                  Icon(
+                    Icons.home,
+                    size: 55,
+                    // color: homes[index].isEnable
+                    //     ? Colors.white
+                    //     : Color(0xffa3a3a3)
+                  ),
                 ],
               ),
               SizedBox(
@@ -513,19 +505,23 @@ class _HomePageState extends State<HomePage>
               // ),
               Flexible(
                   child: Text(
-                '${homes[index].tennha}',
+                homes[index].tennha != null
+                    ? '${homes[index].tennha}'
+                    : 'Tên nhà',
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                    color: homes[index].isEnable
-                        ? Colors.white
-                        : Color(0xff302e45),
+                    // color: homes[index].isEnable
+                    //     ? Colors.white
+                    //     : Color(0xff302e45),
                     fontSize: 18,
                     fontWeight: FontWeight.w600),
               )),
               SizedBox(height: 5),
               Flexible(
                 child: Text(
-                  '${homes[index].idnha}',
+                  homes[index].manha != null
+                      ? '${homes[index].manha}'
+                      : 'Mã nhà',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       // color: homes[index].isEnable ? Colors.white : Colors.red,
@@ -540,8 +536,8 @@ class _HomePageState extends State<HomePage>
         ),
         onTap: () async {
           seletedHome = homes[index];
-          Home home =
-              new Home('', iduser, '', '${homes[index].manha}', Constants.mac);
+          Home home = new Home('', iduser, '${homes[index].tennha}',
+              '${homes[index].manha}', Constants.mac);
           String json = jsonEncode(home);
           publishMessage('loginnha', json);
           homeAction = LOGIN_NHA;
@@ -701,8 +697,13 @@ class _HomePageState extends State<HomePage>
         builder: (BuildContext context) =>
             EditPage(iduser, homes[index], null, null, typeOfEdit)));
     setState(() {
-      homes.removeAt(index);
-      homes.add(home);
+      // homes.removeAt(index);
+      // homes.add(home);
+      homes[index].manha = home.manha;
+      homes[index].tennha = home.tennha;
+      homes.forEach((element) {
+        element.isEnable = false;
+      });
     });
   }
 }

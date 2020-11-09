@@ -306,25 +306,28 @@ class _LightController extends State<LightController> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0)), //this right here
               child: Container(
-                height: 300.0, // Change as per your requirement
-                width: 300.0, // Change as per your requirement
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: histories.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: histories.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ListTile(
-                          title: Text(
-                              '${histories[index].gio} ${histories[index].phut}'),
-                          subtitle: Text(histories[index].hengio),
-                        );
-                      },
-                    );
-                  },
-                ),
+                // height: 300.0, // Change as per your requirement
+                // width: 300.0, // Change as per your requirement
+                child: histories.isNotEmpty
+                    ? ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: histories.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ListTile(
+                            title: Text(
+                                '${histories[index].gio} ${histories[index].phut}'),
+                            subtitle: Text(histories[index].hengio),
+                          );
+                        },
+                      )
+                    : Container(
+                        margin: const EdgeInsets.all(10),
+                        child: Text(
+                          'Không có lịch sử hẹn giờ',
+                          style: TextStyle(fontSize: 20),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
               ),
             );
           });

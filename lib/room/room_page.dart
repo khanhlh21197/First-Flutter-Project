@@ -49,6 +49,7 @@ class _RoomPageState extends State<RoomPage>
   DeviceResponse response;
   int deviceAction = 2;
   int deletePosition = 0;
+  bool flag = false;
 
   MQTTClientWrapper mqttClientWrapper;
 
@@ -96,7 +97,6 @@ class _RoomPageState extends State<RoomPage>
                     publishMessage('deletethietbi', dJson);
                   });
                 },
-                // Navigator.of(context).pop(true),
                 child: new Text('Đồng ý'),
               ),
             ],
@@ -210,9 +210,7 @@ class _RoomPageState extends State<RoomPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    new Future.delayed(const Duration(seconds: 3), () {
-      getDeviceStatus();
-    });
+    futureGetDeviceStatus();
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
 
@@ -247,6 +245,7 @@ class _RoomPageState extends State<RoomPage>
 
   @override
   void dispose() {
+    flag = false;
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -341,7 +340,7 @@ class _RoomPageState extends State<RoomPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Phòng 1',
+                    room.tenphong != null ? room.tenphong : 'Tên phòng',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -383,18 +382,18 @@ class _RoomPageState extends State<RoomPage>
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      // Text(
-                      //   '${room.numberOfDevices}',
-                      //   style: TextStyle(
-                      //       color: Colors.white,
-                      //       fontSize: 25,
-                      //       fontWeight: FontWeight.w900),
-                      // ),
+                      Text(
+                        '${devices.length}',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w900),
+                      ),
                       SizedBox(
                         width: 5,
                       ),
                       Text(
-                        'bệnh nhân sốt',
+                        'thiết bị',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -403,7 +402,7 @@ class _RoomPageState extends State<RoomPage>
                     ],
                   ),
                   Text(
-                    '5 bệnh nhân',
+                    '5 đèn đang bật',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],
@@ -427,7 +426,7 @@ class _RoomPageState extends State<RoomPage>
           childAspectRatio: 1.5,
           padding: EdgeInsets.all(5),
           children: List.generate(devices.length, (index) {
-            return devices != null
+            return devices.isNotEmpty
                 ? _buildApplianceCard(devices, index)
                 : Container(
                     height: 120,
@@ -537,6 +536,8 @@ class _RoomPageState extends State<RoomPage>
                   //   ),
                   // Visibility(child: MyBlinkingButton(),
                   // visible: (double.parse(${devices[index].nhietdo})) > 37.5 ? true : false,),
+                  Icon(Icons.lightbulb,
+                      color: devices[index].isEnable ? Colors.yellow : null),
                   Switch(
                       value: devices[index].isEnable,
                       activeColor: Color(0xff457be4),
@@ -556,7 +557,7 @@ class _RoomPageState extends State<RoomPage>
                 child: Text(
                   devices[index].tentb != null
                       ? devices[index].tentb
-                      : 'TEN TB',
+                      : 'Tên TB',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       color: devices[index].isEnable
@@ -568,7 +569,9 @@ class _RoomPageState extends State<RoomPage>
               ),
               Flexible(
                 child: Text(
-                  devices[index].matb,
+                  devices[index].matb != null
+                      ? '${devices[index].matb}'
+                      : 'Mã TB',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       color: devices[index].isEnable
@@ -805,8 +808,17 @@ class _RoomPageState extends State<RoomPage>
             EditPage(iduser, home, room, devices[index], typeOfEdit)));
     setState(() {
       print('Edit device: ${device.toString()}');
-      devices.removeAt(index);
-      devices.add(device);
+      // devices.removeAt(index);
+      // devices.add(device);
+      devices[index].matb = device.matb;
+      devices[index].tentb = device.tentb;
+    });
+  }
+
+  void futureGetDeviceStatus() {
+    Future.delayed(const Duration(seconds: 3), () {
+      getDeviceStatus();
+      print('getDeviceStatus()');
     });
   }
 }

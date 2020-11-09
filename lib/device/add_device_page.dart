@@ -141,39 +141,39 @@ class _AddDeviceState extends State<AddDevice> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Text("Chọn loại thiết bị"),
-                    DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_drop_down),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.red, fontSize: 18),
-                      underline: Container(
-                        height: 2,
-                        color: Colors.deepPurpleAccent,
-                      ),
-                      onChanged: (String data) {
-                        setState(() {
-                          dropdownValue = data;
-                          if (dropdownValue == spinnerItems[0]) {}
-                          if (dropdownValue == spinnerItems[1]) {}
-                          if (dropdownValue == spinnerItems[2]) {}
-                          if (dropdownValue == spinnerItems[3]) {}
-                        });
-                      },
-                      items: spinnerItems
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    )
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //   children: <Widget>[
+                //     Text("Chọn loại thiết bị"),
+                //     DropdownButton<String>(
+                //       value: dropdownValue,
+                //       icon: Icon(Icons.arrow_drop_down),
+                //       iconSize: 24,
+                //       elevation: 16,
+                //       style: TextStyle(color: Colors.red, fontSize: 18),
+                //       underline: Container(
+                //         height: 2,
+                //         color: Colors.deepPurpleAccent,
+                //       ),
+                //       onChanged: (String data) {
+                //         setState(() {
+                //           dropdownValue = data;
+                //           if (dropdownValue == spinnerItems[0]) {}
+                //           if (dropdownValue == spinnerItems[1]) {}
+                //           if (dropdownValue == spinnerItems[2]) {}
+                //           if (dropdownValue == spinnerItems[3]) {}
+                //         });
+                //       },
+                //       items: spinnerItems
+                //           .map<DropdownMenuItem<String>>((String value) {
+                //         return DropdownMenuItem<String>(
+                //           value: value,
+                //           child: Text(value),
+                //         );
+                //       }).toList(),
+                //     )
+                //   ],
+                // ),
                 Column(
                   children: <Widget>[_entryField('Tên', _deviceNameController)],
                 ),
@@ -310,6 +310,7 @@ class _AddDeviceState extends State<AddDevice> {
   Future<void> publishMessage(String topic, String message) async {
     if (mqttClientWrapper.connectionState ==
         MqttCurrentConnectionState.CONNECTED) {
+      //utf8.encode(message).toString()
       mqttClientWrapper.publishMessage(topic, message);
     } else {
       await initMqtt();

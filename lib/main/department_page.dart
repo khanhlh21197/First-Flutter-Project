@@ -68,7 +68,6 @@ class _DepartmentPageState extends State<DepartmentPage>
               ),
               new FlatButton(
                 onPressed: () => exit(0),
-                // Navigator.of(context).pop(true),
                 child: new Text('Đồng ý'),
               ),
             ],
@@ -92,13 +91,13 @@ class _DepartmentPageState extends State<DepartmentPage>
               new FlatButton(
                 onPressed: () {
                   setState(() {
+                    Navigator.of(context).pop(false);
                     Room r = Room('', iduser, home.idnha, room.tenphong,
                         room.maphong, Constants.mac);
                     String dJson = jsonEncode(r);
                     publishMessage('deletephong', dJson);
                   });
                 },
-                // Navigator.of(context).pop(true),
                 child: new Text('Đồng ý'),
               ),
             ],
@@ -367,7 +366,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Xin chào Khanh!',
+                    home.tennha != null ? home.tennha : 'Tên nhà',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -453,7 +452,7 @@ class _DepartmentPageState extends State<DepartmentPage>
           childAspectRatio: 2,
           padding: EdgeInsets.all(5),
           children: List.generate(rooms.length, (index) {
-            return rooms != null
+            return rooms.isNotEmpty
                 ? _buildApplianceCard(rooms, index)
                 : Container(
                     height: 120,
@@ -526,7 +525,9 @@ class _DepartmentPageState extends State<DepartmentPage>
                           : Color(0xffa3a3a3)),
                   Flexible(
                       child: Text(
-                    '${rooms[index].tenphong}',
+                    rooms[index].tenphong != null
+                        ? '${rooms[index].tenphong}'
+                        : 'Tên phòng',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         color: rooms[index].isEnable
@@ -560,7 +561,9 @@ class _DepartmentPageState extends State<DepartmentPage>
               //       fontWeight: FontWeight.w600),
               // ),
               Text(
-                '${rooms[index].maphong}',
+                rooms[index].maphong != null
+                    ? '${rooms[index].maphong}'
+                    : 'Mã phòng',
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: rooms[index].isEnable ? Colors.white : Colors.red,
@@ -726,7 +729,9 @@ class _DepartmentPageState extends State<DepartmentPage>
       case DELETE_PHONG:
         {
           if (responseMap['result'] == 'true') {
-            rooms.removeAt(deletePosition);
+            setState(() {
+              rooms.removeAt(deletePosition);
+            });
           }
           break;
         }
@@ -790,8 +795,13 @@ class _DepartmentPageState extends State<DepartmentPage>
         builder: (BuildContext context) =>
             EditPage(iduser, home, rooms[index], null, typeOfEdit)));
     setState(() {
-      rooms.removeAt(index);
-      rooms.add(room);
+      // rooms.removeAt(index);
+      // rooms.add(room);
+      rooms[index].maphong = room.maphong;
+      rooms[index].tenphong = room.tenphong;
+      rooms.forEach((element) {
+        element.isEnable = false;
+      });
     });
   }
 }

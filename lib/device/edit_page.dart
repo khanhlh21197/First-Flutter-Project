@@ -56,7 +56,7 @@ class _EditPageState extends State<EditPage> {
         case Constants.EDIT_HOME:
           {
             home.tennha = _deviceNameController.text;
-            home.manha = _deviceNameController.text;
+            home.manha = _deviceIdController.text;
             print('EditPage: Edit Home Success');
             Navigator.pop(context, home);
             break;
@@ -64,7 +64,7 @@ class _EditPageState extends State<EditPage> {
         case Constants.EDIT_ROOM:
           {
             room.tenphong = _deviceNameController.text;
-            room.maphong = _deviceNameController.text;
+            room.maphong = _deviceIdController.text;
             print('EditPage: Edit Room Success');
             Navigator.pop(context, room);
             break;
@@ -72,7 +72,7 @@ class _EditPageState extends State<EditPage> {
         case Constants.EDIT_DEVICE:
           {
             device.tentb = _deviceNameController.text;
-            device.matb = _deviceNameController.text;
+            device.matb = _deviceIdController.text;
             print('EditPage: Edit Device Success');
             Navigator.pop(context, device);
             break;

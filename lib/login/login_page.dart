@@ -68,9 +68,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   Future<Null> getSharedPrefs() async {
     setState(() async {
       _emailController.text =
-          await sharedPrefsHelper.getStringValuesSF('email');
+      await sharedPrefsHelper.getStringValuesSF('email');
       _passwordController.text =
-          await sharedPrefsHelper.getStringValuesSF('password');
+      await sharedPrefsHelper.getStringValuesSF('password');
       _switchValue = await sharedPrefsHelper.getBoolValuesSF('switchValue');
     });
   }
@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     setState(() {
       if (state == AppLifecycleState.resumed) {
         mqttClientWrapper = MQTTClientWrapper(
-            () => print('Success'), (message) => login(message));
+                () => print('Success'), (message) => login(message));
         mqttClientWrapper.prepareMqttClient(Constants.mac);
       }
     });
@@ -97,6 +97,12 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   Future<void> _tryLogin() async {
     setState(() {
       loading = true;
+    });
+    Future.delayed(const Duration(seconds: 3), () {
+      if (loading) {
+      hideLoadingDialog();
+      _showToast(context);
+    }
     });
     User user = User('02:00:00:00:00:00', _emailController.text,
         _passwordController.text, '', '', '');
@@ -111,8 +117,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   }
 
   Future<void> login(String message) async {
-    Navigator.of(_keyLoader.currentContext, rootNavigator: true)
-        .pop(); //close the dialoge
+    hideLoadingDialog();
     Map responseMap = jsonDecode(message);
 
     if (responseMap['result'] == 'true') {
@@ -137,7 +142,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => HomePage(
+              builder: (context) =>
+                  HomePage(
                     loginResponse: responseMap,
                   )));
     } else {
@@ -224,14 +230,25 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     );
   }
 
+  void showLoadingDialog() {
+    Dialogs.showLoadingDialog(context, _keyLoader);
+  }
+
+  void hideLoadingDialog() {
+    Navigator.of(_keyLoader.currentContext, rootNavigator: true).pop();
+  }
+
   Widget _submitButton() {
     return InkWell(
       onTap: () async {
-        Dialogs.showLoadingDialog(context, _keyLoader);
+        showLoadingDialog();
         await _tryLogin();
       },
       child: Container(
-        width: MediaQuery.of(context).size.width,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
         padding: EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -375,7 +392,10 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       text: TextSpan(
           text: 'T',
           style: GoogleFonts.portLligatSans(
-            textStyle: Theme.of(context).textTheme.display1,
+            textStyle: Theme
+                .of(context)
+                .textTheme
+                .display1,
             fontSize: 30,
             fontWeight: FontWeight.w700,
             color: Color(0xffe46b10),
@@ -404,58 +424,64 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery
+        .of(context)
+        .size
+        .height;
     return
-        // loading
-        //   ? new Container(
-        //       color: Colors.transparent,
-        //       width: MediaQuery.of(context).size.width, //70.0,
-        //       height: MediaQuery.of(context).size.height, //70.0,
-        //       child: new Padding(
-        //           padding: const EdgeInsets.all(5.0),
-        //           child: new Center(child: new CircularProgressIndicator())),
-        //     )
-        //   :
-        Scaffold(
-            body: Container(
-      height: height,
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-              top: -height * .15,
-              right: -MediaQuery.of(context).size.width * .4,
-              child: BezierContainer()),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: height * .2),
-                  _title(),
-                  SizedBox(height: 50),
-                  _emailPasswordWidget(),
-                  // _saveSwitch(),
-                  _submitButton(),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.centerRight,
-                    child: Text('Quên mật khẩu ?',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
+      // loading
+      //   ? new Container(
+      //       color: Colors.transparent,
+      //       width: MediaQuery.of(context).size.width, //70.0,
+      //       height: MediaQuery.of(context).size.height, //70.0,
+      //       child: new Padding(
+      //           padding: const EdgeInsets.all(5.0),
+      //           child: new Center(child: new CircularProgressIndicator())),
+      //     )
+      //   :
+      Scaffold(
+          body: Container(
+            height: height,
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                    top: -height * .15,
+                    right: -MediaQuery
+                        .of(context)
+                        .size
+                        .width * .4,
+                    child: BezierContainer()),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(height: height * .2),
+                        _title(),
+                        SizedBox(height: 50),
+                        _emailPasswordWidget(),
+                        // _saveSwitch(),
+                        _submitButton(),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          alignment: Alignment.centerRight,
+                          child: Text('Quên mật khẩu ?',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500)),
+                        ),
+                        _divider(),
+                        _facebookButton(),
+                        SizedBox(height: height * .055),
+                        _createAccountLabel(),
+                      ],
+                    ),
                   ),
-                  _divider(),
-                  _facebookButton(),
-                  SizedBox(height: height * .055),
-                  _createAccountLabel(),
-                ],
-              ),
+                ),
+                // Positioned(top: 40, left: 0, child: _backButton()),
+              ],
             ),
-          ),
-          // Positioned(top: 40, left: 0, child: _backButton()),
-        ],
-      ),
-    ));
+          ));
   }
 }
