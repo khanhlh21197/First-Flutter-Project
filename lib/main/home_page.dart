@@ -372,7 +372,7 @@ class _HomePageState extends State<HomePage>
                   Row(
                     children: <Widget>[
                       Text(
-                        '${rooms.length}',
+                        '${homes.length}',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 25,
@@ -382,7 +382,7 @@ class _HomePageState extends State<HomePage>
                         width: 5,
                       ),
                       Text(
-                        'phòng có bệnh nhân sốt',
+                        'nhà',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -391,7 +391,7 @@ class _HomePageState extends State<HomePage>
                     ],
                   ),
                   Text(
-                    'Tổng số phòng : ${rooms.length}',
+                    'Tổng số thiết bị : ${rooms.length}',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],

@@ -327,6 +327,12 @@ class _RoomPageState extends State<RoomPage>
   }
 
   Widget _upperContainer() {
+    var activeLight = 0;
+    devices.forEach((element) {
+      if(element.isEnable){
+        activeLight ++;
+      }
+    });
     return Container(
       alignment: Alignment.topLeft,
       padding: EdgeInsets.all(0),
@@ -402,7 +408,7 @@ class _RoomPageState extends State<RoomPage>
                     ],
                   ),
                   Text(
-                    '5 đèn đang bật',
+                    '$activeLight thiết bị đang bật',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],
@@ -652,55 +658,6 @@ class _RoomPageState extends State<RoomPage>
               );
             });
       },
-    );
-  }
-
-  Widget _roomCategories() {
-    return Container(
-      padding: EdgeInsets.only(left: 20, top: 20, bottom: 20),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: <Widget>[
-            Text(
-              'Phòng ngủ',
-              style: TextStyle(
-                  color: Color(0xff4e80f3),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600),
-            ),
-            SizedBox(
-              width: 25,
-            ),
-            _roomLabel(
-              'Phòng khách',
-            ),
-            SizedBox(
-              width: 25,
-            ),
-            _roomLabel(
-              'Phòng học',
-            ),
-            SizedBox(
-              width: 25,
-            ),
-            _roomLabel(
-              'Bếp',
-            ),
-            SizedBox(
-              width: 25,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _roomLabel(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-          color: Color(0xffb2b0b9), fontSize: 18, fontWeight: FontWeight.w600),
     );
   }
 

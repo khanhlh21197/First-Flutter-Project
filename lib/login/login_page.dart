@@ -8,6 +8,7 @@ import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/helper/shared_prefs_helper.dart';
 import 'package:my_first_flutter_project/main/home_page.dart';
 import 'package:my_first_flutter_project/model/user.dart';
+import 'package:my_first_flutter_project/response/device_response.dart';
 import 'package:my_first_flutter_project/singup/signup.dart';
 
 import '../helper/constants.dart' as Constants;
@@ -19,7 +20,6 @@ class LoginPage extends StatefulWidget {
 
   final String title;
   final User registerUser;
-  String iduser;
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -31,6 +31,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   bool loading = false;
   bool _switchValue = false;
   final GlobalKey<State> _keyLoader = new GlobalKey<State>();
+  String iduser;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -68,9 +69,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   Future<Null> getSharedPrefs() async {
     setState(() async {
       _emailController.text =
-      await sharedPrefsHelper.getStringValuesSF('email');
+          await sharedPrefsHelper.getStringValuesSF('email');
       _passwordController.text =
-      await sharedPrefsHelper.getStringValuesSF('password');
+          await sharedPrefsHelper.getStringValuesSF('password');
       _switchValue = await sharedPrefsHelper.getBoolValuesSF('switchValue');
     });
   }
@@ -88,7 +89,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     setState(() {
       if (state == AppLifecycleState.resumed) {
         mqttClientWrapper = MQTTClientWrapper(
-                () => print('Success'), (message) => login(message));
+            () => print('Success'), (message) => login(message));
         mqttClientWrapper.prepareMqttClient(Constants.mac);
       }
     });
@@ -100,9 +101,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     });
     Future.delayed(const Duration(seconds: 3), () {
       if (loading) {
-      hideLoadingDialog();
-      _showToast(context);
-    }
+        hideLoadingDialog();
+        _showToast(context);
+      }
     });
     User user = User('02:00:00:00:00:00', _emailController.text,
         _passwordController.text, '', '', '');
@@ -119,6 +120,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   Future<void> login(String message) async {
     hideLoadingDialog();
     Map responseMap = jsonDecode(message);
+
+    iduser = DeviceResponse.fromJson(responseMap).message;
+    await sharedPrefsHelper.addStringToSF('iduser', iduser);
 
     if (responseMap['result'] == 'true') {
       setState(() {
@@ -142,8 +146,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  HomePage(
+              builder: (context) => HomePage(
                     loginResponse: responseMap,
                   )));
     } else {
@@ -245,10 +248,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         await _tryLogin();
       },
       child: Container(
-        width: MediaQuery
-            .of(context)
-            .size
-            .width,
+        width: MediaQuery.of(context).size.width,
         padding: EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -392,10 +392,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       text: TextSpan(
           text: 'T',
           style: GoogleFonts.portLligatSans(
-            textStyle: Theme
-                .of(context)
-                .textTheme
-                .display1,
+            textStyle: Theme.of(context).textTheme.display1,
             fontSize: 30,
             fontWeight: FontWeight.w700,
             color: Color(0xffe46b10),
@@ -424,64 +421,58 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final height = MediaQuery.of(context).size.height;
     return
-      // loading
-      //   ? new Container(
-      //       color: Colors.transparent,
-      //       width: MediaQuery.of(context).size.width, //70.0,
-      //       height: MediaQuery.of(context).size.height, //70.0,
-      //       child: new Padding(
-      //           padding: const EdgeInsets.all(5.0),
-      //           child: new Center(child: new CircularProgressIndicator())),
-      //     )
-      //   :
-      Scaffold(
-          body: Container(
-            height: height,
-            child: Stack(
-              children: <Widget>[
-                Positioned(
-                    top: -height * .15,
-                    right: -MediaQuery
-                        .of(context)
-                        .size
-                        .width * .4,
-                    child: BezierContainer()),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(height: height * .2),
-                        _title(),
-                        SizedBox(height: 50),
-                        _emailPasswordWidget(),
-                        // _saveSwitch(),
-                        _submitButton(),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          alignment: Alignment.centerRight,
-                          child: Text('Quên mật khẩu ?',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500)),
-                        ),
-                        _divider(),
-                        _facebookButton(),
-                        SizedBox(height: height * .055),
-                        _createAccountLabel(),
-                      ],
-                    ),
+        // loading
+        //   ? new Container(
+        //       color: Colors.transparent,
+        //       width: MediaQuery.of(context).size.width, //70.0,
+        //       height: MediaQuery.of(context).size.height, //70.0,
+        //       child: new Padding(
+        //           padding: const EdgeInsets.all(5.0),
+        //           child: new Center(child: new CircularProgressIndicator())),
+        //     )
+        //   :
+        Scaffold(
+            body: Container(
+      height: height,
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+              top: -height * .15,
+              right: -MediaQuery.of(context).size.width * .4,
+              child: BezierContainer()),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: height * .2),
+                  _title(),
+                  SizedBox(height: 50),
+                  _emailPasswordWidget(),
+                  // _saveSwitch(),
+                  _submitButton(),
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.centerRight,
+                    child: Text('Quên mật khẩu ?',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500)),
                   ),
-                ),
-                // Positioned(top: 40, left: 0, child: _backButton()),
-              ],
+                  _divider(),
+                  _facebookButton(),
+                  SizedBox(height: height * .055),
+                  _createAccountLabel(),
+                ],
+              ),
             ),
-          ));
+          ),
+          // Positioned(top: 40, left: 0, child: _backButton()),
+        ],
+      ),
+    ));
   }
 }

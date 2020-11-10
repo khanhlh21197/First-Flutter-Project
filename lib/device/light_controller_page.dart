@@ -18,6 +18,12 @@ import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
 
 const String custom = 'Custom time';
+
+const String HENGIOBAT = 'hengiobat';
+const String HENGIOTAT = 'hengiotat';
+const String XOALICHSU = 'deletehistorytime';
+const String LAYLICHSU = 'historytime';
+
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -44,6 +50,12 @@ class _LightController extends State<LightController> {
   DateTime _dateTimeOff = DateTime.now();
   bool _timerOnSwitch = false;
   bool _timerOffSwitch = false;
+  String topic;
+  int deletePosition;
+
+  List<History> histories = List();
+  List<History> onHistories = List();
+  List<History> offHistories = List();
 
   _LightController(this.device, this.iduser);
 
@@ -175,8 +187,9 @@ class _LightController extends State<LightController> {
                                   String param =
                                       '${_dateTimeOn.hour}&${_dateTimeOn.minute}';
                                   if (_timerOnSwitch) {
+                                    topic = HENGIOBAT;
                                     Lenh lenh =
-                                        Lenh('hengiobat', param, device.matb);
+                                        Lenh(HENGIOBAT, param, device.matb);
                                     publishMessage(
                                         'PUB${device.matb}', jsonEncode(lenh));
                                   } else {
@@ -216,8 +229,8 @@ class _LightController extends State<LightController> {
                                   String param =
                                       '${_dateTimeOff.hour}&${_dateTimeOff.minute}';
                                   if (_timerOffSwitch) {
-                                    Lenh lenh =
-                                        Lenh('hengiotat', param, device.matb);
+                                    topic = HENGIOTAT;
+                                    Lenh lenh = Lenh(topic, param, device.matb);
                                     publishMessage(
                                         'PUB${device.matb}', jsonEncode(lenh));
                                   } else {
@@ -279,74 +292,153 @@ class _LightController extends State<LightController> {
 
   void handle(String message) async {
     Map responseMap = jsonDecode(message);
-    print('History: $message');
 
     if (responseMap['result'] == 'true') {
-      DeviceResponse response = DeviceResponse.fromJson(responseMap);
-      List<History> histories =
-          response.id.map((e) => History.fromJson(e)).toList();
-      print('History: ${histories.length}');
-      histories.forEach((element) {
-        if (element.hengio == 'hengiobat') {
-          element.hengio = 'Hẹn giờ bật';
-        } else {
-          element.hengio = 'Hẹn giờ tắt';
-        }
-        element.gio = element.time.split('&')[0] + ' giờ';
-        element.phut = element.time.split('&')[1] + ' phút';
-      });
+      switch (topic) {
+        case LAYLICHSU:
+          {
+            DeviceResponse response = DeviceResponse.fromJson(responseMap);
 
-      // Navigator.of(context).push(MaterialPageRoute(
-      //     builder: (BuildContext context) => HistoryPage(histories)));
+            histories.clear();
+            onHistories.clear();
+            offHistories.clear();
 
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0)), //this right here
-              child: Container(
-                // height: 300.0, // Change as per your requirement
-                // width: 300.0, // Change as per your requirement
-                child: histories.isNotEmpty
-                    ? ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: histories.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
-                            title: Text(
-                                '${histories[index].gio} ${histories[index].phut}'),
-                            subtitle: Text(histories[index].hengio),
-                          );
-                        },
-                      )
-                    : Container(
-                        margin: const EdgeInsets.all(10),
-                        child: Text(
-                          'Không có lịch sử hẹn giờ',
-                          style: TextStyle(fontSize: 20),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-              ),
-            );
-          });
+            histories = response.id.map((e) => History.fromJson(e)).toList();
+            print('History: ${histories.length}');
+            histories.forEach((element) {
+              element.index = histories.indexOf(element);
+              if (element.hengio == HENGIOBAT) {
+                element.hengioE = 'Hẹn giờ bật';
+                onHistories.add(element);
+              } else {
+                element.hengioE = 'Hẹn giờ tắt';
+                offHistories.add(element);
+              }
+              element.gio = element.time.split('&')[0] + ' giờ';
+              element.phut = element.time.split('&')[1] + ' phút';
+            });
+
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0)),
+                    //this right here
+                    child: Container(
+                      child: _historyTab(onHistories, offHistories),
+                    ),
+                  );
+                });
+            break;
+          }
+        case XOALICHSU:
+          {
+            setState(() {
+              histories.removeAt(deletePosition);
+            });
+            // onHistories.forEach((element) {
+            //   if (element.matb == histories[deletePosition].matb) {
+            //     setState(() {
+            //       onHistories.remove(element);
+            //     });
+            //   }
+            // });
+            // offHistories.forEach((element) {
+            //   if (element.matb == histories[deletePosition].matb) {
+            //     setState(() {
+            //       offHistories.remove(element);
+            //     });
+            //   }
+            // });
+            break;
+          }
+        case HENGIOBAT:
+          {
+            break;
+          }
+        case HENGIOTAT:
+          {
+            break;
+          }
+      }
     }
   }
 
-  Widget setupAlertDialoadContainer(List<History> histories) {
+  Widget _historyTab(List<History> onHistories, List<History> offHistories) {
+    return MaterialApp(
+        home: DefaultTabController(
+            length: 2,
+            child: Scaffold(
+              appBar: AppBar(
+                bottom: TabBar(
+                  tabs: [
+                    Tab(icon: Icon(Icons.timer)),
+                    Tab(icon: Icon(Icons.timer_off)),
+                  ],
+                ),
+                title: Text('Hẹn giờ'),
+              ),
+              body: TabBarView(
+                children: [
+                  _historyList(onHistories, true),
+                  _historyList(offHistories, false),
+                ],
+              ),
+            )));
+  }
+
+  Widget _historyList(List<History> histories, bool on) {
     return Container(
-      height: 300.0, // Change as per your requirement
-      width: 300.0, // Change as per your requirement
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: histories.length,
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: Text(histories[index].time),
-          );
-        },
-      ),
+      // height: 300.0, // Change as per your requirement
+      // width: 300.0, // Change as per your requirement
+      child: histories.isNotEmpty
+          ? ListView.builder(
+              shrinkWrap: true,
+              itemCount: histories.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title:
+                      Text('${histories[index].gio} ${histories[index].phut}'),
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => new AlertDialog(
+                        title: new Text('Xóa hẹn giờ ?'),
+                        actions: <Widget>[
+                          new FlatButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: new Text('Hủy'),
+                          ),
+                          new FlatButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                              setState(() {
+                                histories[index].matb = device.matb;
+
+                                String dJson = jsonEncode(histories[index]);
+                                topic = XOALICHSU;
+                                publishMessage(XOALICHSU, dJson);
+                                deletePosition = index;
+                              });
+                            },
+                            child: new Text('Đồng ý'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            )
+          : Container(
+              margin: const EdgeInsets.all(10),
+              child: Text(
+                'Không có lịch sử hẹn giờ',
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            ),
     );
   }
 
@@ -375,7 +467,8 @@ class _LightController extends State<LightController> {
   Widget _historyWidget() {
     device.mac = Constants.mac;
     return InkWell(
-        onTap: () => {publishMessage('historytime', jsonEncode(device))},
+        onTap: () =>
+            {topic = LAYLICHSU, publishMessage(topic, jsonEncode(device))},
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           //change here don't //worked

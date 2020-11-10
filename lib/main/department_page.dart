@@ -419,7 +419,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                         width: 5,
                       ),
                       Text(
-                        'phòng có bệnh nhân sốt',
+                        'phòng',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -428,7 +428,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                     ],
                   ),
                   Text(
-                    'Tổng số phòng : ${rooms.length}',
+                    'Tổng số thiết bị : ${rooms.length}',
                     style: TextStyle(fontSize: 18),
                   ),
                 ],
