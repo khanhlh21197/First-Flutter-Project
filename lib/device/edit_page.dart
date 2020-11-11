@@ -201,6 +201,7 @@ class _EditPageState extends State<EditPage> {
             topic = 'updatenha';
             Home h = new Home('', iduser, _deviceNameController.text,
                 _deviceIdController.text, Constants.mac);
+            h.idnha = home.idnha;
             publishMessage(topic, jsonEncode(h));
           } else if (typeOfEdit == Constants.EDIT_DEVICE) {
             Device d = Device(
@@ -224,6 +225,7 @@ class _EditPageState extends State<EditPage> {
                 _deviceNameController.text,
                 _deviceIdController.text,
                 Constants.mac);
+            r.idphong = room.idphong;
             publishMessage(topic, jsonEncode(r));
           }
         } else {
