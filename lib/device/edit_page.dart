@@ -274,6 +274,7 @@ class _EditPageState extends State<EditPage> {
           TextFormField(
               controller: _controller,
               obscureText: isPassword,
+              enabled: _controller == _deviceIdController ? false : true,
               decoration: InputDecoration(
                   border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),

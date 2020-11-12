@@ -39,19 +39,27 @@ class LightController extends StatefulWidget {
   }
 }
 
-class _LightController extends State<LightController> {
+class _LightController extends State<LightController>
+    with SingleTickerProviderStateMixin {
   MQTTClientWrapper mqttClientWrapper;
   final Device device;
   final String iduser;
   TimeOfDay customNotificationTime;
   bool customReminder = false;
+  TabController _tabController;
+  List<Tab> tabs = <Tab>[
+    Tab(icon: Icon(Icons.timer)),
+    Tab(icon: Icon(Icons.timer_off)),
+  ];
 
   DateTime _dateTimeOn = DateTime.now();
   DateTime _dateTimeOff = DateTime.now();
   bool _timerOnSwitch = false;
   bool _timerOffSwitch = false;
+  bool onHistory = true;
   String topic;
   int deletePosition;
+  int currentTabIndex;
 
   List<History> histories = List();
   List<History> onHistories = List();
@@ -62,7 +70,20 @@ class _LightController extends State<LightController> {
   @override
   void initState() {
     super.initState();
+    _tabController = new TabController(length: tabs.length, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        currentTabIndex = _tabController.index;
+        print('Current Tab Index: $currentTabIndex');
+      });
+    });
     initMqtt();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Widget _backButton() {
@@ -334,9 +355,17 @@ class _LightController extends State<LightController> {
           }
         case XOALICHSU:
           {
-            setState(() {
-              histories.removeAt(deletePosition);
-            });
+            if (currentTabIndex == 0) {
+              print('Delete Position: $deletePosition');
+              print('onHistories ${onHistories.length}');
+              setState(() {
+                onHistories.removeAt(deletePosition);
+              });
+              print('onHistories removed! ${onHistories.length}');
+            } else {
+              offHistories.removeAt(deletePosition);
+              print('offHistories removed!');
+            }
             // onHistories.forEach((element) {
             //   if (element.matb == histories[deletePosition].matb) {
             //     setState(() {
@@ -367,25 +396,22 @@ class _LightController extends State<LightController> {
 
   Widget _historyTab(List<History> onHistories, List<History> offHistories) {
     return MaterialApp(
-        home: DefaultTabController(
-            length: 2,
-            child: Scaffold(
-              appBar: AppBar(
-                bottom: TabBar(
-                  tabs: [
-                    Tab(icon: Icon(Icons.timer)),
-                    Tab(icon: Icon(Icons.timer_off)),
-                  ],
-                ),
-                title: Text('Hẹn giờ'),
-              ),
-              body: TabBarView(
-                children: [
-                  _historyList(onHistories, true),
-                  _historyList(offHistories, false),
-                ],
-              ),
-            )));
+        home: Scaffold(
+      appBar: AppBar(
+        bottom: TabBar(
+          tabs: tabs,
+          controller: _tabController,
+        ),
+        title: Text('Hẹn giờ'),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _historyList(onHistories, true),
+          _historyList(offHistories, false),
+        ],
+      ),
+    ));
   }
 
   Widget _historyList(List<History> histories, bool on) {

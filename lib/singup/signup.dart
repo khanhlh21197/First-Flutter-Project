@@ -265,7 +265,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email", _emailController),
+        _entryField("Tên đăng nhập", _emailController),
         _entryField("Mật khẩu", _passwordController, isPassword: true),
         _entryField("Tên", _nameController),
         _entryField("SĐT", _phoneNumberController),

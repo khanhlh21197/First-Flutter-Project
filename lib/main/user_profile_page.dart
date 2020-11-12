@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:my_first_flutter_project/helper/models.dart';
 import 'package:my_first_flutter_project/helper/mqttClientWrapper.dart';
 import 'package:my_first_flutter_project/helper/shared_prefs_helper.dart';
 import 'package:my_first_flutter_project/login/login_page.dart';
@@ -28,7 +29,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     sharedPrefsHelper = SharedPrefsHelper();
-    user = User('', '', '', '', '', '');
+    user = User('', 'Tên đăng nhập', 'Mật khẩu', 'Tên', 'SĐT', 'Địa chỉ');
     initMqtt();
     super.initState();
   }
@@ -73,8 +74,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _editContainer(String title, Color color, Widget icon) {
     return InkWell(
-      onTap: () {
-        showDialog(
+      onTap: () async {
+        await showDialog(
             context: context,
             builder: (BuildContext context) {
               return Dialog(
@@ -86,6 +87,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
               );
             });
+        // String iduser = await sharedPrefsHelper.getStringValuesSF('iduser');
+        // Home h = Home('', iduser, '', '', Constants.mac);
+        // publishMessage('getinfouser', jsonEncode(h));
       },
       child: Column(
         children: <Widget>[
@@ -178,11 +182,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
       padding: const EdgeInsets.all(10),
       child: Column(
         children: <Widget>[
-          _entryField("Email", _emailController),
-          _entryField("Mật khẩu", _passwordController, isPassword: true),
-          _entryField("Tên", _nameController),
-          _entryField("SĐT", _phoneNumberController),
-          _entryField("Địa chỉ", _addressController),
+          _entryField("Tên đăng nhập", _emailController, false),
+          _entryField("Mật khẩu", _passwordController, false, isPassword: true),
+          _entryField("Tên", _nameController, true),
+          _entryField("SĐT", _phoneNumberController, true),
+          _entryField("Địa chỉ", _addressController, true),
           SizedBox(height: 10),
           _button('Cập nhật'),
           _button('Hủy')
@@ -191,7 +195,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  Widget _entryField(String title, TextEditingController _controller,
+  Widget _entryField(
+      String title, TextEditingController _controller, bool isEnable,
       {bool isPassword = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5),
@@ -206,6 +211,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             height: 10,
           ),
           TextFormField(
+              enabled: isEnable,
               validator: (String value) {
                 if (value.isEmpty) {
                   return 'Vui lòng nhập đủ thông tin!';
@@ -322,8 +328,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget _button(String text) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).pop(false);
         _tryEdit();
+        Navigator.of(context).pop(false);
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -351,7 +357,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  handle(String message) {
+  handle(String message) async {
     String json =
         '{"errorCode":"0","message":"","id":"{"_id":"5fa65ea3ab3edc4949a831d8","email":"techno","pass":"techno123","ten":"TECHNO","sdt":"0999999999","nha":"TSQ"}","result":"true"}';
     String json2 =
@@ -368,5 +374,25 @@ class _UserProfilePageState extends State<UserProfilePage> {
     print(user.toString());
   }
 
-  void _tryEdit() {}
+  Future<void> _tryEdit() async {
+    User user = User(
+        Constants.mac,
+        _emailController.text,
+        _passwordController.text,
+        _nameController.text,
+        _phoneNumberController.text,
+        _addressController.text);
+    user.iduser = await sharedPrefsHelper.getStringValuesSF('iduser');
+    publishMessage('updateuser', jsonEncode(user));
+  }
+
+  Future<void> publishMessage(String topic, String message) async {
+    if (mqttClientWrapper.connectionState ==
+        MqttCurrentConnectionState.CONNECTED) {
+      mqttClientWrapper.publishMessage(topic, message);
+    } else {
+      await initMqtt();
+      mqttClientWrapper.publishMessage(topic, message);
+    }
+  }
 }

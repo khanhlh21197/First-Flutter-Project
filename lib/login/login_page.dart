@@ -413,7 +413,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email", _emailController),
+        _entryField("Tên đăng nhập", _emailController),
         _entryField("Mật khẩu", _passwordController, isPassword: true),
       ],
     );
