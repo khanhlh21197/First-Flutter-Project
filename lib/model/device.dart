@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:floor/floor.dart';
 
 @entity
@@ -23,6 +25,22 @@ class Device {
   @ColumnInfo(name: 'nhietdo', nullable: false)
   String nhietdo;
   bool isEnable = false;
+
+  String get tentbDecode {
+    try {
+      String s = tentb;
+      List<int> ints = List();
+      s = s.replaceAll('[', '');
+      s = s.replaceAll(']', '');
+      List<String> strings = s.split(',');
+      for (int i = 0; i < strings.length; i++) {
+        ints.add(int.parse(strings[i]));
+      }
+      return utf8.decode(ints);
+    } catch (e) {
+      return tentb;
+    }
+  }
 
   String get id => _id;
 

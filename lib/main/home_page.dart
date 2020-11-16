@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_first_flutter_project/device/add_device_page.dart';
-import 'package:my_first_flutter_project/device/edit_page.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
-import 'package:my_first_flutter_project/main/user_profile_page.dart';
-import 'package:my_first_flutter_project/model/department.dart';
-import 'package:my_first_flutter_project/model/device.dart';
-import 'package:my_first_flutter_project/model/home.dart';
-import 'package:my_first_flutter_project/model/room.dart';
-import 'package:my_first_flutter_project/response/device_response.dart';
+import 'package:health_care/device/add_device_page.dart';
+import 'package:health_care/device/edit_page.dart';
+import 'package:health_care/helper/models.dart';
+import 'package:health_care/main/user_profile_page.dart';
+import 'package:health_care/model/department.dart';
+import 'package:health_care/model/device.dart';
+import 'package:health_care/model/home.dart';
+import 'package:health_care/model/room.dart';
+import 'package:health_care/response/device_response.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../helper/constants.dart' as Constants;
@@ -206,6 +206,15 @@ class _HomePageState extends State<HomePage>
 
     iduser = response.message;
     homes = response.id.map((e) => Home.fromJson(e)).toList();
+    String s = homes[0].tennha;
+    List<int> ints = List();
+    s = s.replaceAll('[', '');
+    s = s.replaceAll(']', '');
+    List<String> strings = s.split(',');
+    for (int i = 0; i < strings.length; i++) {
+      ints.add(int.parse(strings[i]));
+    }
+    print('UTF8Decode: ${utf8.decode(ints)}');
     // devices = response.id.map((e) => Device.fromJson(e)).toList();
     // devices.forEach((element) {
     //   if (element.trangthai == 'BAT') {
@@ -506,7 +515,7 @@ class _HomePageState extends State<HomePage>
               Flexible(
                   child: Text(
                 homes[index].tennha != null
-                    ? '${homes[index].tennha}'
+                    ? '${homes[index].tennhaDecode}'
                     : 'Tên nhà',
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

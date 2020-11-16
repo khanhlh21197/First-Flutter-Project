@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
-import 'package:my_first_flutter_project/model/device.dart';
-import 'package:my_first_flutter_project/model/home.dart';
-import 'package:my_first_flutter_project/model/room.dart';
+import 'package:health_care/helper/models.dart';
+import 'package:health_care/model/device.dart';
+import 'package:health_care/model/home.dart';
+import 'package:health_care/model/room.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
 import '../helper/constants.dart' as Constants;
@@ -55,15 +55,14 @@ class _EditPageState extends State<EditPage> {
       switch (typeOfEdit) {
         case Constants.EDIT_HOME:
           {
-            home.tennha = _deviceNameController.text;
+            home.tennha = utf8.encode(_deviceNameController.text).toString();
             home.manha = _deviceIdController.text;
-            print('EditPage: Edit Home Success');
             Navigator.pop(context, home);
             break;
           }
         case Constants.EDIT_ROOM:
           {
-            room.tenphong = _deviceNameController.text;
+            room.tenphong = utf8.encode(_deviceNameController.text).toString();
             room.maphong = _deviceIdController.text;
             print('EditPage: Edit Room Success');
             Navigator.pop(context, room);
@@ -197,34 +196,23 @@ class _EditPageState extends State<EditPage> {
     return InkWell(
       onTap: () {
         if (text == 'Cập nhật') {
+          String updateName =
+              utf8.encode(_deviceNameController.text).toString();
           if (typeOfEdit == Constants.EDIT_HOME) {
             topic = 'updatenha';
-            Home h = new Home('', iduser, _deviceNameController.text,
-                _deviceIdController.text, Constants.mac);
+            Home h = new Home('', iduser, updateName, _deviceIdController.text,
+                Constants.mac);
             h.idnha = home.idnha;
             publishMessage(topic, jsonEncode(h));
           } else if (typeOfEdit == Constants.EDIT_DEVICE) {
-            Device d = Device(
-                '',
-                iduser,
-                home.idnha,
-                room.idphong,
-                _deviceNameController.text,
-                _deviceIdController.text,
-                'loaitb',
-                '',
-                Constants.mac);
+            Device d = Device('', iduser, home.idnha, room.idphong, updateName,
+                _deviceIdController.text, 'loaitb', '', Constants.mac);
             String deviceJson = jsonEncode(d);
             publishMessage('updatethietbi', deviceJson);
           } else if (typeOfEdit == Constants.EDIT_ROOM) {
             topic = 'updatephong';
-            Room r = new Room(
-                '',
-                iduser,
-                home.idnha,
-                _deviceNameController.text,
-                _deviceIdController.text,
-                Constants.mac);
+            Room r = new Room('', iduser, home.idnha, updateName,
+                _deviceIdController.text, Constants.mac);
             r.idphong = room.idphong;
             publishMessage(topic, jsonEncode(r));
           }
@@ -305,19 +293,19 @@ class _EditPageState extends State<EditPage> {
       case Constants.EDIT_HOME:
         {
           _deviceIdController.text = home.manha;
-          _deviceNameController.text = home.tennha;
+          _deviceNameController.text = home.tennhaDecode;
           break;
         }
       case Constants.EDIT_ROOM:
         {
           _deviceIdController.text = room.maphong;
-          _deviceNameController.text = room.tenphong;
+          _deviceNameController.text = room.tenphongDecode;
           break;
         }
       case Constants.EDIT_DEVICE:
         {
           _deviceIdController.text = device.matb;
-          _deviceNameController.text = device.tentb;
+          _deviceNameController.text = device.tentbDecode;
           break;
         }
     }

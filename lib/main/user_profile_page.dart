@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
-import 'package:my_first_flutter_project/helper/mqttClientWrapper.dart';
-import 'package:my_first_flutter_project/helper/shared_prefs_helper.dart';
-import 'package:my_first_flutter_project/login/login_page.dart';
-import 'package:my_first_flutter_project/model/home.dart';
-import 'package:my_first_flutter_project/model/user.dart';
-import 'package:my_first_flutter_project/response/user_response.dart';
+import 'package:health_care/helper/models.dart';
+import 'package:health_care/helper/mqttClientWrapper.dart';
+import 'package:health_care/helper/shared_prefs_helper.dart';
+import 'package:health_care/login/login_page.dart';
+import 'package:health_care/model/home.dart';
+import 'package:health_care/model/user.dart';
+import 'package:health_care/response/user_response.dart';
 
 import '../helper/constants.dart' as Constants;
 
@@ -125,7 +125,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: new Text('Bạn muốn xóa nhà ?'),
+                title: new Text('Bạn muốn đăng xuất ?'),
                 // content: new Text('Bạn muốn thoát ứng dụng?'),
                 actions: <Widget>[
                   new FlatButton(
@@ -310,7 +310,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     'Sửa thông tin', Color(0xffffffff), Icon(Icons.edit)),
                 _placeContainer(
                     'Thêm tài khoản', Color(0xffffffff), Icon(Icons.add)),
-                _placeContainer(
+                _logoutContainer(
                     'Đăng xuất',
                     Color(0xffffffff),
                     Icon(

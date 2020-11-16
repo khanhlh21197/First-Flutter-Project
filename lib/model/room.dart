@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:floor/floor.dart';
 
 @entity
@@ -18,6 +20,23 @@ class Room {
   bool isEnable;
   @ColumnInfo(name: 'mac', nullable: false)
   String mac;
+
+  String get tenphongDecode {
+    try {
+      String s = tenphong;
+      List<int> ints = List();
+      s = s.replaceAll('[', '');
+      s = s.replaceAll(']', '');
+      List<String> strings = s.split(',');
+      for (int i = 0; i < strings.length; i++) {
+        ints.add(int.parse(strings[i]));
+      }
+      print('Ten phong: $tenphongDecode');
+      return utf8.decode(ints);
+    } catch (e) {
+      return tenphong;
+    }
+  }
 
   String get id => idphong;
 

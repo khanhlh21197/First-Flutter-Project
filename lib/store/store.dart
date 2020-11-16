@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:my_first_flutter_project/reducers/AppStateReducer.dart';
+import 'package:health_care/reducers/AppStateReducer.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_persist/redux_persist.dart';
 import 'package:path_provider/path_provider.dart';

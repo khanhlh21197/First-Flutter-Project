@@ -19,12 +19,19 @@ class Home {
   bool isEnable = false;
 
   String get tennhaDecode {
-    List<int> ints = List();
-    List<String> strings = tennha.split(',');
-    for (int i = 0; i < strings.length; i++) {
-      ints.add(int.parse(strings[i]));
+    try {
+      String s = tennha;
+      List<int> ints = List();
+      s = s.replaceAll('[', '');
+      s = s.replaceAll(']', '');
+      List<String> strings = s.split(',');
+      for (int i = 0; i < strings.length; i++) {
+        ints.add(int.parse(strings[i]));
+      }
+      return utf8.decode(ints);
+    } catch (e) {
+      return tennha;
     }
-    return utf8.decode(ints);
   }
 
   String get id => idnha;

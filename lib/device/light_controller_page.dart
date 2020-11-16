@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:my_first_flutter_project/actions/actions.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
-import 'package:my_first_flutter_project/helper/reminder/notificationHelper.dart';
-import 'package:my_first_flutter_project/model/device.dart';
-import 'package:my_first_flutter_project/model/history.dart';
-import 'package:my_first_flutter_project/model/lenh.dart';
-import 'package:my_first_flutter_project/response/device_response.dart';
-import 'package:my_first_flutter_project/store/store.dart';
+import 'package:health_care/actions/actions.dart';
+import 'package:health_care/helper/models.dart';
+import 'package:health_care/helper/reminder/notificationHelper.dart';
+import 'package:health_care/model/device.dart';
+import 'package:health_care/model/history.dart';
+import 'package:health_care/model/lenh.dart';
+import 'package:health_care/response/device_response.dart';
+import 'package:health_care/store/store.dart';
 
 import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
@@ -157,6 +157,7 @@ class _LightController extends State<LightController>
                                 device.isEnable ? Colors.amber : Colors.grey)),
                     SizedBox(height: 10),
                     CupertinoSwitch(
+                        key: UniqueKey(),
                         value: device.isEnable,
                         onChanged: (_) {
                           setState(() {
@@ -165,19 +166,19 @@ class _LightController extends State<LightController>
                                       showNotification(
                                           flutterLocalNotificationsPlugin,
                                           device.tentb != null
-                                              ? '${device.tentb}'
+                                              ? '${device.tentbDecode}'
                                               : "Ten TB",
                                           _ ? 'Bật' : 'Tắt')
                                     });
                             device.isEnable = !device.isEnable;
                             if (device.isEnable) {
-                              Lenh lenh = Lenh('bat', '', device.matb);
+                              Lenh lenh = Lenh("bat", '', "${device.matb}");
                               publishMessage(
-                                  'PUB${device.matb}', jsonEncode(lenh));
+                                  'P${device.matb}', jsonEncode(lenh));
                             } else {
-                              Lenh lenh = Lenh('tat', '', device.matb);
+                              Lenh lenh = Lenh("tat", '', "${device.matb}");
                               publishMessage(
-                                  'PUB${device.matb}', jsonEncode(lenh));
+                                  'P${device.matb}', jsonEncode(lenh));
                             }
                           });
                         }),
@@ -313,46 +314,55 @@ class _LightController extends State<LightController>
 
   void handle(String message) async {
     Map responseMap = jsonDecode(message);
+    print('${responseMap['message']}');
 
     if (responseMap['result'] == 'true') {
+      setState(() {
+        if (responseMap['message'] == 'bat') {
+          device.isEnable = true;
+        } else {
+          device.isEnable = false;
+        }
+      });
       switch (topic) {
-        case LAYLICHSU:
-          {
-            DeviceResponse response = DeviceResponse.fromJson(responseMap);
-
-            histories.clear();
-            onHistories.clear();
-            offHistories.clear();
-
-            histories = response.id.map((e) => History.fromJson(e)).toList();
-            print('History: ${histories.length}');
-            histories.forEach((element) {
-              element.index = histories.indexOf(element);
-              if (element.hengio == HENGIOBAT) {
-                element.hengioE = 'Hẹn giờ bật';
-                onHistories.add(element);
-              } else {
-                element.hengioE = 'Hẹn giờ tắt';
-                offHistories.add(element);
-              }
-              element.gio = element.time.split('&')[0] + ' giờ';
-              element.phut = element.time.split('&')[1] + ' phút';
-            });
-
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0)),
-                    //this right here
-                    child: Container(
-                      child: _historyTab(onHistories, offHistories),
-                    ),
-                  );
-                });
-            break;
-          }
+        // case LAYLICHSU:
+        //   {
+        //     DeviceResponse response = DeviceResponse.fromJson(responseMap);
+        //
+        //     histories.clear();
+        //     onHistories.clear();
+        //     offHistories.clear();
+        //
+        //     histories = response.id.map((e) => History.fromJson(e)).toList();
+        //     print('History: ${histories.length}');
+        //     histories.forEach((element) {
+        //       element.index = histories.indexOf(element);
+        //       if (element.hengio == HENGIOBAT) {
+        //         element.hengioE = 'Hẹn giờ bật';
+        //         onHistories.add(element);
+        //       } else {
+        //         element.hengioE = 'Hẹn giờ tắt';
+        //         offHistories.add(element);
+        //       }
+        //       element.gio = element.time.split('&')[0] + ' giờ';
+        //       element.phut = element.time.split('&')[1] + ' phút';
+        //     });
+        //
+        //     showDialog(
+        //         context: context,
+        //         builder: (BuildContext context) {
+        //           return Dialog(
+        //             shape: RoundedRectangleBorder(
+        //                 borderRadius: BorderRadius.circular(20.0)),
+        //             //this right here
+        //             child: Container(
+        //               child: _historyTab(onHistories, offHistories),
+        //             ),
+        //           );
+        //         });
+        //     topic = "";
+        //     break;
+        //   }
         case XOALICHSU:
           {
             if (currentTabIndex == 0) {
@@ -380,14 +390,17 @@ class _LightController extends State<LightController>
             //     });
             //   }
             // });
+            topic = "";
             break;
           }
         case HENGIOBAT:
           {
+            topic = "";
             break;
           }
         case HENGIOTAT:
           {
+            topic = "";
             break;
           }
       }
@@ -535,6 +548,49 @@ class _LightController extends State<LightController>
   Future<void> initMqtt() async {
     mqttClientWrapper =
         MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    await mqttClientWrapper.prepareMqttClient('SUB${device.matb}');
+    await mqttClientWrapper.prepareMqttClient('S${device.matb}');
+    mqttClientWrapper.subscribe(
+        'SUB${device.matb}', (message) => laylichsu(message));
+  }
+
+  void laylichsu(String message) {
+    if (topic != LAYLICHSU) return;
+    Map responseMap = jsonDecode(message);
+    print('${responseMap['message']}');
+
+    DeviceResponse response = DeviceResponse.fromJson(responseMap);
+
+    histories.clear();
+    onHistories.clear();
+    offHistories.clear();
+
+    histories = response.id.map((e) => History.fromJson(e)).toList();
+    print('History: ${histories.length}');
+    histories.forEach((element) {
+      element.index = histories.indexOf(element);
+      if (element.hengio == HENGIOBAT) {
+        element.hengioE = 'Hẹn giờ bật';
+        onHistories.add(element);
+      } else {
+        element.hengioE = 'Hẹn giờ tắt';
+        offHistories.add(element);
+      }
+      element.gio = element.time.split('&')[0] + ' giờ';
+      element.phut = element.time.split('&')[1] + ' phút';
+    });
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)),
+            //this right here
+            child: Container(
+              child: _historyTab(onHistories, offHistories),
+            ),
+          );
+        });
+    topic = "";
   }
 }

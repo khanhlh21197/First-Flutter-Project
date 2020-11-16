@@ -4,16 +4,16 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_first_flutter_project/device/add_device_page.dart';
-import 'package:my_first_flutter_project/device/edit_page.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
-import 'package:my_first_flutter_project/main/user_profile_page.dart';
-import 'package:my_first_flutter_project/model/device.dart';
-import 'package:my_first_flutter_project/model/home.dart';
-import 'package:my_first_flutter_project/model/room.dart';
-import 'package:my_first_flutter_project/response/device_response.dart';
-import 'package:my_first_flutter_project/room/room_page.dart';
-import 'package:my_first_flutter_project/singup/signup.dart';
+import 'package:health_care/device/add_device_page.dart';
+import 'package:health_care/device/edit_page.dart';
+import 'package:health_care/helper/models.dart';
+import 'package:health_care/main/user_profile_page.dart';
+import 'package:health_care/model/device.dart';
+import 'package:health_care/model/home.dart';
+import 'package:health_care/model/room.dart';
+import 'package:health_care/response/device_response.dart';
+import 'package:health_care/room/room_page.dart';
+import 'package:health_care/singup/signup.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../helper/constants.dart' as Constants;
@@ -366,7 +366,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    home.tennha != null ? home.tennha : 'Tên nhà',
+                    home.tennha != null ? home.tennhaDecode : 'Tên nhà',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -526,7 +526,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                   Flexible(
                       child: Text(
                     rooms[index].tenphong != null
-                        ? '${rooms[index].tenphong}'
+                        ? '${rooms[index].tenphongDecode}'
                         : 'Tên phòng',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

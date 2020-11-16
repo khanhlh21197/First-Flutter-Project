@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
-import 'package:my_first_flutter_project/model/device.dart';
-import 'package:my_first_flutter_project/model/home.dart';
-import 'package:my_first_flutter_project/model/room.dart';
+import 'package:health_care/helper/models.dart';
+import 'package:health_care/model/device.dart';
+import 'package:health_care/model/home.dart';
+import 'package:health_care/model/room.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 
 import '../helper/constants.dart' as Constants;
@@ -222,27 +222,20 @@ class _AddDeviceState extends State<AddDevice> {
     return InkWell(
       onTap: () {
         if (text == 'Thêm') {
+          String nameAdd = utf8.encode(_deviceNameController.text).toString();
           if (typeOfAdd == Constants.ADD_DEPARTMENT) {
             topic = 'registernha';
-            home = new Home('', iduser, _deviceNameController.text,
-                _deviceIdController.text, Constants.mac);
+            home = new Home(
+                '', iduser, nameAdd, _deviceIdController.text, Constants.mac);
             publishMessage(topic, jsonEncode(home));
           } else if (typeOfAdd == Constants.ADD_DEVICE) {
-            device = Device(
-                '',
-                iduser,
-                idnha,
-                idphong,
-                _deviceNameController.text,
-                _deviceIdController.text,
-                'loaitb',
-                '',
-                Constants.mac);
+            device = Device('', iduser, idnha, idphong, nameAdd,
+                _deviceIdController.text, 'loaitb', '', Constants.mac);
             String deviceJson = jsonEncode(device);
             publishMessage('registerthietbi', deviceJson);
           } else if (typeOfAdd == Constants.ADD_ROOM) {
             topic = 'registerphong';
-            room = new Room('', iduser, idnha, _deviceNameController.text,
+            room = new Room('', iduser, idnha, nameAdd,
                 _deviceIdController.text, Constants.mac);
             publishMessage(topic, jsonEncode(room));
           }

@@ -1,19 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:my_first_flutter_project/device/add_device_page.dart';
-import 'package:my_first_flutter_project/device/edit_page.dart';
-import 'package:my_first_flutter_project/device/light_controller_page.dart';
-import 'package:my_first_flutter_project/helper/models.dart';
-import 'package:my_first_flutter_project/main/user_profile_page.dart';
-import 'package:my_first_flutter_project/model/device.dart';
-import 'package:my_first_flutter_project/model/home.dart';
-import 'package:my_first_flutter_project/model/lenh.dart';
-import 'package:my_first_flutter_project/model/room.dart';
-import 'package:my_first_flutter_project/response/device_response.dart';
+import 'package:health_care/device/add_device_page.dart';
+import 'package:health_care/device/edit_page.dart';
+import 'package:health_care/device/light_controller_page.dart';
+import 'package:health_care/helper/models.dart';
+import 'package:health_care/main/user_profile_page.dart';
+import 'package:health_care/model/device.dart';
+import 'package:health_care/model/home.dart';
+import 'package:health_care/model/lenh.dart';
+import 'package:health_care/model/room.dart';
+import 'package:health_care/response/device_response.dart';
 
 import '../helper/constants.dart' as Constants;
 import '../helper/mqttClientWrapper.dart';
@@ -50,6 +51,7 @@ class _RoomPageState extends State<RoomPage>
   int deviceAction = 2;
   int deletePosition = 0;
   bool flag = false;
+  Timer _timer;
 
   MQTTClientWrapper mqttClientWrapper;
 
@@ -216,7 +218,7 @@ class _RoomPageState extends State<RoomPage>
 
     // devices = response.id.map((e) => Device.fromJson(e)).toList();
     devices.forEach((element) {
-      if (element.trangthai == '1') {
+      if (element.trangthai == 'bat') {
         element.isEnable = true;
         element.nhietdo = '37';
       } else {
@@ -247,6 +249,7 @@ class _RoomPageState extends State<RoomPage>
   void dispose() {
     flag = false;
     WidgetsBinding.instance.removeObserver(this);
+    _timer.cancel();
     super.dispose();
   }
 
@@ -329,8 +332,8 @@ class _RoomPageState extends State<RoomPage>
   Widget _upperContainer() {
     var activeLight = 0;
     devices.forEach((element) {
-      if(element.isEnable){
-        activeLight ++;
+      if (element.isEnable) {
+        activeLight++;
       }
     });
     return Container(
@@ -346,7 +349,7 @@ class _RoomPageState extends State<RoomPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    room.tenphong != null ? room.tenphong : 'Tên phòng',
+                    room.tenphong != null ? room.tenphongDecode : 'Tên phòng',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -596,7 +599,10 @@ class _RoomPageState extends State<RoomPage>
           await Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
                   LightController(devices[index], iduser)));
-          getDeviceStatus();
+          // _timer = new Timer(const Duration(milliseconds: 1000), () {
+          //   getDeviceStatus();
+          //   print('getDeviceStatus()');
+          // });
         },
       ),
       onLongPress: () {
@@ -676,7 +682,7 @@ class _RoomPageState extends State<RoomPage>
               devices = response.id.map((e) => Device.fromJson(e)).toList();
 
               devices.forEach((element) {
-                if (element.trangthai == '1') {
+                if (element.trangthai == 'bat') {
                   element.isEnable = true;
                   element.nhietdo = '38';
                 } else {
@@ -687,6 +693,7 @@ class _RoomPageState extends State<RoomPage>
               });
             });
             print('Length of devices: ${devices.length}');
+            deviceAction = 2;
             break;
           }
         case DELETE_DEVICE:
@@ -695,6 +702,7 @@ class _RoomPageState extends State<RoomPage>
               devices.removeAt(deletePosition);
               print('Delete Device: True');
             });
+            deviceAction = 2;
             break;
           }
       }
@@ -714,11 +722,11 @@ class _RoomPageState extends State<RoomPage>
   Future<void> handleDevice(Device device) async {
     Lenh lenh;
     if (device.isEnable) {
-      lenh = Lenh('bat', '', iduser);
+      lenh = Lenh("bat", '', "${device.matb}");
     } else {
-      lenh = Lenh('tat', '', iduser);
+      lenh = Lenh("tat", '', "${device.matb}");
     }
-    publishMessage('P${device.matb}', lenh.toJson().toString());
+    publishMessage('P${device.matb}', jsonEncode(lenh));
   }
 
   Future<void> publishMessage(String topic, String message) async {
@@ -773,10 +781,14 @@ class _RoomPageState extends State<RoomPage>
   }
 
   void futureGetDeviceStatus() {
-    Future.delayed(const Duration(seconds: 3), () {
+    _timer = new Timer.periodic(const Duration(seconds: 3), (timer) {
       getDeviceStatus();
       print('getDeviceStatus()');
     });
+    // Future.delayed(const Duration(seconds: 3), () {
+    //   getDeviceStatus();
+    //   print('getDeviceStatus()');
+    // });
   }
 }
 

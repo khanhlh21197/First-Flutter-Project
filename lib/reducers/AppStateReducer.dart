@@ -1,8 +1,8 @@
 
-import 'package:my_first_flutter_project/actions/actions.dart';
-import 'package:my_first_flutter_project/store/AppState.dart';
-import 'package:my_first_flutter_project/store/Reminder.dart';
-import 'package:my_first_flutter_project/store/RemindersState.dart';
+import 'package:health_care/actions/actions.dart';
+import 'package:health_care/store/AppState.dart';
+import 'package:health_care/store/Reminder.dart';
+import 'package:health_care/store/RemindersState.dart';
 import 'package:redux/redux.dart';
 
 AppState appReducer(AppState state, dynamic action) => AppState(

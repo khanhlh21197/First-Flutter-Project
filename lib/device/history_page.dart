@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_first_flutter_project/model/history.dart';
+import 'package:health_care/model/history.dart';
 
 class HistoryPage extends StatefulWidget {
   final List<History> histories;

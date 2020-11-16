@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:my_first_flutter_project/login/login_page.dart';
-import 'package:my_first_flutter_project/singup/signup.dart';
+import 'package:health_care/login/login_page.dart';
+import 'package:health_care/singup/signup.dart';
 
 class WelcomePage extends StatefulWidget {
   WelcomePage({Key key, this.title}) : super(key: key);

@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:my_first_flutter_project/model/device.dart';
+import 'package:health_care/model/device.dart';
 
 @dao
 abstract class DeviceDao {
