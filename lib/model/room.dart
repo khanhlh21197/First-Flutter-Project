@@ -16,8 +16,6 @@ class Room {
   String tenphong;
   @ColumnInfo(name: 'maphong', nullable: false)
   String maphong;
-  @ColumnInfo(name: 'isEnable', nullable: false)
-  bool isEnable;
   @ColumnInfo(name: 'mac', nullable: false)
   String mac;
 

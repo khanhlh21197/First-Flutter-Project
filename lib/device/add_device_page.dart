@@ -222,7 +222,11 @@ class _AddDeviceState extends State<AddDevice> {
     return InkWell(
       onTap: () {
         if (text == 'Thêm') {
-          String nameAdd = utf8.encode(_deviceNameController.text).toString();
+          String nameAdd = utf8
+              .encode(_deviceNameController.text)
+              .toString()
+              .replaceAll('[', '')
+              .replaceAll(']', '');
           if (typeOfAdd == Constants.ADD_DEPARTMENT) {
             topic = 'registernha';
             home = new Home(
@@ -240,7 +244,7 @@ class _AddDeviceState extends State<AddDevice> {
             publishMessage(topic, jsonEncode(room));
           }
         } else {
-          Navigator.pop(context);
+          Navigator.pop(context, false);
         }
       },
       child: Container(

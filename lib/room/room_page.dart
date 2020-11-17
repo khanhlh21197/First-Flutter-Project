@@ -565,7 +565,7 @@ class _RoomPageState extends State<RoomPage>
               Flexible(
                 child: Text(
                   devices[index].tentb != null
-                      ? devices[index].tentb
+                      ? devices[index].tentbDecode
                       : 'Tên TB',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

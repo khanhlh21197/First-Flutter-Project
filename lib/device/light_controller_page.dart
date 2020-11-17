@@ -132,7 +132,7 @@ class _LightController extends State<LightController>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${device.tentb}', style: TextStyle(fontSize: 26))
+                        Text('${device.tentbDecode}', style: TextStyle(fontSize: 26))
                       ],
                     ),
                     SizedBox(height: 10),

@@ -480,9 +480,7 @@ class _HomePageState extends State<HomePage>
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: homes[index].isEnable
-                      ? [Color(0xff669df4), Color(0xff4e80f3)]
-                      : [Colors.white, Colors.white]),
+                  colors: [Colors.white, Colors.white]),
               borderRadius: BorderRadius.circular(20)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -683,7 +681,9 @@ class _HomePageState extends State<HomePage>
         builder: (BuildContext context) =>
             AddDevice(iduser, '', '', typeOfAdd)));
     setState(() {
-      homes.add(home);
+      if(home != null){
+        homes.add(home);
+      }
     });
   }
 
@@ -710,9 +710,6 @@ class _HomePageState extends State<HomePage>
       // homes.add(home);
       homes[index].manha = home.manha;
       homes[index].tennha = home.tennha;
-      homes.forEach((element) {
-        element.isEnable = false;
-      });
     });
   }
 }

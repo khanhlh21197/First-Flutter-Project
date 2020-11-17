@@ -16,7 +16,6 @@ class Home {
   String mac;
   @ColumnInfo(name: 'idnha', nullable: false)
   String idnha;
-  bool isEnable = false;
 
   String get tennhaDecode {
     try {

@@ -238,11 +238,6 @@ class _DepartmentPageState extends State<DepartmentPage>
     // rooms = response.id.map((e) => Room.fromJson(e)).toList();
     // print('Department Page: ${response.id}');
     // print('Department Page: ${rooms.length}');
-    rooms.forEach((element) {
-      element.isEnable = false;
-      print('Department Page: ${element.tenphong}');
-      print('Department Page: ${element.maphong}');
-    });
     // devices = response.id.map((e) => Device.fromJson(e)).toList();
     // devices.forEach((element) {
     //   if (element.trangthai == 'BAT') {
@@ -508,9 +503,7 @@ class _DepartmentPageState extends State<DepartmentPage>
               gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: rooms[index].isEnable
-                      ? [Color(0xff669df4), Color(0xff4e80f3)]
-                      : [Colors.white, Colors.white]),
+                  colors: [Colors.white, Colors.white]),
               borderRadius: BorderRadius.circular(20)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,10 +512,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   // devices[index].leftIcon
-                  Icon(Icons.meeting_room,
-                      color: rooms[index].isEnable
-                          ? Colors.white
-                          : Color(0xffa3a3a3)),
+                  Icon(Icons.meeting_room, color: Color(0xffa3a3a3)),
                   Flexible(
                       child: Text(
                     rooms[index].tenphong != null
@@ -530,9 +520,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                         : 'Tên phòng',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                        color: rooms[index].isEnable
-                            ? Colors.white
-                            : Color(0xff302e45),
+                        color: Color(0xff302e45),
                         fontSize: 18,
                         fontWeight: FontWeight.w600),
                   ))
@@ -566,7 +554,7 @@ class _DepartmentPageState extends State<DepartmentPage>
                     : 'Mã phòng',
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                    color: rooms[index].isEnable ? Colors.white : Colors.red,
+                    color: Colors.red,
                     fontWeight: FontWeight.w600,
                     // : Color(0xffa3a3a3),
                     fontSize: 20),
@@ -764,9 +752,6 @@ class _DepartmentPageState extends State<DepartmentPage>
             AddDevice(iduser, home.id, '', typeOfAdd)));
     setState(() {
       rooms.add(room);
-      rooms.forEach((element) {
-        element.isEnable = false;
-      });
     });
   }
 
@@ -799,9 +784,6 @@ class _DepartmentPageState extends State<DepartmentPage>
       // rooms.add(room);
       rooms[index].maphong = room.maphong;
       rooms[index].tenphong = room.tenphong;
-      rooms.forEach((element) {
-        element.isEnable = false;
-      });
     });
   }
 }
