@@ -38,7 +38,7 @@ class DepartmentPage extends StatefulWidget {
 }
 
 class _DepartmentPageState extends State<DepartmentPage>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with SingleTickerProviderStateMixin {
   _DepartmentPageState(this.loginResponse, this.rooms, this.home);
 
   final Map loginResponse;
@@ -232,7 +232,6 @@ class _DepartmentPageState extends State<DepartmentPage>
     super.initState();
     initMqtt();
     initOneSignal(Constants.one_signal_app_id);
-    WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
     // rooms = response.id.map((e) => Room.fromJson(e)).toList();
@@ -261,17 +260,7 @@ class _DepartmentPageState extends State<DepartmentPage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('HomePageLifeCycleState : $state');
-    if (state == AppLifecycleState.resumed) {
-      print('HomePageLifeCycleState : $state');
-      initMqtt();
-    }
   }
 
   @override
@@ -444,7 +433,7 @@ class _DepartmentPageState extends State<DepartmentPage>
           // mainAxisSpacing: 10,
           // crossAxisSpacing: 10,
           crossAxisCount: 2,
-          childAspectRatio: 2,
+          childAspectRatio: 1.5,
           padding: EdgeInsets.all(5),
           children: List.generate(rooms.length, (index) {
             return rooms.isNotEmpty
@@ -513,41 +502,88 @@ class _DepartmentPageState extends State<DepartmentPage>
                 children: <Widget>[
                   // devices[index].leftIcon
                   Icon(Icons.meeting_room, color: Color(0xffa3a3a3)),
-                  Flexible(
-                      child: Text(
-                    rooms[index].tenphong != null
-                        ? '${rooms[index].tenphongDecode}'
-                        : 'Tên phòng',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: Color(0xff302e45),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600),
-                  ))
-                  // Switch(
-                  //     value: rooms[index].isEnable,
-                  //     activeColor: Color(0xff457be4),
-                  //     onChanged: (_) {
-                  //       setState(() {
-                  //         rooms[index].isEnable = !rooms[index].isEnable;
-                  //         handleRoom(rooms[index]);
-                  //         // print('${devices[index].isEnable}');
-                  //       });
-                  //     })
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              //this right here
+                              child: Container(
+                                height: 160,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Vui lòng chọn',
+                                      ),
+                                      SizedBox(height: 15),
+                                      SizedBox(
+                                        width: 320.0,
+                                        child: RaisedButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(this);
+                                            _navigateEditPage(
+                                                Constants.EDIT_ROOM, index);
+                                          },
+                                          child: Text(
+                                            "Sửa thông tin",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          color: const Color(0xFF1BC0C5),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 320.0,
+                                        child: RaisedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              print('Item OnLongPressed');
+                                              Navigator.of(context).pop(false);
+                                              _deleteRoom(rooms[index]);
+                                              deletePosition = index;
+                                            });
+                                          },
+                                          child: Text(
+                                            "Xóa",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          color: const Color(0xFF1BC0C5),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                    },
+                  ),
                 ],
               ),
               SizedBox(
                 height: 15,
               ),
-              // Text(
-              //   '${rooms[index].numberOfDevices} bệnh nhân',
-              //   style: TextStyle(
-              //       color: rooms[index].isEnable
-              //           ? Colors.white
-              //           : Color(0xff302e45),
-              //       fontSize: 25,
-              //       fontWeight: FontWeight.w600),
-              // ),
+              Flexible(
+                  child: Text(
+                rooms[index].tenphong != null
+                    ? '${rooms[index].tenphongDecode}'
+                    : 'Tên phòng',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: Color(0xff302e45),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600),
+              )),
               Text(
                 rooms[index].maphong != null
                     ? '${rooms[index].maphong}'
@@ -574,63 +610,7 @@ class _DepartmentPageState extends State<DepartmentPage>
         },
       ),
       onLongPress: () {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0)), //this right here
-                child: Container(
-                  height: 160,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Vui lòng chọn',
-                        ),
-                        SizedBox(height: 15),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
-                              _navigateEditPage(Constants.EDIT_ROOM, index);
-                            },
-                            child: Text(
-                              "Sửa thông tin",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              setState(() {
-                                print('Item OnLongPressed');
-                                Navigator.of(context).pop(false);
-                                _deleteRoom(rooms[index]);
-                                deletePosition = index;
-                              });
-                            },
-                            child: Text(
-                              "Xóa",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            });
+        //onLongPress
       },
     );
   }

@@ -35,7 +35,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with SingleTickerProviderStateMixin {
   _HomePageState(this.loginResponse);
 
   final Map loginResponse;
@@ -201,33 +201,10 @@ class _HomePageState extends State<HomePage>
     super.initState();
     initMqtt();
     initOneSignal(Constants.one_signal_app_id);
-    WidgetsBinding.instance.addObserver(this);
     response = DeviceResponse.fromJson(loginResponse);
 
     iduser = response.message;
     homes = response.id.map((e) => Home.fromJson(e)).toList();
-    String s = homes[0].tennha;
-    List<int> ints = List();
-    s = s.replaceAll('[', '');
-    s = s.replaceAll(']', '');
-    List<String> strings = s.split(',');
-    for (int i = 0; i < strings.length; i++) {
-      ints.add(int.parse(strings[i]));
-    }
-    print('UTF8Decode: ${utf8.decode(ints)}');
-    // devices = response.id.map((e) => Device.fromJson(e)).toList();
-    // devices.forEach((element) {
-    //   if (element.trangthai == 'BAT') {
-    //     element.isEnable = true;
-    //   } else {
-    //     element.isEnable = false;
-    //   }
-    // });
-    // mqttClientWrapper =
-    //     MQTTClientWrapper(() => print('Success'), (message) => handle(message));
-    // mqttClientWrapper.prepareMqttClient(Constants.mac);
-
-    // initMqtt();
   }
 
   Future<void> initMqtt() async {
@@ -238,17 +215,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('HomePageLifeCycleState : $state');
-    if (state == AppLifecycleState.resumed) {
-      print('HomePageLifeCycleState : $state');
-      initMqtt();
-    }
   }
 
   @override
@@ -338,7 +305,7 @@ class _HomePageState extends State<HomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Xin chào Khanh!',
+                    'Xin chào Techno!',
                     style: TextStyle(color: Colors.white, fontSize: 26),
                   ),
                 ],
@@ -496,6 +463,72 @@ class _HomePageState extends State<HomePage>
                     //     ? Colors.white
                     //     : Color(0xffa3a3a3)
                   ),
+                  IconButton(
+                    icon: Icon(Icons.edit, size: 35),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              //this right here
+                              child: Container(
+                                height: 160,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Vui lòng chọn',
+                                      ),
+                                      SizedBox(height: 15),
+                                      SizedBox(
+                                        width: 320.0,
+                                        child: RaisedButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop(this);
+                                            _navigateEditPage(
+                                                Constants.EDIT_HOME, index);
+                                          },
+                                          child: Text(
+                                            "Sửa thông tin",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          color: const Color(0xFF1BC0C5),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 320.0,
+                                        child: RaisedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              print('Item OnLongPressed');
+                                              Navigator.of(context).pop(false);
+                                              _deleteHome(homes[index]);
+                                              deletePosition = index;
+                                            });
+                                          },
+                                          child: Text(
+                                            "Xóa",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          color: const Color(0xFF1BC0C5),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                    },
+                  ),
                 ],
               ),
               SizedBox(
@@ -548,68 +581,10 @@ class _HomePageState extends State<HomePage>
           String json = jsonEncode(home);
           publishMessage('loginnha', json);
           homeAction = LOGIN_NHA;
-          // RoomPage(loginResponse: loginResponse, room: rooms[index])));
-          // TempPage(devices[index], iduser)));
         },
       ),
       onLongPress: () {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0)), //this right here
-                child: Container(
-                  height: 160,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Vui lòng chọn',
-                        ),
-                        SizedBox(height: 15),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(this);
-                              _navigateEditPage(Constants.EDIT_HOME, index);
-                            },
-                            child: Text(
-                              "Sửa thông tin",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 320.0,
-                          child: RaisedButton(
-                            onPressed: () {
-                              setState(() {
-                                print('Item OnLongPressed');
-                                Navigator.of(context).pop(false);
-                                _deleteHome(homes[index]);
-                                deletePosition = index;
-                              });
-                            },
-                            child: Text(
-                              "Xóa",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: const Color(0xFF1BC0C5),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            });
+        //onLongPress
       },
     );
   }
@@ -681,7 +656,7 @@ class _HomePageState extends State<HomePage>
         builder: (BuildContext context) =>
             AddDevice(iduser, '', '', typeOfAdd)));
     setState(() {
-      if(home != null){
+      if (home != null) {
         homes.add(home);
       }
     });

@@ -235,11 +235,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
         Navigator.pop(context);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
+        // padding: EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
+              // padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
               child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
             ),
             // Text('Back',
@@ -267,6 +267,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
+                _backButton(),
                 SizedBox(
                   height: 10,
                 ),
@@ -289,12 +290,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   height: 15,
                 ),
                 _placeContainer(
-                    user.email != null ? 'Email: ${user.email}' : 'Email: ',
-                    Color(0xff526fff),
-                    null),
-                _placeContainer(
                     user.ten != null ? 'Tên: ${user.ten}' : 'Chưa nhập tên',
                     Color(0xff8f48ff),
+                    null),
+                _placeContainer(
+                    user.email != null ? 'Tên ĐN: ${user.email}' : 'Tên ĐN: ',
+                    Color(0xff526fff),
                     null),
                 _placeContainer(
                     user.nha != null

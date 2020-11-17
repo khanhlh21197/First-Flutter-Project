@@ -132,7 +132,8 @@ class _LightController extends State<LightController>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${device.tentbDecode}', style: TextStyle(fontSize: 26))
+                        Text('${device.tentbDecode}',
+                            style: TextStyle(fontSize: 26))
                       ],
                     ),
                     SizedBox(height: 10),
@@ -323,6 +324,12 @@ class _LightController extends State<LightController>
         } else {
           device.isEnable = false;
         }
+        initNotifications(flutterLocalNotificationsPlugin).then((value) => {
+              showNotification(
+                  flutterLocalNotificationsPlugin,
+                  device.tentb != null ? '${device.tentbDecode}' : "Ten TB",
+                  device.isEnable ? 'Bật' : 'Tắt')
+            });
       });
       switch (topic) {
         // case LAYLICHSU:
@@ -556,7 +563,7 @@ class _LightController extends State<LightController>
   void laylichsu(String message) {
     if (topic != LAYLICHSU) return;
     Map responseMap = jsonDecode(message);
-    print('${responseMap['message']}');
+    print('Lichsu: ${responseMap['message']}');
 
     DeviceResponse response = DeviceResponse.fromJson(responseMap);
 

@@ -39,7 +39,7 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with SingleTickerProviderStateMixin {
   _RoomPageState(this.loginResponse, this.devices, this.room, this.home);
 
   final Map loginResponse;
@@ -211,7 +211,6 @@ class _RoomPageState extends State<RoomPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     futureGetDeviceStatus();
     response = DeviceResponse.fromJson(loginResponse);
     iduser = response.message;
@@ -248,18 +247,8 @@ class _RoomPageState extends State<RoomPage>
   @override
   void dispose() {
     flag = false;
-    WidgetsBinding.instance.removeObserver(this);
     _timer.cancel();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      print('RoomPageLifeCycleState : $state');
-      initMqtt();
-      getDeviceStatus();
-    }
   }
 
   @override
@@ -596,9 +585,15 @@ class _RoomPageState extends State<RoomPage>
         onTap: () async {
           print('Index of device: $index');
           print('${devices[index].toString()}');
+          _timer.cancel();
           await Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) =>
                   LightController(devices[index], iduser)));
+          getDeviceStatus();
+          _timer = new Timer.periodic(const Duration(seconds: 3), (timer) {
+            getDeviceStatus();
+            print('getDeviceStatus()');
+          });
           // _timer = new Timer(const Duration(milliseconds: 1000), () {
           //   getDeviceStatus();
           //   print('getDeviceStatus()');
@@ -785,10 +780,6 @@ class _RoomPageState extends State<RoomPage>
       getDeviceStatus();
       print('getDeviceStatus()');
     });
-    // Future.delayed(const Duration(seconds: 3), () {
-    //   getDeviceStatus();
-    //   print('getDeviceStatus()');
-    // });
   }
 }
 

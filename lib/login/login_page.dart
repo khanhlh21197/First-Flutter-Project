@@ -25,7 +25,7 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
+class _LoginPageState extends State<LoginPage> {
   MQTTClientWrapper mqttClientWrapper;
   SharedPrefsHelper sharedPrefsHelper;
   bool loading = false;
@@ -57,7 +57,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     // mqttClientWrapper.prepareMqttClient(Constants.mac);
     sharedPrefsHelper = SharedPrefsHelper();
     getSharedPrefs();
-    WidgetsBinding.instance.addObserver(this);
   }
 
   Future<void> initMqtt() async {
@@ -78,21 +77,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    setState(() {
-      if (state == AppLifecycleState.resumed) {
-        mqttClientWrapper = MQTTClientWrapper(
-            () => print('Success'), (message) => login(message));
-        mqttClientWrapper.prepareMqttClient(Constants.mac);
-      }
-    });
   }
 
   Future<void> _tryLogin() async {
@@ -390,7 +377,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-          text: 'T',
+          text: 'S',
           style: GoogleFonts.portLligatSans(
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 30,
@@ -399,11 +386,11 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
           ),
           children: [
             TextSpan(
-              text: 'ech',
+              text: 'mart',
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'No',
+              text: 'Home',
               style: TextStyle(color: Color(0xffe46b10), fontSize: 30),
             ),
           ]),
